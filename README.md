@@ -100,6 +100,3 @@ Uma aplicação web fullstack para análise de teoria de filas, permitindo a tod
 4. Push para a branch.
 5. Abra um Pull Request.
 
-## Licença
-
-Este projeto é licenciado sob a MIT License.
