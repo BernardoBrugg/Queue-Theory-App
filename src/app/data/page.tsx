@@ -17,6 +17,7 @@ import {
   doc,
   setDoc,
   writeBatch,
+  getDoc,
 } from "firebase/firestore";
 import { toast } from "react-toastify";
 
@@ -249,6 +250,46 @@ export default function Data() {
     }
   };
 
+  const renameQueue = async (oldName: string, newName: string) => {
+    if (oldName === newName) return;
+    if (queues.some(q => q.name === newName)) {
+      toast.error("Já existe uma fila com esse nome.");
+      return;
+    }
+    try {
+      // Update queues collection
+      const queueDoc = queues.find(q => q.name === oldName);
+      if (queueDoc) {
+        await setDoc(doc(db, "queues", newName), { ...queueDoc, name: newName });
+        await deleteDoc(doc(db, "queues", oldName));
+      }
+      // Update activeServices
+      const activeServicesRef = doc(db, "activeServices", oldName);
+      const activeServicesSnap = await getDoc(activeServicesRef);
+      if (activeServicesSnap.exists()) {
+        await setDoc(doc(db, "activeServices", newName), activeServicesSnap.data());
+        await deleteDoc(activeServicesRef);
+      }
+      // Update totals
+      const totalsRef = doc(db, "totals", oldName);
+      const totalsSnap = await getDoc(totalsRef);
+      if (totalsSnap.exists()) {
+        await setDoc(doc(db, "totals", newName), totalsSnap.data());
+        await deleteDoc(totalsRef);
+      }
+      // Update all data records
+      const dataToUpdate = data.filter(d => d.queue === oldName);
+      const batch = writeBatch(db);
+      dataToUpdate.forEach(record => {
+        batch.update(doc(db, "data", record.id), { queue: newName });
+      });
+      await batch.commit();
+      toast.success(`Fila renomeada de "${oldName}" para "${newName}".`);
+    } catch (error) {
+      toast.error("Erro ao renomear fila: " + (error as Error).message);
+    }
+  };
+
   const formatTime = (ms: number) => {
     const seconds = (ms / 1000).toFixed(2);
     return `${seconds}s`;
@@ -347,6 +388,7 @@ export default function Data() {
             data={data}
             onSelectQueue={onSelectQueue}
             onDeleteQueue={deleteQueue}
+            onRenameQueue={renameQueue}
           />
         )}
       </div>
