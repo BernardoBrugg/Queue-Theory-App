@@ -155,20 +155,22 @@ export const ServiceCard = React.memo(function ServiceCard({
           Probabilidades P(n):
         </h4>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-          {service.metrics?.P && service.metrics.P.length > 0
-            ? service.metrics.P.map((p, n) => (
-                <div key={n}>
-                  P({n}): {p != null && isFinite(p) ? p.toFixed(4) : "N/A"}
-                </div>
-              ))
-            : <div key="no-p">No P data available</div>}
+          {service.metrics?.P && service.metrics.P.length > 0 ? (
+            service.metrics.P.map((p, n) => (
+              <div key={n}>
+                P({n}): {p != null && isFinite(p) ? p.toFixed(4) : "N/A"}
+              </div>
+            ))
+          ) : (
+            <div key="no-p">No P data available</div>
+          )}
         </div>
       </div>
       <div className="mt-4">
         <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
           Gráfico de Probabilidades P(n)
         </h4>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={500}>
           <BarChart
             data={
               service.metrics?.P?.map((p, n) => ({
@@ -176,6 +178,7 @@ export const ServiceCard = React.memo(function ServiceCard({
                 p: p ?? 0,
               })) || []
             }
+            margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="n" />
@@ -183,7 +186,7 @@ export const ServiceCard = React.memo(function ServiceCard({
               label={{
                 value: "Probabilidade",
                 angle: -90,
-                position: "insideLeft",
+                position: "left",
               }}
             />
             <Tooltip />
@@ -191,37 +194,46 @@ export const ServiceCard = React.memo(function ServiceCard({
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div>
+      <div className="mt-4">
         <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
           Gráfico Cumulativo
         </h4>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart width={800} height={300} data={cumulativeData}>
+        <ResponsiveContainer width="100%" height={600}>
+          <LineChart
+            width={800}
+            height={300}
+            data={cumulativeData}
+            margin={{ top: 20, right: 150, left: 40, bottom: 100 }}
+          >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="time"
-              label={{ value: "Tempo (s)", position: "insideBottom" }}
+              label={{ value: "Tempo (s)", position: "insideBottom", offset: -5 }}
             />
             <YAxis
               label={{
                 value: "Número de Clientes",
                 angle: -90,
-                position: "insideLeft",
+                position: "left",
               }}
             />
             <Tooltip />
-            <Legend />
+            <Legend
+              layout="horizontal"
+              verticalAlign="bottom"
+              wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
+            />
             <Line
               type="monotone"
               dataKey="arrivals"
               stroke="var(--chart-1)"
-              name="Chegadas Cumulativas"
+              name="Chegadas"
             />
             <Line
               type="monotone"
               dataKey="departures"
               stroke="var(--chart-2)"
-              name="Saídas Cumulativas"
+              name="Saídas"
             />
           </LineChart>
         </ResponsiveContainer>
@@ -230,21 +242,24 @@ export const ServiceCard = React.memo(function ServiceCard({
         <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
           Histograma de Tempos de Serviço
         </h4>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={histogramData}>
+        <ResponsiveContainer width="100%" height={500}>
+          <BarChart
+            data={histogramData}
+            margin={{ top: 20, right: 30, left: 40, bottom: 60 }}
+          >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="bin"
               label={{
                 value: "Tempo de Serviço (s)",
-                position: "insideBottom",
+                position: "bottom",
               }}
             />
             <YAxis
               label={{
                 value: "Frequência",
                 angle: -90,
-                position: "insideLeft",
+                position: "left",
               }}
             />
             <Tooltip />
@@ -256,7 +271,7 @@ export const ServiceCard = React.memo(function ServiceCard({
         <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
           Comparação de Tempos Médios
         </h4>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={500}>
           <BarChart
             data={[
               {
@@ -283,11 +298,12 @@ export const ServiceCard = React.memo(function ServiceCard({
                     : 0,
               },
             ]}
+            margin={{ top: 20, right: 30, left: 40, bottom: 80 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
+            <XAxis dataKey="name" tick={{}} />
             <YAxis
-              label={{ value: "Tempo (s)", angle: -90, position: "insideLeft" }}
+              label={{ value: "Tempo (s)", angle: -90, position: "left" }}
             />
             <Tooltip />
             <Bar dataKey="value" fill="var(--chart-4)" />
@@ -298,7 +314,7 @@ export const ServiceCard = React.memo(function ServiceCard({
         <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
           Gráfico de Linhas: Tempos por Tempo
         </h4>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={600}>
           <LineChart
             data={
               service.serviceTimes?.map((s, i) => ({
@@ -311,34 +327,39 @@ export const ServiceCard = React.memo(function ServiceCard({
                 idleTime: service.metrics?.idleTimes?.[i] ?? 0,
               })) || []
             }
+            margin={{ top: 20, right: 30, left: 40, bottom: 100 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="time"
-              label={{ value: "Tempo (s)", position: "insideBottom" }}
+              label={{ value: "Tempo (s)", position: "insideBottom", offset: -5 }}
             />
             <YAxis
-              label={{ value: "Tempo (s)", angle: -90, position: "insideLeft" }}
+              label={{ value: "Tempo (s)", angle: -90, position: "left" }}
             />
             <Tooltip />
-            <Legend />
+            <Legend
+              layout="horizontal"
+              verticalAlign="bottom"
+              wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
+            />
             <Line
               type="monotone"
               dataKey="serviceTime"
               stroke="var(--chart-1)"
-              name="Tempo de Serviço"
+              name="Serviço"
             />
             <Line
               type="monotone"
               dataKey="waitTime"
               stroke="var(--chart-2)"
-              name="Tempo de Espera"
+              name="Espera"
             />
             <Line
               type="monotone"
               dataKey="idleTime"
               stroke="var(--chart-3)"
-              name="Tempo Ocioso"
+              name="Ocioso"
             />
           </LineChart>
         </ResponsiveContainer>
