@@ -254,8 +254,6 @@ export default function Dashboards() {
         }
         waitingTimes.push((serviceStart - arrivalTime) / 1000);
       }
-      const avgWq =
-        waitingTimes.reduce((a, b) => a + b, 0) / waitingTimes.length;
       const rho = lambda / (numServers * mu);
       // Check if rho >= 1, which means the system is unstable
       if (rho >= 1) {
@@ -268,7 +266,7 @@ export default function Dashboards() {
       }
 
       // New formulas for general birth-death process
-      const lambdaK = (k: number) => lambda; // Constant arrivals
+      const lambdaK = (n: number) => lambda; // Constant arrivals
       const muK = (k: number) => Math.min(k, numServers) * mu; // Service rate up to numServers
 
       const C: number[] = [1]; // C_0 = 1

@@ -43,7 +43,9 @@ export function QueueList({
           <div
             key={queueName}
             className="bg-[var(--bg-secondary)] p-4 rounded-lg shadow-md cursor-pointer hover:bg-[var(--bg-hover)] transition-colors"
-            onClick={() => editingQueue !== queueName && onSelectQueue(queueName)}
+            onClick={() =>
+              editingQueue !== queueName && onSelectQueue(queueName)
+            }
           >
             {editingQueue === queueName ? (
               <input

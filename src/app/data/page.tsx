@@ -252,22 +252,28 @@ export default function Data() {
 
   const renameQueue = async (oldName: string, newName: string) => {
     if (oldName === newName) return;
-    if (queues.some(q => q.name === newName)) {
+    if (queues.some((q) => q.name === newName)) {
       toast.error("Já existe uma fila com esse nome.");
       return;
     }
     try {
       // Update queues collection
-      const queueDoc = queues.find(q => q.name === oldName);
+      const queueDoc = queues.find((q) => q.name === oldName);
       if (queueDoc) {
-        await setDoc(doc(db, "queues", newName), { ...queueDoc, name: newName });
+        await setDoc(doc(db, "queues", newName), {
+          ...queueDoc,
+          name: newName,
+        });
         await deleteDoc(doc(db, "queues", oldName));
       }
       // Update activeServices
       const activeServicesRef = doc(db, "activeServices", oldName);
       const activeServicesSnap = await getDoc(activeServicesRef);
       if (activeServicesSnap.exists()) {
-        await setDoc(doc(db, "activeServices", newName), activeServicesSnap.data());
+        await setDoc(
+          doc(db, "activeServices", newName),
+          activeServicesSnap.data()
+        );
         await deleteDoc(activeServicesRef);
       }
       // Update totals
@@ -278,9 +284,9 @@ export default function Data() {
         await deleteDoc(totalsRef);
       }
       // Update all data records
-      const dataToUpdate = data.filter(d => d.queue === oldName);
+      const dataToUpdate = data.filter((d) => d.queue === oldName);
       const batch = writeBatch(db);
-      dataToUpdate.forEach(record => {
+      dataToUpdate.forEach((record) => {
         batch.update(doc(db, "data", record.id), { queue: newName });
       });
       await batch.commit();
