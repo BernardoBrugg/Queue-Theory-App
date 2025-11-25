@@ -203,12 +203,12 @@ export const ServiceCard = React.memo(function ServiceCard({
             width={800}
             height={300}
             data={cumulativeData}
-            margin={{ top: 20, right: 150, left: 40, bottom: 5 }}
+            margin={{ top: 20, right: 150, left: 40, bottom: 100 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="time"
-              label={{ value: "Tempo (s)", position: "bottom" }}
+              label={{ value: "Tempo (s)", position: "insideBottom", offset: -5 }}
             />
             <YAxis
               label={{
@@ -327,12 +327,12 @@ export const ServiceCard = React.memo(function ServiceCard({
                 idleTime: service.metrics?.idleTimes?.[i] ?? 0,
               })) || []
             }
-            margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
+            margin={{ top: 20, right: 30, left: 40, bottom: 100 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="time"
-              label={{ value: "Tempo (s)", position: "bottom" }}
+              label={{ value: "Tempo (s)", position: "insideBottom", offset: -5 }}
             />
             <YAxis
               label={{ value: "Tempo (s)", angle: -90, position: "left" }}
