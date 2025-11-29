@@ -251,7 +251,7 @@ export function ServicePDF({
                 value: service.metrics.avgServiceTime,
               },
               { name: "Tempo Médio de Espera", value: service.metrics.Wq },
-              { name: "Tempo Médio Ocioso", value: service.metrics.idleTime },
+              { name: "Tempo Ocioso", value: service.metrics.idleTime },
             ]}
           >
             <CartesianGrid strokeDasharray="3 3" />

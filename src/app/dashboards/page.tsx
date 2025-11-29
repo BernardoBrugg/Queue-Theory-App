@@ -152,6 +152,11 @@ export default function Dashboards() {
         .filter((d) => d.queue === selectedServiceQueue && d.type === "service")
         .sort((a, b) => a.element - b.element);
 
+      if (arrivalData.length !== serviceData.length) {
+        toast.error("O número de registros de chegada e atendimento deve ser igual.");
+        return;
+      }
+
       const arrivalElements = new Set(arrivalData.map((d) => d.element));
       const serviceElements = new Set(serviceData.map((d) => d.element));
       const commonElements = new Set(
@@ -470,6 +475,7 @@ export default function Dashboards() {
               calculateQueueMetrics={calculateQueueMetrics}
               arrivalQueues={arrivalQueues}
               serviceQueues={serviceQueues}
+              data={data}
             />
             <MetricsResults
               results={results}

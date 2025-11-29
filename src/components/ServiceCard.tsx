@@ -290,7 +290,7 @@ export const ServiceCard = React.memo(function ServiceCard({
                     : 0,
               },
               {
-                name: "Tempo Médio Ocioso",
+                name: "Tempo Ocioso",
                 value:
                   service.metrics?.idleTime != null &&
                   isFinite(service.metrics.idleTime)

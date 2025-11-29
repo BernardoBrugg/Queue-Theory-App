@@ -14,6 +14,17 @@ interface Queue {
   type: "arrival" | "service";
 }
 
+interface DataRecord {
+  id: string;
+  queue: string;
+  type: "arrival" | "service";
+  timestamp: string;
+  totalTime: number;
+  element: number;
+  arriving: string;
+  exiting: string;
+}
+
 interface QueueSelectorProps {
   selectedArrivalQueue: string;
   setSelectedArrivalQueue: (value: string) => void;
@@ -26,6 +37,7 @@ interface QueueSelectorProps {
   calculateQueueMetrics: () => void;
   arrivalQueues: Queue[];
   serviceQueues: Queue[];
+  data: DataRecord[];
 }
 
 export function QueueSelector({
@@ -40,7 +52,22 @@ export function QueueSelector({
   calculateQueueMetrics,
   arrivalQueues,
   serviceQueues,
+  data,
 }: QueueSelectorProps) {
+  const queueCounts = data.reduce((acc, d) => {
+    const key = `${d.queue}-${d.type}`;
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const getCount = (queueName: string, type: "arrival" | "service") => queueCounts[`${queueName}-${type}`] || 0;
+
+  const selectedArrivalCount = selectedArrivalQueue ? getCount(selectedArrivalQueue, "arrival") : null;
+  const selectedServiceCount = selectedServiceQueue ? getCount(selectedServiceQueue, "service") : null;
+
+  const filteredArrivalQueues = selectedServiceCount ? arrivalQueues.filter(q => getCount(q.name, "arrival") === selectedServiceCount) : arrivalQueues;
+  const filteredServiceQueues = selectedArrivalCount ? serviceQueues.filter(q => getCount(q.name, "service") === selectedArrivalCount) : serviceQueues;
+
   return (
     <Card className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500">
       <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
@@ -59,7 +86,7 @@ export function QueueSelector({
               <SelectValue placeholder="Selecione fila de chegada" />
             </SelectTrigger>
             <SelectContent>
-              {arrivalQueues.map((q) => (
+              {filteredArrivalQueues.map((q) => (
                 <SelectItem key={q.name} value={q.name}>
                   {q.name}
                 </SelectItem>
@@ -79,7 +106,7 @@ export function QueueSelector({
               <SelectValue placeholder="Selecione fila de atendimento" />
             </SelectTrigger>
             <SelectContent>
-              {serviceQueues.map((q) => (
+              {filteredServiceQueues.map((q) => (
                 <SelectItem key={q.name} value={q.name}>
                   {q.name}
                 </SelectItem>
