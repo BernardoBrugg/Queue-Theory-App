@@ -35,51 +35,51 @@ export function DataTable({
   );
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse bg-[var(--element-bg)] rounded-2xl shadow-xl overflow-hidden">
-        <thead className="bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white">
+    <div className="overflow-x-auto bg-[var(--element-bg)] border-2 border-[var(--element-border)] rounded-[var(--border-radius-large)] shadow-lg">
+      <table className="w-full border-collapse">
+        <thead className="bg-[var(--button-bg)]">
           <tr>
-            <th className="px-6 py-4 text-left font-semibold">Tipo</th>
-            <th className="px-6 py-4 text-left font-semibold">
+            <th className="px-6 py-4 text-left font-bold text-[var(--button-text)]">Tipo</th>
+            <th className="px-6 py-4 text-left font-bold text-[var(--button-text)]">
               Carimbo de Data/Hora
             </th>
-            <th className="px-6 py-4 text-left font-semibold">Tempo Total</th>
-            <th className="px-6 py-4 text-left font-semibold">Elemento</th>
-            <th className="px-6 py-4 text-left font-semibold">Chegando</th>
-            <th className="px-6 py-4 text-left font-semibold">Saindo</th>
-            <th className="px-6 py-4 text-left font-semibold">Ações</th>
+            <th className="px-6 py-4 text-left font-bold text-[var(--button-text)]">Tempo Total</th>
+            <th className="px-6 py-4 text-left font-bold text-[var(--button-text)]">Elemento</th>
+            <th className="px-6 py-4 text-left font-bold text-[var(--button-text)]">Chegando</th>
+            <th className="px-6 py-4 text-left font-bold text-[var(--button-text)]">Saindo</th>
+            <th className="px-6 py-4 text-left font-bold text-[var(--button-text)]">Ações</th>
           </tr>
         </thead>
         <tbody>
           {filteredData.map((record, index) => (
             <tr
               key={index}
-              className="hover:bg-[var(--text-secondary)] transition-colors duration-300"
+              className="hover:bg-[var(--accent-light)] transition-colors duration-300 bg-[var(--element-bg)]"
             >
-              <td className="border-t border-[var(--element-border)] px-6 py-4 text-[var(--text-primary)]">
+              <td className="border-t-2 border-[var(--element-border)] px-6 py-4 text-[var(--text-primary)] font-medium">
                 {record.type}
               </td>
-              <td className="border-t border-[var(--element-border)] px-6 py-4 text-[var(--text-primary)]">
+              <td className="border-t-2 border-[var(--element-border)] px-6 py-4 text-[var(--text-primary)] font-medium">
                 {formatDateWithMilliseconds(record.timestamp)}
               </td>
-              <td className="border-t border-[var(--element-border)] px-6 py-4 text-[var(--text-primary)]">
+              <td className="border-t-2 border-[var(--element-border)] px-6 py-4 text-[var(--text-primary)] font-medium">
                 {formatTime(record.totalTime)}
               </td>
-              <td className="border-t border-[var(--element-border)] px-6 py-4 text-[var(--text-primary)]">
+              <td className="border-t-2 border-[var(--element-border)] px-6 py-4 text-[var(--text-primary)] font-medium">
                 {record.element}
               </td>
-              <td className="border-t border-[var(--element-border)] px-6 py-4 text-[var(--text-primary)]">
+              <td className="border-t-2 border-[var(--element-border)] px-6 py-4 text-[var(--text-primary)] font-medium">
                 {formatDateWithMilliseconds(record.arriving)}
               </td>
-              <td className="border-t border-[var(--element-border)] px-6 py-4 text-[var(--text-primary)]">
+              <td className="border-t-2 border-[var(--element-border)] px-6 py-4 text-[var(--text-primary)] font-medium">
                 {record.exiting
                   ? formatDateWithMilliseconds(record.exiting)
                   : "--"}
               </td>
-              <td className="border-t border-[var(--element-border)] px-6 py-4">
+              <td className="border-t-2 border-[var(--element-border)] px-6 py-4">
                 <button
                   onClick={() => deleteRecord(record)}
-                  className="text-[var(--accent)] hover:text-[var(--accent)] transition-colors duration-300 p-2 rounded-full hover:bg-[var(--text-muted)]"
+                  className="text-[var(--button-danger)] hover:text-[var(--button-danger-hover)] transition-colors duration-300 p-2 rounded-lg hover:bg-[var(--element-bg)] border border-[var(--element-border)]"
                 >
                   <svg
                     className="w-5 h-5"

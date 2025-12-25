@@ -28,14 +28,15 @@ export function AddQueue({
   addQueue,
 }: AddQueueProps) {
   return (
-    <Card className="p-6 mb-4">
-      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-4">
+    <div className="bg-[var(--element-bg)] border-2 border-[var(--element-border)] rounded-[var(--border-radius-large)] p-6 mb-6 shadow-lg">
+      <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">Adicionar Nova Fila</h3>
+      <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <input
           type="text"
           value={newQueue}
           onChange={(e) => setNewQueue(e.target.value)}
           placeholder="Nome da nova fila"
-          className="flex-1 px-4 py-3 border border-[var(--element-border)] rounded-xl bg-[var(--element-bg)] text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-all duration-300"
+          className="flex-1 bg-[var(--input-bg)] text-[var(--input-text)] border-2 border-[var(--input-border)] rounded-[var(--border-radius)] px-4 py-3 focus:outline-none focus:border-[var(--input-focus)] focus:ring-2 focus:ring-[var(--input-focus)]/20 transition-all placeholder:text-[var(--text-muted)]"
         />
         <Select
           value={newQueueType}
@@ -43,12 +44,12 @@ export function AddQueue({
             setNewQueueType(value as "arrival" | "service")
           }
         >
-          <SelectTrigger className="px-4 py-3 rounded-xl focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-all duration-300">
+          <SelectTrigger className="bg-[var(--input-bg)] text-[var(--input-text)] border-2 border-[var(--input-border)] rounded-[var(--border-radius)] px-4 py-3">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="arrival">Chegada</SelectItem>
-            <SelectItem value="service">Atendimento</SelectItem>
+          <SelectContent className="bg-[var(--element-bg)] border-2 border-[var(--element-border)]">
+            <SelectItem value="arrival" className="text-[var(--text-primary)]">Chegada</SelectItem>
+            <SelectItem value="service" className="text-[var(--text-primary)]">Atendimento</SelectItem>
           </SelectContent>
         </Select>
         {newQueueType === "service" && (
@@ -58,10 +59,10 @@ export function AddQueue({
             value={numAttendants}
             onChange={(e) => setNumAttendants(parseInt(e.target.value) || 1)}
             placeholder="Nº de Atendentes"
-            className="px-4 py-3 border border-[var(--element-border)] rounded-xl bg-[var(--element-bg)] text-[var(--text-primary)] focus:ring-2 focus:ring-[var(--accent)] focus:border-transparent transition-all duration-300 w-32"
+            className="bg-[var(--input-bg)] text-[var(--input-text)] border-2 border-[var(--input-border)] rounded-[var(--border-radius)] px-4 py-3 w-32 focus:outline-none focus:border-[var(--input-focus)] focus:ring-2 focus:ring-[var(--input-focus)]/20 transition-all placeholder:text-[var(--text-muted)]"
           />
         )}
-        <Button onClick={addQueue} className="px-6 py-3">
+        <button onClick={addQueue} className="btn-primary whitespace-nowrap">
           <svg
             className="w-5 h-5 inline mr-2"
             fill="none"
@@ -76,8 +77,8 @@ export function AddQueue({
             />
           </svg>
           Adicionar Fila
-        </Button>
+        </button>
       </div>
-    </Card>
+    </div>
   );
 }

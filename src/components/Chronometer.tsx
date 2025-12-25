@@ -149,31 +149,31 @@ export function Chronometer({
   };
 
   return (
-    <div className="bg-[var(--element-bg)] border border-[var(--element-border)] rounded-lg p-6 shadow-sm">
+    <div className="bg-[var(--element-bg)] border-2 border-[var(--element-border)] rounded-[var(--border-radius-large)] p-6 shadow-lg">
       <div className="text-center mb-6">
-        <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+        <h4 className="text-xl font-semibold text-[var(--text-primary)] mb-3">
           Cronômetro
         </h4>
-        <div className="text-3xl font-bold text-[var(--accent)]">
+        <div className="text-4xl font-bold text-[var(--button-bg)]">
           {formatTime(displayTime)}
         </div>
       </div>
 
       <div className="space-y-3 mb-6">
-        <div className="flex justify-between items-center py-2 border-b border-[var(--element-border)]">
-          <span className="text-[var(--text-secondary)] text-sm">
+        <div className="flex justify-between items-center py-2 border-b-2 border-[var(--element-border)]">
+          <span className="text-[var(--text-primary)] text-sm font-semibold">
             Elementos Totais
           </span>
-          <span className="text-lg font-semibold text-[var(--text-primary)]">
+          <span className="text-lg font-bold text-[var(--text-primary)]">
             {currentTotal}
           </span>
         </div>
 
-        <div className="flex justify-between items-center py-2 border-b border-[var(--element-border)]">
-          <span className="text-[var(--text-secondary)] text-sm">
+        <div className="flex justify-between items-center py-2 border-b-2 border-[var(--element-border)]">
+          <span className="text-[var(--text-primary)] text-sm font-semibold">
             {type === "arrival" ? "Status" : "Em Atendimento"}
           </span>
-          <span className="text-lg font-semibold text-[var(--text-primary)]">
+          <span className="text-lg font-bold text-[var(--text-primary)]">
             {type === "arrival"
               ? (startTime ? "Ativo" : "Inativo")
               : `${currentServicing.length}/${numAttendants}`}
@@ -181,10 +181,10 @@ export function Chronometer({
         </div>
 
         <div className="flex justify-between items-center py-2">
-          <span className="text-[var(--text-secondary)] text-sm">
+          <span className="text-[var(--text-primary)] text-sm font-semibold">
             {type === "arrival" ? "Tempo de Espera" : "Tempo Atual"}
           </span>
-          <span className="text-lg font-semibold text-[var(--accent)]">
+          <span className="text-lg font-bold text-[var(--button-bg)]">
             {(type === "arrival" && startTime) ||
             (type === "service" && currentServicing.length > 0)
               ? formatTime(displayTime)
@@ -197,7 +197,7 @@ export function Chronometer({
         {type === "arrival" ? (
           <button
             onClick={() => addArrival(Date.now())}
-            className="w-full px-4 py-3 bg-[var(--accent)] text-white rounded-lg font-medium hover:bg-[var(--accent-hover)] transition-colors duration-200 shadow-sm"
+            className="btn-primary w-full"
           >
             Registrar Chegada (+1)
           </button>
@@ -206,14 +206,14 @@ export function Chronometer({
             <button
               onClick={() => arrivedAtService()}
               disabled={currentServicing.length >= numAttendants}
-              className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm"
+              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Chegou no Atendimento
             </button>
             <button
               onClick={() => completedService()}
               disabled={currentServicing.length === 0}
-              className="w-full px-4 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm"
+              className="btn-success w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Completou Atendimento
             </button>

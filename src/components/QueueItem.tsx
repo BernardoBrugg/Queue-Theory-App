@@ -33,34 +33,35 @@ export function QueueItem({
   currentAppTimeMs,
 }: QueueItemProps) {
   return (
-    <div className="bg-[var(--element-bg)] border border-[var(--element-border)] rounded-lg p-4 shadow-sm">
+    <div className="bg-[var(--element-bg)] border-2 border-[var(--element-border)] rounded-[var(--border-radius-large)] p-6 shadow-lg hover:shadow-xl transition-all">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+        <h3 className="text-xl font-semibold text-[var(--text-primary)]">
           {queue.name}
         </h3>
-        <span className="text-sm text-[var(--text-secondary)] px-2 py-1 bg-[var(--element-border)] rounded">
-          {queue.type === "arrival" ? "Chegada" : "Atendimento"}
-        </span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => removeQueue(index)}
-          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-        >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-[var(--text-primary)] px-3 py-1 bg-[var(--element-bg)] border-2 border-[var(--element-border)] rounded-lg">
+            {queue.type === "arrival" ? "Chegada" : "Atendimento"}
+          </span>
+          <button
+            onClick={() => removeQueue(index)}
+            className="btn-danger p-2 rounded-lg"
+            title="Remover fila"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-            />
-          </svg>
-        </Button>
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
       <Chronometer
         queue={queue.name}

@@ -63,9 +63,9 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             <Card className="p-12">
-              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-8 mx-auto">
+              <div className="w-16 h-16 bg-[var(--icon-bg)] rounded-xl flex items-center justify-center mb-8 mx-auto">
                 <svg
-                  className="w-8 h-8 text-primary-foreground"
+                  className="w-8 h-8 text-[var(--icon-text)]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -88,7 +88,7 @@ export default function Home() {
               </p>
               <Link
                 href="/chronometers"
-                className="inline-flex items-center text-primary hover:text-primary/80 font-semibold"
+                className="inline-flex items-center text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold"
               >
                 Ir para Cronômetros
                 <svg
@@ -107,9 +107,9 @@ export default function Home() {
               </Link>
             </Card>
             <Card className="p-12">
-              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-8 mx-auto">
+              <div className="w-16 h-16 bg-[var(--icon-bg)] rounded-xl flex items-center justify-center mb-8 mx-auto">
                 <svg
-                  className="w-8 h-8 text-primary-foreground"
+                  className="w-8 h-8 text-[var(--icon-text)]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -131,7 +131,7 @@ export default function Home() {
               </p>
               <Link
                 href="/data"
-                className="inline-flex items-center text-primary hover:text-primary/80 font-semibold"
+                className="inline-flex items-center text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold"
               >
                 Ir para Dados
                 <svg
@@ -150,9 +150,9 @@ export default function Home() {
               </Link>
             </Card>
             <Card className="p-12">
-              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-8 mx-auto">
+              <div className="w-16 h-16 bg-[var(--icon-bg)] rounded-xl flex items-center justify-center mb-8 mx-auto">
                 <svg
-                  className="w-8 h-8 text-primary-foreground"
+                  className="w-8 h-8 text-[var(--icon-text)]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -174,7 +174,7 @@ export default function Home() {
               </p>
               <Link
                 href="/dashboards"
-                className="inline-flex items-center text-primary hover:text-primary/80 font-semibold"
+                className="inline-flex items-center text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold"
               >
                 Ir para Painéis
                 <svg
@@ -193,9 +193,9 @@ export default function Home() {
               </Link>
             </Card>
             <Card className="p-12">
-              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-8 mx-auto">
+              <div className="w-16 h-16 bg-[var(--icon-bg)] rounded-xl flex items-center justify-center mb-8 mx-auto">
                 <svg
-                  className="w-8 h-8 text-primary-foreground"
+                  className="w-8 h-8 text-[var(--icon-text)]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -217,7 +217,7 @@ export default function Home() {
               </p>
               <Link
                 href="/simulations"
-                className="inline-flex items-center text-primary hover:text-primary/80 font-semibold"
+                className="inline-flex items-center text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold"
               >
                 Ir para Simulações
                 <svg

@@ -7,17 +7,28 @@
   --accent: oklch(0.97 0 0);
   --accent-hover: #e55a00;
   --accent-light: #fff4f0;
-  --bg-gradient-start: #ffffff;
-  --bg-gradient-middle: #ffffff;
-  --bg-gradient-end: #ffffff;
+  --bg-gradient-start: #f8f9fa;
+  --bg-gradient-middle: #f1f3f5;
+  --bg-gradient-end: #e9ecef;
   --element-bg: #ffffff;
-  --element-border: #f3f4f6;
+  --element-border: #d1d5db;
   --element-shadow: rgba(0, 0, 0, 0.05);
   --element-shadow-hover: rgba(0, 0, 0, 0.1);
-  --text-primary: #374151;
-  --text-secondary: #6b7280;
-  --text-muted: #9ca3af;
+  --text-primary: #1f2937;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
   --text-accent: #ff6600;
+  --button-bg: #3b82f6;
+  --button-hover: #2563eb;
+  --button-text: #ffffff;
+  --button-danger: #ef4444;
+  --button-danger-hover: #dc2626;
+  --button-success: #10b981;
+  --button-success-hover: #059669;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-focus: #3b82f6;
+  --input-text: #1f2937;
   --border-radius: 12px;
   --border-radius-large: 20px;
   --transition: all 0.3s ease-in-out;
@@ -58,40 +69,36 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-
-  /* App custom */
-  --bg-gradient-start: hsl(0 0% 100%);
-  --bg-gradient-middle: hsl(0 0% 100%);
-  --bg-gradient-end: hsl(0 0% 100%);
-  --element-bg: hsl(var(--card));
-  --element-border: hsl(var(--border));
-  --element-shadow: rgba(0, 0, 0, 0.05);
-  --element-shadow-hover: rgba(0, 0, 0, 0.1);
-  --text-primary: hsl(var(--foreground));
-  --text-secondary: hsl(var(--muted-foreground));
-  --text-muted: hsl(var(--muted-foreground));
-  --text-accent: hsl(var(--accent));
-  --accent-hover: hsl(var(--accent));
-  --accent-light: hsl(var(--accent));
 }
 
 .dark {
+  --accent: oklch(0.7 0.15 30);
+  --accent-hover: #ff8533;
+  --accent-light: #2a1a0f;
+  --bg-gradient-start: #0f172a;
+  --bg-gradient-middle: #1e293b;
+  --bg-gradient-end: #0f172a;
+  --element-bg: #1e293b;
+  --element-border: #475569;
+  --element-shadow: rgba(0, 0, 0, 0.3);
+  --element-shadow-hover: rgba(0, 0, 0, 0.5);
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-accent: #ff8533;
+  --button-bg: #3b82f6;
+  --button-hover: #2563eb;
+  --button-text: #ffffff;
+  --button-danger: #ef4444;
+  --button-danger-hover: #dc2626;
+  --button-success: #10b981;
+  --button-success-hover: #059669;
+  --input-bg: #334155;
+  --input-border: #475569;
+  --input-focus: #60a5fa;
+  --input-text: #f1f5f9;
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
-  --accent: oklch(0.269 0 0);
-  --accent-hover: #660066;
-  --accent-light: #1a001a;
-  --bg-gradient-start: #000000;
-  --bg-gradient-middle: #000000;
-  --bg-gradient-end: #000000;
-  --element-bg: #1f2937;
-  --element-border: #374151;
-  --element-shadow: rgba(0, 0, 0, 0.2);
-  --element-shadow-hover: rgba(0, 0, 0, 0.3);
-  --text-primary: #f9fafb;
-  --text-secondary: #d1d5db;
-  --text-muted: #9ca3af;
-  --text-accent: #800080;
   --card: 222.2 84% 4.9%;
   --card-foreground: 210 40% 98%;
   --popover: 222.2 84% 4.9%;
@@ -107,47 +114,120 @@
   --border: 217.2 32.6% 17.5%;
   --input: 217.2 32.6% 17.5%;
   --ring: 212.7 26.8% 83.9%;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
+  --sidebar: oklch(0.145 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-primary: oklch(0.708 0 0);
+  --sidebar-primary-foreground: oklch(0.145 0 0);
+  --sidebar-accent: oklch(0.205 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-
-  /* App custom */
-  --bg-gradient-start: hsl(var(--background));
-  --bg-gradient-middle: hsl(var(--background));
-  --bg-gradient-end: hsl(var(--background));
-  --element-bg: hsl(var(--card));
-  --element-border: hsl(var(--border));
-  --element-shadow: rgba(0, 0, 0, 0.2);
-  --element-shadow-hover: rgba(0, 0, 0, 0.3);
-  --text-primary: hsl(var(--foreground));
-  --text-secondary: hsl(var(--muted-foreground));
-  --text-muted: hsl(var(--muted-foreground));
-  --text-accent: hsl(var(--accent));
-  --accent-hover: hsl(var(--accent));
-  --accent-light: hsl(var(--accent));
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
 }
 
 body {
-  background: hsl(var(--background));
+  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-middle), var(--bg-gradient-end));
   font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
     "Segoe UI", Roboto, sans-serif;
   line-height: 1.6;
   transition: var(--transition);
   min-height: 100vh;
   overflow-x: hidden;
+  color: var(--text-primary);
 }
 
-/* Custom Scrollbar */
+/* Estilos padronizados para divs/cards */
+.card-standard,
+.div-standard {
+  background-color: var(--element-bg);
+  border: 2px solid var(--element-border);
+  border-radius: var(--border-radius-large);
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px var(--element-shadow);
+  transition: var(--transition);
+  color: var(--text-primary);
+}
+
+.card-standard:hover {
+  box-shadow: 0 8px 12px var(--element-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Estilos padronizados para botões */
+.btn-primary {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 4px var(--element-shadow);
+}
+
+.btn-primary:hover {
+  background-color: var(--button-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--element-shadow-hover);
+}
+
+.btn-danger {
+  background-color: var(--button-danger);
+  color: var(--button-text);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 4px var(--element-shadow);
+}
+
+.btn-danger:hover {
+  background-color: var(--button-danger-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--element-shadow-hover);
+}
+
+.btn-success {
+  background-color: var(--button-success);
+  color: var(--button-text);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 4px var(--element-shadow);
+}
+
+.btn-success:hover {
+  background-color: var(--button-success-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--element-shadow-hover);
+}
+
+/* Estilos padronizados para inputs */
+.input-standard {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 2px solid var(--input-border);
+  border-radius: var(--border-radius);
+  padding: 0.75rem 1rem;
+  transition: var(--transition);
+  width: 100%;
+}
+
+.input-standard:focus {
+  outline: none;
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.input-standard::placeholder {
+  color: var(--text-muted);
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -178,7 +258,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
@@ -200,10 +280,6 @@ select {
   border-radius: var(--border-radius);
 }
 
-button:hover {
-  box-shadow: 0 2px 8px var(--element-shadow-hover);
-}
-
 button:active {
   transform: translateY(0);
 }
@@ -213,10 +289,9 @@ textarea:focus,
 select:focus {
   outline: none;
   box-shadow: 0 0 0 3px var(--accent-light);
-  border-color: var(--accent);
+  border-color: var(--input-focus);
 }
 
-/* Glassmorphism utility */
 .glass {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
@@ -228,7 +303,6 @@ select:focus {
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Enhanced hover effects */
 .hover-lift {
   transition: var(--transition);
 }
@@ -238,7 +312,6 @@ select:focus {
   box-shadow: 0 4px 12px var(--element-shadow-hover);
 }
 
-/* Text selection */
 ::selection {
   background: var(--accent);
   color: white;
@@ -247,6 +320,23 @@ select:focus {
 ::-moz-selection {
   background: var(--accent);
   color: white;
+}
+
+/* Garantir visibilidade de texto em labels e spans */
+label, span {
+  color: var(--text-primary);
+}
+
+/* Estilo para tabelas */
+table {
+  background-color: var(--element-bg);
+  border: 2px solid var(--element-border);
+  border-radius: var(--border-radius);
+}
+
+th, td {
+  color: var(--text-primary);
+  border-color: var(--element-border);
 }
 
 @theme inline {
@@ -282,7 +372,7 @@ select:focus {
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }

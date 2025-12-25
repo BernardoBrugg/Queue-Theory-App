@@ -191,7 +191,7 @@ export default function Data() {
     <div className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         <Nav />
-        <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] mb-8 text-center">
+        <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-8 text-center">
           Dados
         </h1>
         <ImportData handleImport={handleImport} />
@@ -211,7 +211,7 @@ export default function Data() {
                 setSelectedArrivalQueue(null);
                 setSelectedServiceQueues([]);
               }}
-              className="mb-4 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              className="mb-4 px-4 py-2 bg-[var(--button-bg)] text-[var(--button-text)] rounded-lg hover:bg-[var(--button-hover-bg)] transition-colors"
             >
               ← Voltar
             </button>

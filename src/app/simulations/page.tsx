@@ -295,6 +295,8 @@ export default function Simulations() {
   const [markovNumServers, setMarkovNumServers] = useState(1);
   const [markovSteps, setMarkovSteps] = useState(100);
   const [markovResults, setMarkovResults] = useState<{ step: number; state: number }[] | null>(null);
+  const [currentMarkovState, setCurrentMarkovState] = useState(0);
+  const [markovStepOffset, setMarkovStepOffset] = useState(0);
 
   const calculateCustomMetrics = () => {
     const lambda = customLambda;
@@ -504,6 +506,36 @@ export default function Simulations() {
       data.push({ step, state: currentState });
     }
     setMarkovResults(data);
+    setCurrentMarkovState(currentState);
+    setMarkovStepOffset(steps);
+  };
+
+  const continueMarkovChain = () => {
+    if (!markovResults) {
+      toast.error("Execute a simulação inicial primeiro.");
+      return;
+    }
+    const lambda = markovLambda;
+    const mu = markovMu;
+    const c = markovNumServers;
+    const steps = markovSteps;
+    let currentState = currentMarkovState;
+    const data = [...markovResults];
+    for (let step = 1; step <= steps; step++) {
+      const arrivalProb = lambda / (lambda + Math.min(c, currentState) * mu);
+      const rand = Math.random();
+      if (rand < arrivalProb) {
+        // arrival
+        currentState++;
+      } else {
+        // departure
+        if (currentState > 0) currentState--;
+      }
+      data.push({ step: markovStepOffset + step, state: currentState });
+    }
+    setMarkovResults(data);
+    setCurrentMarkovState(currentState);
+    setMarkovStepOffset(markovStepOffset + steps);
   };
 
   return (
