@@ -1,25 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Nav } from "../../components/Nav";
 import { QueueSelector } from "../../components/QueueSelector";
 import { MetricsResults } from "../../components/MetricsResults";
 import { ServiceCard } from "../../components/ServiceCard";
-import { db } from "../../lib/firebase";
-import { collection, onSnapshot } from "firebase/firestore";
 import { toast } from "react-toastify";
-import { QueueMetrics, StoredService } from "../../lib/types";
-
-interface Record {
-  id: string;
-  queue: string;
-  type: "arrival" | "service";
-  timestamp: string;
-  totalTime: number;
-  element: number;
-  arriving: string;
-  exiting: string;
-}
+import { QueueMetrics, StoredService } from "../../types";
+import { useAuth } from "../../components/AuthContext";
+import { useQueueData, useQueues } from "../../hooks/useData";
 
 interface Event {
   time: number;
@@ -33,10 +22,9 @@ interface ChartDataPoint {
 }
 
 export default function Dashboards() {
-  const [queues, setQueues] = useState<
-    { name: string; type: "arrival" | "service"; numAttendants?: number }[]
-  >([]);
-  const [data, setData] = useState<Record[]>([]);
+  const { user } = useAuth();
+  const { data } = useQueueData(user?.uid || null);
+  const { queues } = useQueues(user?.uid || null);
   const [services, setServices] = useState<StoredService[]>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -50,33 +38,6 @@ export default function Dashboards() {
     }
     return [];
   });
-
-  useEffect(() => {
-    const unsubscribeQueues = onSnapshot(
-      collection(db, "queues"),
-      (snapshot) => {
-        const q = snapshot.docs.map(
-          (doc) =>
-            doc.data() as {
-              name: string;
-              type: "arrival" | "service";
-              numAttendants?: number;
-            }
-        );
-        setQueues(q);
-      }
-    );
-    const unsubscribeData = onSnapshot(collection(db, "data"), (snapshot) => {
-      const d = snapshot.docs.map(
-        (doc) => ({ id: doc.id, ...doc.data() } as Record)
-      );
-      setData(d);
-    });
-    return () => {
-      unsubscribeQueues();
-      unsubscribeData();
-    };
-  }, []);
 
   const [selectedArrivalQueue, setSelectedArrivalQueue] = useState("");
   const [selectedServiceQueue, setSelectedServiceQueue] = useState("");
@@ -366,6 +327,7 @@ export default function Dashboards() {
       toast.error("Erro ao calcular métricas.");
     }
   };
+
   const createService = () => {
     if (!newServiceName.trim() || !results) {
       toast.warn("Nome do serviço e resultados são necessários.");
@@ -435,8 +397,6 @@ export default function Dashboards() {
     ) {
       // Clear Firestore collections
       // Note: This is dangerous, in real app restrict to admin
-      setQueues([]);
-      setData([]);
       setServices([]);
       localStorage.removeItem("queueing-services");
       toast.success("Todos os dados foram limpos com sucesso!");
@@ -449,7 +409,7 @@ export default function Dashboards() {
       <div className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-center animate-slide-in-left flex-1">
+            <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-center flex-1">
               Dashboards
             </h1>
             <button
@@ -460,7 +420,7 @@ export default function Dashboards() {
             </button>
           </div>
           <div
-            className="mb-8 animate-fade-in"
+            className="mb-8"
             style={{ animationDelay: "0.2s" }}
           >
             <QueueSelector

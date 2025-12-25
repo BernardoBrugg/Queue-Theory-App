@@ -69,7 +69,7 @@ export function QueueSelector({
   const filteredServiceQueues = selectedArrivalCount ? serviceQueues.filter(q => getCount(q.name, "service") === selectedArrivalCount) : serviceQueues;
 
   return (
-    <Card className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500">
+    <Card className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200">
       <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
         Atrelar Filas e Calcular Sistema de Filas
       </h2>

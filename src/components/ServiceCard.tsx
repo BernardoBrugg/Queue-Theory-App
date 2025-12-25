@@ -11,7 +11,7 @@ import {
   Bar,
   ResponsiveContainer,
 } from "recharts";
-import { StoredService } from "../lib/types";
+import { StoredService } from "../types";
 
 interface ChartDataPoint {
   time: number;
@@ -71,70 +71,70 @@ export const ServiceCard = React.memo(function ServiceCard({
   );
 
   return (
-    <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500">
-      <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
+    <div className="bg-[var(--element-bg)] border-2 border-[var(--element-border)] p-6 rounded-[var(--border-radius-large)] shadow-xl hover:shadow-2xl transition-all duration-500">
+      <h3 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
         {service.name}
       </h3>
-      <p className="text-[var(--text-secondary)] mb-2">
-        Fila de Chegada: {service.arrivalQueue}
+      <p className="text-[var(--text-primary)] mb-2 font-medium">
+        <span className="font-semibold">Fila de Chegada:</span> {service.arrivalQueue}
       </p>
-      <p className="text-[var(--text-secondary)] mb-4">
-        Fila de Atendimento: {service.serviceQueue}
+      <p className="text-[var(--text-primary)] mb-4 font-medium">
+        <span className="font-semibold">Fila de Atendimento:</span> {service.serviceQueue}
       </p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-[var(--text-primary)] bg-[var(--element-bg)] border border-[var(--element-border)] p-3 rounded-lg">
           <span className="font-semibold">λ:</span>{" "}
           {service.metrics?.lambda != null && isFinite(service.metrics.lambda)
             ? service.metrics.lambda.toFixed(4)
             : "N/A"}{" "}
           chegadas/s
         </div>
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-[var(--text-primary)] bg-[var(--element-bg)] border border-[var(--element-border)] p-3 rounded-lg">
           <span className="font-semibold">μ:</span>{" "}
           {service.metrics?.mu != null && isFinite(service.metrics.mu)
             ? service.metrics.mu.toFixed(4)
             : "N/A"}{" "}
           atendimentos/s
         </div>
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-[var(--text-primary)] bg-[var(--element-bg)] border border-[var(--element-border)] p-3 rounded-lg">
           <span className="font-semibold">ρ:</span>{" "}
           {service.metrics?.rho != null && isFinite(service.metrics.rho)
             ? service.metrics.rho.toFixed(4)
             : "N/A"}
         </div>
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-[var(--text-primary)] bg-[var(--element-bg)] border border-[var(--element-border)] p-3 rounded-lg">
           <span className="font-semibold">L:</span>{" "}
           {service.metrics?.L != null && isFinite(service.metrics.L)
             ? service.metrics.L.toFixed(4)
             : "N/A"}
         </div>
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-[var(--text-primary)] bg-[var(--element-bg)] border border-[var(--element-border)] p-3 rounded-lg">
           <span className="font-semibold">Lq:</span>{" "}
           {service.metrics?.Lq != null && isFinite(service.metrics.Lq)
             ? service.metrics.Lq.toFixed(4)
             : "N/A"}
         </div>
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-[var(--text-primary)] bg-[var(--element-bg)] border border-[var(--element-border)] p-3 rounded-lg">
           <span className="font-semibold">W:</span>{" "}
           {service.metrics?.W != null && isFinite(service.metrics.W)
             ? service.metrics.W.toFixed(4)
             : "N/A"}{" "}
           s
         </div>
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-[var(--text-primary)] bg-[var(--element-bg)] border border-[var(--element-border)] p-3 rounded-lg">
           <span className="font-semibold">Wq:</span>{" "}
           {service.metrics?.Wq != null && isFinite(service.metrics.Wq)
             ? service.metrics.Wq.toFixed(4)
             : "N/A"}{" "}
           s
         </div>
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-[var(--text-primary)] bg-[var(--element-bg)] border border-[var(--element-border)] p-3 rounded-lg">
           <span className="font-semibold">P0:</span>{" "}
           {service.metrics?.P?.[0] != null && isFinite(service.metrics.P[0])
             ? service.metrics.P[0].toFixed(4)
             : "N/A"}
         </div>
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-[var(--text-primary)] bg-[var(--element-bg)] border border-[var(--element-border)] p-3 rounded-lg">
           <span className="font-semibold">Tempo Ocioso Médio:</span>{" "}
           {service.metrics?.idleTime != null &&
           isFinite(service.metrics.idleTime)
@@ -142,7 +142,7 @@ export const ServiceCard = React.memo(function ServiceCard({
             : "N/A"}{" "}
           s
         </div>
-        <div className="text-[var(--text-secondary)]">
+        <div className="text-[var(--text-primary)] bg-[var(--element-bg)] border border-[var(--element-border)] p-3 rounded-lg">
           <span className="font-semibold">Proporção Ociosa:</span>{" "}
           {service.metrics?.idleProportion != null &&
           isFinite(service.metrics.idleProportion)
@@ -150,23 +150,23 @@ export const ServiceCard = React.memo(function ServiceCard({
             : "N/A"}
         </div>
       </div>
-      <div className="mb-4">
+      <div className="mb-4 bg-[var(--element-bg)] border border-[var(--element-border)] p-4 rounded-lg">
         <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
           Probabilidades P(n):
         </h4>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
           {service.metrics?.P && service.metrics.P.length > 0 ? (
             service.metrics.P.map((p, n) => (
-              <div key={n}>
+              <div key={n} className="text-[var(--text-primary)]">
                 P({n}): {p != null && isFinite(p) ? p.toFixed(4) : "N/A"}
               </div>
             ))
           ) : (
-            <div key="no-p">No P data available</div>
+            <div key="no-p" className="text-[var(--text-primary)]">No P data available</div>
           )}
         </div>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 bg-[var(--element-bg)] border border-[var(--element-border)] p-4 rounded-lg">
         <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
           Gráfico de Probabilidades P(n)
         </h4>
@@ -194,7 +194,7 @@ export const ServiceCard = React.memo(function ServiceCard({
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 bg-[var(--element-bg)] border border-[var(--element-border)] p-4 rounded-lg">
         <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
           Gráfico Cumulativo
         </h4>
@@ -238,7 +238,7 @@ export const ServiceCard = React.memo(function ServiceCard({
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 bg-[var(--element-bg)] border border-[var(--element-border)] p-4 rounded-lg">
         <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
           Histograma de Tempos de Serviço
         </h4>
@@ -267,7 +267,7 @@ export const ServiceCard = React.memo(function ServiceCard({
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 bg-[var(--element-bg)] border border-[var(--element-border)] p-4 rounded-lg">
         <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
           Comparação de Tempos Médios
         </h4>
@@ -310,7 +310,7 @@ export const ServiceCard = React.memo(function ServiceCard({
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div className="mt-4">
+      <div className="mt-4 bg-[var(--element-bg)] border border-[var(--element-border)] p-4 rounded-lg">
         <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
           Gráfico de Linhas: Tempos por Tempo
         </h4>
@@ -367,13 +367,13 @@ export const ServiceCard = React.memo(function ServiceCard({
       <div className="mt-4 flex space-x-4">
         <button
           onClick={() => deleteService(index)}
-          className="px-6 py-2 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+          className="btn-danger"
         >
           Excluir Serviço
         </button>
         <button
           onClick={() => exportServiceToPDF(service)}
-          className="px-6 py-2 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 shadow-lg"
+          className="btn-primary"
         >
           Exportar para PDF
         </button>

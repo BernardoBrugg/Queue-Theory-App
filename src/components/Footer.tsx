@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer className="p-8 text-[var(--text-secondary)] text-center animate-fade-in">
+    <footer className="p-8 text-[var(--text-secondary)] text-center">
       <div className="mx-auto max-w-6xl">
         <p className="text-lg font-medium text-[var(--text-primary)] mb-2">
         Teoria das filas: CronApp &copy; {new Date().getFullYear()} -

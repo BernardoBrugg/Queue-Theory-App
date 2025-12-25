@@ -14,6 +14,7 @@ import {
   Line,
 } from "recharts";
 import { toast } from "react-toastify";
+import { Button } from '@/components/ui/button';
 
 interface QueueMetrics {
   lambda: number;
@@ -278,6 +279,25 @@ export default function Simulations() {
     { time: number; queueLength: number }[] | null
   >(null);
 
+  const [monteLambda, setMonteLambda] = useState(0.5);
+  const [monteMu, setMonteMu] = useState(1);
+  const [monteNumServers, setMonteNumServers] = useState(1);
+  const [monteTime, setMonteTime] = useState(100);
+  const [monteRuns, setMonteRuns] = useState(10);
+  const [monteResults, setMonteResults] = useState<{
+    avgQueueLength: number;
+    avgUtilization: number;
+    avgWaitingTime: number;
+  } | null>(null);
+
+  const [markovLambda, setMarkovLambda] = useState(0.5);
+  const [markovMu, setMarkovMu] = useState(1);
+  const [markovNumServers, setMarkovNumServers] = useState(1);
+  const [markovSteps, setMarkovSteps] = useState(100);
+  const [markovResults, setMarkovResults] = useState<{ step: number; state: number }[] | null>(null);
+  const [currentMarkovState, setCurrentMarkovState] = useState(0);
+  const [markovStepOffset, setMarkovStepOffset] = useState(0);
+
   const calculateCustomMetrics = () => {
     const lambda = customLambda;
     const mu = customMu;
@@ -372,12 +392,158 @@ export default function Simulations() {
     setSimResults(data);
   };
 
+  const runMonteCarlo = () => {
+    const lambda = monteLambda;
+    const mu = monteMu;
+    const c = monteNumServers;
+    const rho = lambda / (c * mu);
+    if (rho >= 1) {
+      toast.error("Sistema instável (ρ >= 1). A simulação não pode ser executada.");
+      return;
+    }
+    const totalTime = monteTime;
+    const numRuns = monteRuns;
+    let totalQueueLength = 0;
+    let totalUtilization = 0;
+    let totalWaitingTime = 0;
+    let totalCustomers = 0;
+
+    for (let run = 0; run < numRuns; run++) {
+      let currentTime = 0;
+      let nextArrival = -Math.log(Math.random()) / lambda;
+      const departures: number[] = new Array(c).fill(Infinity);
+      const queue: number[] = [];
+      let inService = 0;
+      let queueLengthSum = 0;
+      let utilizationSum = 0;
+      let customerCount = 0;
+      let waitingTimeSum = 0;
+
+      while (currentTime < totalTime) {
+        const nextEventTime = Math.min(nextArrival, ...departures);
+        if (nextEventTime > totalTime) break;
+        const timeDiff = nextEventTime - currentTime;
+        queueLengthSum += (queue.length + inService) * timeDiff;
+        utilizationSum += inService * timeDiff;
+        currentTime = nextEventTime;
+
+        if (nextEventTime === nextArrival) {
+          // arrival
+          const arrivalTime = currentTime;
+          queue.push(arrivalTime);
+          nextArrival = currentTime + -Math.log(Math.random()) / lambda;
+          customerCount++;
+          // assign to server if available
+          for (let i = 0; i < c; i++) {
+            if (departures[i] === Infinity) {
+              const serviceTime = -Math.log(Math.random()) / mu;
+              departures[i] = currentTime + serviceTime;
+              inService++;
+              const waitTime = currentTime - arrivalTime;
+              waitingTimeSum += waitTime;
+              queue.shift();
+              break;
+            }
+          }
+        } else {
+          // departure
+          for (let i = 0; i < c; i++) {
+            if (departures[i] === nextEventTime) {
+              departures[i] = Infinity;
+              inService--;
+              if (queue.length > 0) {
+                const arrivalTime = queue.shift()!;
+                const serviceTime = -Math.log(Math.random()) / mu;
+                departures[i] = currentTime + serviceTime;
+                inService++;
+                const waitTime = currentTime - arrivalTime;
+                waitingTimeSum += waitTime;
+              }
+              break;
+            }
+          }
+        }
+      }
+      const avgQueueLength = queueLengthSum / totalTime;
+      const avgUtilization = utilizationSum / (totalTime * c);
+      const avgWaitingTime = waitingTimeSum / customerCount;
+
+      totalQueueLength += avgQueueLength;
+      totalUtilization += avgUtilization;
+      totalWaitingTime += avgWaitingTime;
+      totalCustomers += customerCount;
+    }
+
+    setMonteResults({
+      avgQueueLength: totalQueueLength / numRuns,
+      avgUtilization: totalUtilization / numRuns,
+      avgWaitingTime: totalWaitingTime / numRuns,
+    });
+  };
+
+  const runMarkovChain = () => {
+    const lambda = markovLambda;
+    const mu = markovMu;
+    const c = markovNumServers;
+    const rho = lambda / (c * mu);
+    if (rho >= 1) {
+      toast.error("Sistema instável (ρ >= 1). A simulação não pode ser executada.");
+      return;
+    }
+    const steps = markovSteps;
+    let currentState = 0;
+    const data: { step: number; state: number }[] = [{ step: 0, state: 0 }];
+    for (let step = 1; step <= steps; step++) {
+      const arrivalProb = lambda / (lambda + Math.min(c, currentState) * mu);
+      const rand = Math.random();
+      if (rand < arrivalProb) {
+        // arrival
+        currentState++;
+      } else {
+        // departure
+        if (currentState > 0) currentState--;
+      }
+      data.push({ step, state: currentState });
+    }
+    setMarkovResults(data);
+    setCurrentMarkovState(currentState);
+    setMarkovStepOffset(steps);
+  };
+
+  const continueMarkovChain = () => {
+    if (!markovResults) {
+      toast.error("Execute a simulação inicial primeiro.");
+      return;
+    }
+    const lambda = markovLambda;
+    const mu = markovMu;
+    const c = markovNumServers;
+    const steps = markovSteps;
+    let currentState = currentMarkovState;
+    const data = [...markovResults];
+    for (let step = 1; step <= steps; step++) {
+      const arrivalProb = lambda / (lambda + Math.min(c, currentState) * mu);
+      const rand = Math.random();
+      if (rand < arrivalProb) {
+        // arrival
+        currentState++;
+      } else {
+        // departure
+        if (currentState > 0) currentState--;
+      }
+      data.push({ step: markovStepOffset + step, state: currentState });
+    }
+    setMarkovResults(data);
+    setCurrentMarkovState(currentState);
+    setMarkovStepOffset(markovStepOffset + steps);
+  };
+
   return (
     <>
       <Nav />
       <div className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] mb-8 text-center animate-slide-in-left">
+          <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] mb-8 text-center">
             Simulações e Estudos de Caso
           </h1>
           <div className="mb-8">
@@ -388,7 +554,7 @@ export default function Simulations() {
               {caseStudies.map((study, index) => (
                 <div
                   key={index}
-                  className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500"
+                  className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200"
                 >
                   <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
                     {study.name}
@@ -436,7 +602,7 @@ export default function Simulations() {
               {services.map((service, index) => (
                 <div
                   key={index}
-                  className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500"
+                  className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200"
                 >
                   <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
                     {service.name}
@@ -510,7 +676,7 @@ export default function Simulations() {
             <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
               Simulação Personalizada
             </h2>
-            <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl mb-4">
+            <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200 mb-4">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div>
                   <label className="block text-[var(--text-primary)] mb-2">
@@ -573,7 +739,7 @@ export default function Simulations() {
               </button>
             </div>
             {customMetrics && (
-              <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl">
+              <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200">
                 <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
                   Resultados da Simulação Personalizada
                 </h3>
@@ -649,7 +815,7 @@ export default function Simulations() {
             <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
               Simulação de Eventos Discretos
             </h2>
-            <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl mb-4">
+            <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200 mb-4">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div>
                   <label className="block text-[var(--text-primary)] mb-2">
@@ -708,7 +874,7 @@ export default function Simulations() {
               </button>
             </div>
             {simResults && (
-              <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl">
+              <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200">
                 <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
                   Resultados da Simulação
                 </h3>
@@ -724,6 +890,147 @@ export default function Simulations() {
                     <Line
                       type="monotone"
                       dataKey="queueLength"
+                      stroke="var(--chart-1)"
+                    />
+                  </LineChart>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold mb-4">Simulação Monte Carlo</h2>
+            <p className="mb-4">Executa múltiplas simulações para obter métricas médias.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Taxa de Chegada (λ)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={monteLambda}
+                  onChange={(e) => setMonteLambda(parseFloat(e.target.value))}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Taxa de Serviço (μ)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={monteMu}
+                  onChange={(e) => setMonteMu(parseFloat(e.target.value))}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Número de Servidores</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={monteNumServers}
+                  onChange={(e) => setMonteNumServers(parseInt(e.target.value))}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Tempo Total por Simulação</label>
+                <input
+                  type="number"
+                  value={monteTime}
+                  onChange={(e) => setMonteTime(parseInt(e.target.value))}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Número de Execuções</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={monteRuns}
+                  onChange={(e) => setMonteRuns(parseInt(e.target.value))}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+            </div>
+            <Button onClick={runMonteCarlo} className="px-6 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg">
+              Executar Simulação Monte Carlo
+            </Button>
+            {monteResults && (
+              <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200 mt-4">
+                <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">Resultados Médios</h3>
+                <p>Comprimento Médio da Fila: {monteResults.avgQueueLength.toFixed(2)}</p>
+                <p>Utilização Média: {(monteResults.avgUtilization * 100).toFixed(2)}%</p>
+                <p>Tempo Médio de Espera: {monteResults.avgWaitingTime.toFixed(2)}</p>
+              </div>
+            )}
+          </div>
+          <div className="mt-8">
+            <h2 className="text-2xl font-bold mb-4">Simulação de Markov Chain</h2>
+            <p className="mb-4">Simula a cadeia de Markov do sistema de filas ao longo de passos discretos.</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Taxa de Chegada (λ)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={markovLambda}
+                  onChange={(e) => setMarkovLambda(parseFloat(e.target.value))}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Taxa de Serviço (μ)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={markovMu}
+                  onChange={(e) => setMarkovMu(parseFloat(e.target.value))}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Número de Servidores</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={markovNumServers}
+                  onChange={(e) => setMarkovNumServers(parseInt(e.target.value))}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Número de Passos</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={markovSteps}
+                  onChange={(e) => setMarkovSteps(parseInt(e.target.value))}
+                  className="w-full p-2 border rounded"
+                />
+              </div>
+            </div>
+            <button
+              onClick={runMarkovChain}
+              className="px-6 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+              Executar Simulação Markov Chain
+            </button>
+            {markovResults && (
+              <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200 mt-4">
+                <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
+                  Resultados da Simulação Markov Chain
+                </h3>
+                <div className="mt-4">
+                  <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+                    Evolução do Estado ao Longo dos Passos
+                  </h4>
+                  <LineChart width={800} height={400} data={markovResults}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="step" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line
+                      type="monotone"
+                      dataKey="state"
                       stroke="var(--chart-1)"
                     />
                   </LineChart>

@@ -1,23 +1,12 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { TimestampCard } from "../../components/TimestampCard";
 import { Nav } from "../../components/Nav";
 import { AddQueue } from "../../components/AddQueue";
 import { QueueItem } from "../../components/QueueItem";
-import { db } from "../../lib/firebase";
-import {
-  collection,
-  addDoc,
-  doc,
-  setDoc,
-  deleteDoc,
-  getDocs,
-  query,
-  limit,
-  orderBy,
-} from "firebase/firestore";
 import { toast } from "react-toastify";
+import { useAuth } from "../../components/AuthContext";
+import { useQueues, useQueueTotals, useQueueData, useActiveServices } from "../../hooks/useData";
 
 interface Record {
   id: string;
@@ -31,17 +20,17 @@ interface Record {
 }
 
 export default function Chronometers() {
-  const [queues, setQueues] = useState<
-    { name: string; type: "arrival" | "service"; numAttendants?: number }[]
-  >([]);
+  const { user } = useAuth();
+  const { queues, addQueue: addQueueHook, deleteQueue: deleteQueueHook, loading: queuesLoading, error: queuesError } = useQueues(user?.uid || null);
+  const { totals: queueTotals, updateTotal, deleteTotal, loading: totalsLoading, error: totalsError } = useQueueTotals(user?.uid || null);
+  const { addRecord, loading: dataLoading, error: dataError } = useQueueData(user?.uid || null);
+  const { setActiveService, deleteActiveService, loading: activeServicesLoading, error: activeServicesError } = useActiveServices(user?.uid || null);
+
   const [newQueue, setNewQueue] = useState("");
   const [newQueueType, setNewQueueType] = useState<"arrival" | "service">(
     "arrival"
   );
   const [numAttendants, setNumAttendants] = useState(1);
-  const [, setData] = useState<Record[]>([]);
-  const [queueTotals, setQueueTotals] = useState<{ [key: string]: number }>({});
-  const [, setLoading] = useState(true);
 
   const [currentAppTimeMs, setCurrentAppTimeMs] = useState(() => Date.now());
   const currentAppTime = useMemo(
@@ -56,58 +45,21 @@ export default function Chronometers() {
     return () => clearInterval(interval);
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const queuesQuery = query(collection(db, "queues"), limit(10));
-      const queuesSnapshot = await getDocs(queuesQuery);
-      const queuesData = queuesSnapshot.docs.map((doc) => doc.data() as {
-        name: string;
-        type: "arrival" | "service";
-        numAttendants?: number;
-      });
-      setQueues(queuesData);
-
-      const dataQuery = query(collection(db, "data"), orderBy("timestamp", "desc"), limit(10));
-      const dataSnapshot = await getDocs(dataQuery);
-      const dataRecords = dataSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      } as Record));
-      setData(dataRecords);
-
-      const totalsQuery = query(collection(db, "totals"), limit(5));
-      const totalsSnapshot = await getDocs(totalsQuery);
-      const t: { [key: string]: number } = {};
-      totalsSnapshot.docs.forEach((doc) => (t[doc.id] = doc.data().total));
-      setQueueTotals(t);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      toast.error("Erro ao carregar dados.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const addQueue = async () => {
     if (
       newQueue.trim() &&
       !queues.some((queue) => queue.name === newQueue.trim())
     ) {
       try {
-        await setDoc(doc(db, "queues", newQueue.trim()), {
+        await addQueueHook({
           name: newQueue.trim(),
           type: newQueueType,
           ...(newQueueType === "service" ? { numAttendants } : {}),
         });
-        await setDoc(doc(db, "activeServices", newQueue.trim()), {
+        await setActiveService(newQueue.trim(), {
           currentServicing: [],
         });
-        await setDoc(doc(db, "totals", newQueue.trim()), { total: 0 });
+        await updateTotal(newQueue.trim(), 0);
         toast.success("Fila adicionada com sucesso!");
         setNewQueue("");
       } catch (error) {
@@ -124,9 +76,9 @@ export default function Chronometers() {
   const removeQueue = async (index: number) => {
     const queueToRemove = queues[index];
     try {
-      await deleteDoc(doc(db, "queues", queueToRemove.name));
-      await deleteDoc(doc(db, "activeServices", queueToRemove.name));
-      await deleteDoc(doc(db, "totals", queueToRemove.name));
+      await deleteQueueHook(queueToRemove.name);
+      await deleteActiveService(queueToRemove.name);
+      await deleteTotal(queueToRemove.name);
       toast.success("Fila removida com sucesso!");
     } catch (error) {
       toast.error(
@@ -140,7 +92,7 @@ export default function Chronometers() {
     const current = queueTotals[queue] || 0;
     try {
       const next = current + 1;
-      setDoc(doc(db, "totals", queue), { total: next });
+      updateTotal(queue, next);
       return next;
     } catch (error) {
       console.error("Erro ao atualizar total da fila:", error);
@@ -151,7 +103,7 @@ export default function Chronometers() {
 
   const recordEvent = (record: Omit<Record, "id">) => {
     try {
-      addDoc(collection(db, "data"), record);
+      addRecord(record);
     } catch (error) {
       console.error("Erro ao registrar evento:", error);
       toast.error("Erro ao registrar evento.");
@@ -161,26 +113,14 @@ export default function Chronometers() {
   return (
     <div>
       <Nav />
-      <div
-        className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8"
-        suppressHydrationWarning={true}
-      >
+      <div className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
-          <div className="animate-fade-in">
-            <TimestampCard currentTime={currentAppTime} />
+          <div className="mb-8">
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-8 text-center animate-slide-in-left">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-8 text-center">
             Cronômetros
           </h1>
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
-              Configuração de Tempo
-            </h2>
-          </div>
-          <div
-            className="mb-8 animate-fade-in"
-            style={{ animationDelay: "0.2s" }}
-          >
             <AddQueue
               newQueue={newQueue}
               setNewQueue={setNewQueue}
@@ -191,7 +131,12 @@ export default function Chronometers() {
               addQueue={addQueue}
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
+              Filas Ativas
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {queues.map((queue, index) => (
               <QueueItem
                 key={index}
@@ -205,6 +150,13 @@ export default function Chronometers() {
               />
             ))}
           </div>
+          {queues.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-[var(--text-secondary)] text-lg">
+                Nenhuma fila configurada. Adicione uma fila acima para começar.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
