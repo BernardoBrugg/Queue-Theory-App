@@ -4,9 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
+import { useAuth } from "./AuthContext";
 
 export function Nav() {
   const { theme, setTheme } = useTheme();
+  const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -14,6 +16,15 @@ export function Nav() {
     const timer = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setIsMenuOpen(false);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md">
@@ -68,6 +79,21 @@ export function Nav() {
           >
             Sobre
           </Link>
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors duration-300 font-medium"
+            >
+              Logout
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors duration-300 font-medium"
+            >
+              Login
+            </Link>
+          )}
           {mounted && (
             <button
               onClick={() => setTheme(theme === "light" ? "dark" : "light")}
@@ -123,7 +149,7 @@ export function Nav() {
         </div>
       </div>
       {isMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-[var(--element-bg)]/90 backdrop-blur-md border-t border-[var(--element-border)] shadow-md animate-fade-in">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-[var(--element-bg)]/90 backdrop-blur-md border-t border-[var(--element-border)] shadow-md">
           <div className="px-4 py-4 space-y-4">
             <Link
               href="/"
@@ -167,6 +193,22 @@ export function Nav() {
             >
               Sobre
             </Link>
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors duration-300 font-medium"
+              >
+                Logout
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                className="block text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors duration-300 font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Login
+              </Link>
+            )}
             {mounted && (
               <button
                 onClick={() => {

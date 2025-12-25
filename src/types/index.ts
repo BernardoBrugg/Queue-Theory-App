@@ -52,3 +52,35 @@ export interface StoredService {
   timestamps: number[];
   interArrivals: number[];
 }
+
+// New types for organized data management
+export interface QueueRecord {
+  id: string;
+  queue: string;
+  type: "arrival" | "service";
+  timestamp: string;
+  totalTime: number;
+  element: number;
+  arriving: string;
+  exiting: string;
+}
+
+export interface Queue {
+  name: string;
+  type: "arrival" | "service";
+  numAttendants?: number;
+}
+
+export interface QueueTotals {
+  [key: string]: number;
+}
+
+export interface ImportedRecord {
+  queue: string;
+  type: "arrival" | "service";
+  timestamp: string;
+  totalTime: number;
+  element: number;
+  arriving: string;
+  exiting: string;
+}

@@ -10,6 +10,7 @@ import {
   arrayRemove,
 } from "firebase/firestore";
 import { toast } from "react-toastify";
+import { useAuth } from "./AuthContext";
 
 interface Record {
   queue: string;
@@ -39,6 +40,7 @@ export function Chronometer({
   onRecord,
   numAttendants,
 }: ChronometerProps) {
+  const { user } = useAuth();
   const pendingClients: { element: number; arriving: number }[] = [];
   const [currentServicing, setCurrentServicing] = useState<
     { element: number; arrivedTime: number; startTime: string }[]
@@ -61,8 +63,10 @@ export function Chronometer({
   }, [startTime, currentServicing, type]);
 
   useEffect(() => {
+    if (!user) return;
+
     const unsubscribe = onSnapshot(
-      doc(db, "activeServices", queue),
+      doc(db, "users", user.uid, "activeServices", queue),
       (docSnap) => {
         if (docSnap.exists()) {
           setCurrentServicing(docSnap.data().currentServicing || []);
@@ -72,7 +76,7 @@ export function Chronometer({
       }
     );
     return unsubscribe;
-  }, [queue]);
+  }, [queue, user]);
 
   const formatTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
@@ -108,10 +112,12 @@ export function Chronometer({
   };
 
   const arrivedAtService = () => {
+    if (!user) return;
+
     const now = Date.now();
     const element = getNextElement(queue);
     const startTimeStr = new Date(now).toISOString();
-    updateDoc(doc(db, "activeServices", queue), {
+    updateDoc(doc(db, "users", user.uid, "activeServices", queue), {
       currentServicing: arrayUnion({
         element,
         arrivedTime: now,
@@ -121,6 +127,8 @@ export function Chronometer({
   };
 
   const completedService = () => {
+    if (!user) return;
+
     if (currentServicing.length > 0) {
       const now = Date.now();
       const totalTime = now - currentServicing[0].arrivedTime;
@@ -134,78 +142,80 @@ export function Chronometer({
         exiting: new Date(now).toISOString(),
       };
       onRecord(record);
-      updateDoc(doc(db, "activeServices", queue), {
+      updateDoc(doc(db, "users", user.uid, "activeServices", queue), {
         currentServicing: arrayRemove(currentServicing[0]),
       });
     }
   };
 
   return (
-    <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-8 rounded-2xl shadow-md group font-sans">
+    <div className="bg-[var(--element-bg)] border border-[var(--element-border)] rounded-lg p-6 shadow-sm">
       <div className="text-center mb-6">
-        <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
-          {queue}
-        </h3>
-        <div className="text-4xl text-[var(--accent)] font-bold">
+        <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+          Cronômetro
+        </h4>
+        <div className="text-3xl font-bold text-[var(--accent)]">
           {formatTime(displayTime)}
         </div>
       </div>
-      <div className="space-y-4 mb-6">
-        <div className="flex justify-between items-center">
-          <span className="text-[var(--text-secondary)] font-medium">
-            Elementos Totais:
+
+      <div className="space-y-3 mb-6">
+        <div className="flex justify-between items-center py-2 border-b border-[var(--element-border)]">
+          <span className="text-[var(--text-secondary)] text-sm">
+            Elementos Totais
           </span>
-          <span className="text-2xl font-bold text-[var(--text-primary)]">
+          <span className="text-lg font-semibold text-[var(--text-primary)]">
             {currentTotal}
           </span>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-[var(--text-secondary)] font-medium">
-            {type === "arrival" ? "Aguardando:" : "Em Atendimento:"}
+
+        <div className="flex justify-between items-center py-2 border-b border-[var(--element-border)]">
+          <span className="text-[var(--text-secondary)] text-sm">
+            {type === "arrival" ? "Status" : "Em Atendimento"}
           </span>
-          <span className="text-2xl font-bold text-[var(--text-primary)]">
+          <span className="text-lg font-semibold text-[var(--text-primary)]">
             {type === "arrival"
-              ? pendingClients.length
+              ? (startTime ? "Ativo" : "Inativo")
               : `${currentServicing.length}/${numAttendants}`}
           </span>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-[var(--text-secondary)] font-medium">
-            {type === "arrival" ? "Espera Atual:" : "Tempo de Atendimento:"}
+
+        <div className="flex justify-between items-center py-2">
+          <span className="text-[var(--text-secondary)] text-sm">
+            {type === "arrival" ? "Tempo de Espera" : "Tempo Atual"}
           </span>
-          <span className="text-xl text-[var(--accent)] font-bold">
-            {(type === "arrival" && pendingClients.length > 0) ||
+          <span className="text-lg font-semibold text-[var(--accent)]">
+            {(type === "arrival" && startTime) ||
             (type === "service" && currentServicing.length > 0)
               ? formatTime(displayTime)
               : "--"}
           </span>
         </div>
       </div>
-      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 justify-center">
+
+      <div className="space-y-3">
         {type === "arrival" ? (
-          <>
-            <button
-              onClick={() => addArrival(Date.now())}
-              className="flex-1 px-6 py-3 bg-orange-500 text-white rounded-xl font-semibold hover:bg-orange-600 transition-all duration-300 shadow-lg"
-            >
-              +1
-            </button>
-          </>
+          <button
+            onClick={() => addArrival(Date.now())}
+            className="w-full px-4 py-3 bg-[var(--accent)] text-white rounded-lg font-medium hover:bg-[var(--accent-hover)] transition-colors duration-200 shadow-sm"
+          >
+            Registrar Chegada (+1)
+          </button>
         ) : (
           <>
             <button
               onClick={() => arrivedAtService()}
               disabled={currentServicing.length >= numAttendants}
-              className="flex-1 px-6 py-3 bg-blue-500 text-white rounded-xl font-semibold hover:bg-blue-600 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm"
             >
-              Chegou no atendimento
+              Chegou no Atendimento
             </button>
             <button
               onClick={() => completedService()}
               disabled={currentServicing.length === 0}
-              className="flex-1 px-6 py-3 bg-purple-500 text-white rounded-xl font-semibold hover:bg-purple-600 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 shadow-sm"
             >
-              Completou atendimento
+              Completou Atendimento
             </button>
           </>
         )}

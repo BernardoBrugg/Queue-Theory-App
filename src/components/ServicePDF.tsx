@@ -11,7 +11,7 @@ import {
   Bar,
   ResponsiveContainer,
 } from "recharts";
-import { Service } from "../lib/types";
+import { Service } from "../types";
 
 interface ChartDataPoint {
   time: number;

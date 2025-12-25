@@ -30,7 +30,7 @@ export function QueueList({
   const [newName, setNewName] = useState<string>("");
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {uniqueQueues.map((queueName) => {
         const queueData = data.filter((r) => r.queue === queueName);
         const arrivalsCount = queueData.filter(

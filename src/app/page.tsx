@@ -16,9 +16,9 @@ export default function Home() {
               alt="Logo do Teoria das filas: CronApp"
               width={112}
               height={112}
-              className="h-32 w-auto mx-auto mb-8 animate-fade-in rounded-lg"
+              className="h-32 w-auto mx-auto mb-8 rounded-lg"
             />
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-[var(--text-primary)] mb-12 animate-fade-in leading-tight">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-[var(--text-primary)] mb-12 leading-tight">
               Teoria das filas: CronApp
             </h1>
             <p className="text-xl sm:text-2xl text-[var(--text-secondary)] mb-16 max-w-4xl mx-auto leading-relaxed">
@@ -62,8 +62,8 @@ export default function Home() {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            <Card className="p-12 group hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300">
-              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-8 mx-auto group-hover:scale-110 transition-transform duration-300">
+            <Card className="p-12">
+              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-8 mx-auto">
                 <svg
                   className="w-8 h-8 text-primary-foreground"
                   fill="none"
@@ -88,7 +88,7 @@ export default function Home() {
               </p>
               <Link
                 href="/chronometers"
-                className="inline-flex items-center text-primary hover:text-primary/80 font-semibold group-hover:translate-x-2 transition-transform duration-300"
+                className="inline-flex items-center text-primary hover:text-primary/80 font-semibold"
               >
                 Ir para Cronômetros
                 <svg
@@ -106,8 +106,8 @@ export default function Home() {
                 </svg>
               </Link>
             </Card>
-            <Card className="p-12 group hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300">
-              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-8 mx-auto group-hover:scale-110 transition-transform duration-300">
+            <Card className="p-12">
+              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-8 mx-auto">
                 <svg
                   className="w-8 h-8 text-primary-foreground"
                   fill="none"
@@ -131,7 +131,7 @@ export default function Home() {
               </p>
               <Link
                 href="/data"
-                className="inline-flex items-center text-primary hover:text-primary/80 font-semibold group-hover:translate-x-2 transition-transform duration-300"
+                className="inline-flex items-center text-primary hover:text-primary/80 font-semibold"
               >
                 Ir para Dados
                 <svg
@@ -149,8 +149,8 @@ export default function Home() {
                 </svg>
               </Link>
             </Card>
-            <Card className="p-12 group hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300">
-              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-8 mx-auto group-hover:scale-110 transition-transform duration-300">
+            <Card className="p-12">
+              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-8 mx-auto">
                 <svg
                   className="w-8 h-8 text-primary-foreground"
                   fill="none"
@@ -174,7 +174,7 @@ export default function Home() {
               </p>
               <Link
                 href="/dashboards"
-                className="inline-flex items-center text-primary hover:text-primary/80 font-semibold group-hover:translate-x-2 transition-transform duration-300"
+                className="inline-flex items-center text-primary hover:text-primary/80 font-semibold"
               >
                 Ir para Painéis
                 <svg
@@ -192,8 +192,8 @@ export default function Home() {
                 </svg>
               </Link>
             </Card>
-            <Card className="p-12 group hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300">
-              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-8 mx-auto group-hover:scale-110 transition-transform duration-300">
+            <Card className="p-12">
+              <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mb-8 mx-auto">
                 <svg
                   className="w-8 h-8 text-primary-foreground"
                   fill="none"
@@ -217,7 +217,7 @@ export default function Home() {
               </p>
               <Link
                 href="/simulations"
-                className="inline-flex items-center text-primary hover:text-primary/80 font-semibold group-hover:translate-x-2 transition-transform duration-300"
+                className="inline-flex items-center text-primary hover:text-primary/80 font-semibold"
               >
                 Ir para Simulações
                 <svg
@@ -238,7 +238,7 @@ export default function Home() {
           </div>
           <div className="mt-20 text-center">
             <p className="text-[var(--text-muted)] text-sm">
-              Todos os dados são armazenados localmente no seu navegador.
+              Todos os dados são armazenados na nuvem de forma segura e privada.
               Exporte para CSV para análise adicional.
             </p>
           </div>

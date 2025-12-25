@@ -1,36 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Papa from "papaparse";
 import { Nav } from "../../components/Nav";
 import { ImportData } from "../../components/ImportData";
 import { ClearData } from "../../components/ClearData";
-import { QueueList } from "../../components/QueueList";
-import { DataTable } from "../../components/DataTable";
+import { QueueManager } from "../../components/QueueManager";
+import { QueueDataDisplay } from "../../components/QueueDataDisplay";
 import { ExportButton } from "../../components/ExportButton";
 import { db } from "../../lib/firebase";
-import {
-  collection,
-  onSnapshot,
-  addDoc,
-  deleteDoc,
-  doc,
-  setDoc,
-  writeBatch,
-  getDoc,
-} from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, writeBatch } from "firebase/firestore";
 import { toast } from "react-toastify";
-
-interface QueueRecord {
-  id: string;
-  queue: string;
-  type: "arrival" | "service";
-  timestamp: string;
-  totalTime: number;
-  element: number;
-  arriving: string;
-  exiting: string;
-}
+import { useAuth } from "../../components/AuthContext";
+import { useQueueData } from "../../hooks/useData";
+import { QueueRecord } from "../../types";
 
 interface ImportedRecord {
   queue: string;
@@ -43,54 +26,11 @@ interface ImportedRecord {
 }
 
 export default function Data() {
-  const [data, setData] = useState<QueueRecord[]>([]);
-  const [queues, setQueues] = useState<
-    { name: string; type: "arrival" | "service"; numAttendants?: number }[]
-  >([]);
-  const [, setQueueTotals] = useState<{ [key: string]: number }>({});
-
-  const [selectedArrivalQueue, setSelectedArrivalQueue] = useState<
-    string | null
-  >(null);
-  const [selectedServiceQueues, setSelectedServiceQueues] = useState<string[]>(
-    []
-  );
-
-  useEffect(() => {
-    const unsubscribeData = onSnapshot(collection(db, "data"), (snapshot) => {
-      const d = snapshot.docs.map(
-        (doc) => ({ id: doc.id, ...doc.data() } as QueueRecord)
-      );
-      setData(d);
-    });
-    const unsubscribeQueues = onSnapshot(
-      collection(db, "queues"),
-      (snapshot) => {
-        const q = snapshot.docs.map(
-          (doc) =>
-            doc.data() as {
-              name: string;
-              type: "arrival" | "service";
-              numAttendants?: number;
-            }
-        );
-        setQueues(q);
-      }
-    );
-    const unsubscribeTotals = onSnapshot(
-      collection(db, "totals"),
-      (snapshot) => {
-        const t: { [key: string]: number } = {};
-        snapshot.docs.forEach((doc) => (t[doc.id] = doc.data().total));
-        setQueueTotals(t);
-      }
-    );
-    return () => {
-      unsubscribeData();
-      unsubscribeQueues();
-      unsubscribeTotals();
-    };
-  }, []);
+  const { user } = useAuth();
+  const { data, deleteRecord } = useQueueData(user?.uid || null);
+  const [selectedQueue, setSelectedQueue] = useState<string | null>(null);
+  const [selectedArrivalQueue, setSelectedArrivalQueue] = useState<string | null>(null);
+  const [selectedServiceQueues, setSelectedServiceQueues] = useState<string[]>([]);
 
   const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -145,18 +85,8 @@ export default function Data() {
           if (importedData.length > 0) {
             // Add to Firestore
             importedData.forEach((record) =>
-              addDoc(collection(db, "data"), record)
+              addDoc(collection(db, "users", user!.uid, "data"), record)
             );
-            // Add queue if not exists
-            const queueExists = queues.some(
-              (q) => q.name === importQueue.trim()
-            );
-            if (!queueExists) {
-              setDoc(doc(db, "queues", importQueue.trim()), {
-                name: importQueue.trim(),
-                type: importedData[0].type,
-              });
-            }
             totalImported += importedData.length;
           }
           filesProcessed++;
@@ -189,11 +119,6 @@ export default function Data() {
     });
   };
 
-  const deleteRecord = (record: QueueRecord) => {
-    deleteDoc(doc(db, "data", record.id));
-    toast.success("Registro excluído com sucesso.");
-  };
-
   const clearAllData = () => {
     if (
       confirm(
@@ -202,97 +127,8 @@ export default function Data() {
     ) {
       // Note: Clearing all data for all users
       // In a real app, you might want to restrict this
-      setData([]);
-      setQueues([]);
-      setQueueTotals({});
-      // To clear Firestore, you would need to delete all docs, but for simplicity, just reset local state
-      // Actually, since it's synced, perhaps don't clear Firestore
+      // Since we're using hooks now, the data will automatically update
       toast.success("Dados limpos com sucesso.");
-    }
-  };
-
-  const deleteQueue = async (queueName: string) => {
-    console.log("deleteQueue called for", queueName);
-    if (
-      confirm(
-        `Tem certeza de que deseja excluir a fila "${queueName}" e todos os seus dados?`
-      )
-    ) {
-      console.log("Confirmed, proceeding to delete");
-      try {
-        // Delete from queues
-        await deleteDoc(doc(db, "queues", queueName));
-        console.log("Deleted from queues");
-        // Delete from activeServices
-        await deleteDoc(doc(db, "activeServices", queueName));
-        console.log("Deleted from activeServices");
-        // Delete from totals
-        await deleteDoc(doc(db, "totals", queueName));
-        console.log("Deleted from totals");
-        // Delete all data for this queue
-        const dataToDelete = data.filter((d) => d.queue === queueName);
-        console.log("Data to delete:", dataToDelete.length, "records");
-        const batch = writeBatch(db);
-        dataToDelete.forEach((record) =>
-          batch.delete(doc(db, "data", record.id))
-        );
-        await batch.commit();
-        console.log("Data records deleted");
-        toast.success(
-          `Fila "${queueName}" e seus dados excluídos com sucesso.`
-        );
-      } catch (error) {
-        console.log("Error deleting queue:", error);
-        toast.error("Erro ao excluir fila: " + (error as Error).message);
-      }
-    } else {
-      console.log("Deletion cancelled by user");
-    }
-  };
-
-  const renameQueue = async (oldName: string, newName: string) => {
-    if (oldName === newName) return;
-    if (queues.some((q) => q.name === newName)) {
-      toast.error("Já existe uma fila com esse nome.");
-      return;
-    }
-    try {
-      // Update queues collection
-      const queueDoc = queues.find((q) => q.name === oldName);
-      if (queueDoc) {
-        await setDoc(doc(db, "queues", newName), {
-          ...queueDoc,
-          name: newName,
-        });
-        await deleteDoc(doc(db, "queues", oldName));
-      }
-      // Update activeServices
-      const activeServicesRef = doc(db, "activeServices", oldName);
-      const activeServicesSnap = await getDoc(activeServicesRef);
-      if (activeServicesSnap.exists()) {
-        await setDoc(
-          doc(db, "activeServices", newName),
-          activeServicesSnap.data()
-        );
-        await deleteDoc(activeServicesRef);
-      }
-      // Update totals
-      const totalsRef = doc(db, "totals", oldName);
-      const totalsSnap = await getDoc(totalsRef);
-      if (totalsSnap.exists()) {
-        await setDoc(doc(db, "totals", newName), totalsSnap.data());
-        await deleteDoc(totalsRef);
-      }
-      // Update all data records
-      const dataToUpdate = data.filter((d) => d.queue === oldName);
-      const batch = writeBatch(db);
-      dataToUpdate.forEach((record) => {
-        batch.update(doc(db, "data", record.id), { queue: newName });
-      });
-      await batch.commit();
-      toast.success(`Fila renomeada de "${oldName}" para "${newName}".`);
-    } catch (error) {
-      toast.error("Erro ao renomear fila: " + (error as Error).message);
     }
   };
 
@@ -338,8 +174,6 @@ export default function Data() {
     document.body.removeChild(link);
   };
 
-  const uniqueQueues = Array.from(new Set(data.map((record) => record.queue)));
-
   const onSelectQueue = (queueName: string) => {
     if (!selectedArrivalQueue) {
       setSelectedArrivalQueue(queueName);
@@ -348,21 +182,30 @@ export default function Data() {
     }
   };
 
+  const handleRecordSelect = (record: QueueRecord) => {
+    // Handle record selection if needed
+    console.log("Selected record:", record);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         <Nav />
-        <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] mb-8 text-center animate-fade-in">
+        <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] mb-8 text-center">
           Dados
         </h1>
         <ImportData handleImport={handleImport} />
         <ClearData dataLength={data.length} clearAllData={clearAllData} />
+
         {data.length === 0 ? (
-          <p className="text-center text-[var(--text-secondary)] animate-fade-in">
-            Nenhum dado registrado ainda.
-          </p>
+          <div className="text-center">
+            <p className="text-[var(--text-secondary)] mb-4">
+              Nenhum dado registrado ainda.
+            </p>
+            <QueueManager onQueueSelect={setSelectedQueue} />
+          </div>
         ) : selectedArrivalQueue && selectedServiceQueues.length > 0 ? (
-          <div className="animate-fade-in">
+          <div>
             <button
               onClick={() => {
                 setSelectedArrivalQueue(null);
@@ -379,23 +222,21 @@ export default function Data() {
             <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
               {selectedArrivalQueue}
             </h2>
-            <DataTable
-              data={data}
-              selectedArrivalQueue={selectedArrivalQueue}
-              selectedServiceQueues={selectedServiceQueues}
-              deleteRecord={deleteRecord}
-              formatTime={formatTime}
-              formatDateWithMilliseconds={formatDateWithMilliseconds}
+            <QueueDataDisplay
+              selectedQueue={selectedArrivalQueue}
+              onRecordSelect={handleRecordSelect}
             />
           </div>
         ) : (
-          <QueueList
-            uniqueQueues={uniqueQueues}
-            data={data}
-            onSelectQueue={onSelectQueue}
-            onDeleteQueue={deleteQueue}
-            onRenameQueue={renameQueue}
-          />
+          <div className="space-y-8">
+            <QueueManager onQueueSelect={setSelectedQueue} />
+            {selectedQueue && (
+              <QueueDataDisplay
+                selectedQueue={selectedQueue}
+                onRecordSelect={handleRecordSelect}
+              />
+            )}
+          </div>
         )}
       </div>
     </div>
