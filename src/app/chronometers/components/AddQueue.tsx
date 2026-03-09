@@ -1,12 +1,12 @@
-import { Card } from "./ui/card";
-import { Button } from "./ui/button";
+import { Card } from "../../../components/ui/card";
+import { Button } from "../../../components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
+} from "../../../components/ui/select";
 
 interface AddQueueProps {
   newQueue: string;

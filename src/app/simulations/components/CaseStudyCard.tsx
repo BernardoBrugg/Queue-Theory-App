@@ -1,24 +1,7 @@
 import React from "react";
-import MathRenderer from "./MathRenderer";
+import MathRenderer from "../../../components/MathRenderer";
 
-interface QueueMetrics {
-  lambda: number;
-  mu: number;
-  rho: number;
-  L: number;
-  Lq: number;
-  W: number;
-  Wq: number;
-  P: number[];
-  numServers: number;
-}
-
-interface CaseStudy {
-  name: string;
-  description: React.ReactNode;
-  metrics: QueueMetrics;
-  chartData: { time: number; arrivals: number; departures: number }[];
-}
+import { CaseStudy } from "../utils/caseStudies";
 
 interface CaseStudyCardProps {
   study: CaseStudy;

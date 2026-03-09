@@ -7,14 +7,15 @@ export interface QueueMetrics {
   W: number;
   Wq: number;
   P: number[];
-  idleTime: number;
-  idleProportion: number;
-  avgServiceTime: number;
-  waitingTimes: number[];
-  idleTimes: number[];
-  interArrivals: number[];
-  serviceTimes: number[];
-  timestamps: number[];
+  numServers?: number;
+  idleTime?: number;
+  idleProportion?: number;
+  avgServiceTime?: number;
+  waitingTimes?: number[];
+  idleTimes?: number[];
+  interArrivals?: number[];
+  serviceTimes?: number[];
+  timestamps?: number[];
 }
 
 export interface Service {
@@ -33,21 +34,7 @@ export interface StoredService {
   name: string;
   arrivalQueue: string;
   serviceQueue: string;
-  metrics: {
-    lambda: number;
-    mu: number;
-    rho: number;
-    L: number;
-    Lq: number;
-    W: number;
-    Wq: number;
-    P: number[];
-    idleTime: number;
-    idleProportion: number;
-    avgServiceTime: number;
-    idleTimes: number[];
-    waitingTimes: number[];
-  };
+  metrics: QueueMetrics;
   serviceTimes: number[];
   timestamps: number[];
   interArrivals: number[];

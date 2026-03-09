@@ -1,16 +1,6 @@
 import React from "react";
-import MathRenderer from "./MathRenderer";
-
-interface QueueMetrics {
-  lambda: number;
-  mu: number;
-  rho: number;
-  L: number;
-  Lq: number;
-  W: number;
-  Wq: number;
-  P: number[];
-}
+import { QueueMetrics } from "../../../types";
+import MathRenderer from "../../../components/MathRenderer";
 
 interface MetricsResultsProps {
   results: QueueMetrics | null;

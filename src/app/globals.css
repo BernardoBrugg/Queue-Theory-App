@@ -135,7 +135,6 @@ body {
   color: var(--text-primary);
 }
 
-/* Estilos padronizados para divs/cards */
 .card-standard,
 .div-standard {
   background-color: var(--element-bg);
@@ -152,7 +151,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* Estilos padronizados para botões */
 .btn-primary {
   background-color: var(--button-bg);
   color: var(--button-text);
@@ -207,7 +205,6 @@ body {
   box-shadow: 0 4px 8px var(--element-shadow-hover);
 }
 
-/* Estilos padronizados para inputs */
 .input-standard {
   background-color: var(--input-bg);
   color: var(--input-text);
@@ -322,12 +319,10 @@ select:focus {
   color: white;
 }
 
-/* Garantir visibilidade de texto em labels e spans */
 label, span {
   color: var(--text-primary);
 }
 
-/* Estilo para tabelas */
 table {
   background-color: var(--element-bg);
   border: 2px solid var(--element-border);

@@ -1,18 +1,8 @@
 import React, { useState } from "react";
-import MathRenderer from "./MathRenderer";
+import MathRenderer from "../../../components/MathRenderer";
 import { XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from "recharts";
 
-interface QueueMetrics {
-  lambda: number;
-  mu: number;
-  rho: number;
-  L: number;
-  Lq: number;
-  W: number;
-  Wq: number;
-  P: number[];
-  numServers: number;
-}
+import { QueueMetrics } from "../../../types";
 
 interface CustomSimulationProps {
   onAddService: (service: {

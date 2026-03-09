@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { db } from "../lib/firebase";
+import { db } from "../../../lib/firebase";
 import {
   doc,
   onSnapshot,
@@ -10,7 +10,7 @@ import {
   arrayRemove,
 } from "firebase/firestore";
 import { toast } from "react-toastify";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "../../../components/AuthContext";
 
 interface Record {
   queue: string;

@@ -1,13 +1,15 @@
 import React from "react";
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
+import { StoredService } from "../../../types";
+import { Button } from "../../../components/ui/button";
+import { cn } from "../../../lib/utils";
+import { Card } from "../../../components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
+} from "../../../components/ui/select";
 
 interface Queue {
   name: string;

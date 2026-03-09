@@ -1,114 +1,26 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useChronometers } from "./hooks/useChronometers";
 import { Nav } from "../../components/Nav";
-import { AddQueue } from "../../components/AddQueue";
-import { QueueItem } from "../../components/QueueItem";
-import { toast } from "react-toastify";
-import { useAuth } from "../../components/AuthContext";
-import { useQueues, useQueueTotals, useQueueData, useActiveServices } from "../../hooks/useData";
-
-interface Record {
-  id: string;
-  queue: string;
-  type: "arrival" | "service";
-  timestamp: string;
-  totalTime: number;
-  element: number;
-  arriving: string;
-  exiting: string;
-}
+import { AddQueue } from "./components/AddQueue";
+import { QueueItem } from "./components/QueueItem";
 
 export default function Chronometers() {
-  const { user } = useAuth();
-  const { queues, addQueue: addQueueHook, deleteQueue: deleteQueueHook, loading: queuesLoading, error: queuesError } = useQueues(user?.uid || null);
-  const { totals: queueTotals, updateTotal, deleteTotal, loading: totalsLoading, error: totalsError } = useQueueTotals(user?.uid || null);
-  const { addRecord, loading: dataLoading, error: dataError } = useQueueData(user?.uid || null);
-  const { setActiveService, deleteActiveService, loading: activeServicesLoading, error: activeServicesError } = useActiveServices(user?.uid || null);
-
-  const [newQueue, setNewQueue] = useState("");
-  const [newQueueType, setNewQueueType] = useState<"arrival" | "service">(
-    "arrival"
-  );
-  const [numAttendants, setNumAttendants] = useState(1);
-
-  const [currentAppTimeMs, setCurrentAppTimeMs] = useState(() => Date.now());
-  const currentAppTime = useMemo(
-    () => new Date(currentAppTimeMs),
-    [currentAppTimeMs]
-  );
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentAppTimeMs(Date.now());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const addQueue = async () => {
-    if (
-      newQueue.trim() &&
-      !queues.some((queue) => queue.name === newQueue.trim())
-    ) {
-      try {
-        await addQueueHook({
-          name: newQueue.trim(),
-          type: newQueueType,
-          ...(newQueueType === "service" ? { numAttendants } : {}),
-        });
-        await setActiveService(newQueue.trim(), {
-          currentServicing: [],
-        });
-        await updateTotal(newQueue.trim(), 0);
-        toast.success("Fila adicionada com sucesso!");
-        setNewQueue("");
-      } catch (error) {
-        toast.error(
-          "Erro ao adicionar fila: " +
-            (error instanceof Error ? error.message : String(error))
-        );
-      }
-    } else {
-      toast.warn("Nome da fila inválido ou já existe.");
-    }
-  };
-
-  const removeQueue = async (index: number) => {
-    const queueToRemove = queues[index];
-    try {
-      await deleteQueueHook(queueToRemove.name);
-      await deleteActiveService(queueToRemove.name);
-      await deleteTotal(queueToRemove.name);
-      toast.success("Fila removida com sucesso!");
-    } catch (error) {
-      toast.error(
-        "Erro ao remover fila: " +
-          (error instanceof Error ? error.message : String(error))
-      );
-    }
-  };
-
-  const getNextElement = (queue: string) => {
-    const current = queueTotals[queue] || 0;
-    try {
-      const next = current + 1;
-      updateTotal(queue, next);
-      return next;
-    } catch (error) {
-      console.error("Erro ao atualizar total da fila:", error);
-      toast.error("Erro ao atualizar total da fila.");
-      return current;
-    }
-  };
-
-  const recordEvent = (record: Omit<Record, "id">) => {
-    try {
-      addRecord(record);
-    } catch (error) {
-      console.error("Erro ao registrar evento:", error);
-      toast.error("Erro ao registrar evento.");
-    }
-  };
+  const {
+    queues,
+    queueTotals,
+    newQueue,
+    setNewQueue,
+    newQueueType,
+    setNewQueueType,
+    numAttendants,
+    setNumAttendants,
+    currentAppTimeMs,
+    addQueue,
+    removeQueue,
+    getNextElement,
+    recordEvent,
+  } = useChronometers();
 
   return (
     <div>

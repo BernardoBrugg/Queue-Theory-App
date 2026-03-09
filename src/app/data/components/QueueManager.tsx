@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { useQueues, useQueueTotals, useActiveServices } from "../hooks/useData";
-import { useAuth } from "./AuthContext";
-import { Queue } from "../types";
+import { useQueues } from "../../../hooks/useQueues";
+import { useQueueTotals } from "../../../hooks/useQueueTotals";
+import { useActiveServices } from "../../../hooks/useActiveServices";
+import { useAuth } from "../../../components/AuthContext";
 import { toast } from "react-toastify";
 
 interface QueueManagerProps {
@@ -11,7 +12,7 @@ interface QueueManagerProps {
 
 export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps) {
   const { user } = useAuth();
-  const { queues, loading: queuesLoading, error: queuesError, addQueue, updateQueue, deleteQueue, renameQueue } = useQueues(user?.uid || null);
+  const { queues, loading: queuesLoading, error: queuesError, addQueue, deleteQueue, renameQueue } = useQueues(user?.uid || null);
   const { totals, loading: totalsLoading } = useQueueTotals(user?.uid || null);
   const { activeServices, loading: servicesLoading, deleteActiveService } = useActiveServices(user?.uid || null);
 
@@ -98,15 +99,6 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
     }
   };
 
-  const handleUpdateQueue = async (queueName: string, updates: Partial<Queue>) => {
-    try {
-      await updateQueue(queueName, updates);
-      toast.success("Fila atualizada com sucesso!");
-    } catch (err) {
-      toast.error("Erro ao atualizar fila");
-      console.error(err);
-    }
-  };
 
   if (loading) {
     return (
@@ -214,7 +206,7 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
             <div className="p-8 text-center bg-[var(--element-bg)]">
               <p className="text-[var(--text-primary)] font-medium">Nenhuma fila encontrada.</p>
               <p className="text-sm text-[var(--text-secondary)] mt-1">
-                Clique em "Adicionar Fila" para criar sua primeira fila.
+                Clique em &quot;Adicionar Fila&quot; para criar sua primeira fila.
               </p>
             </div>
           ) : (

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import MathRenderer from "./MathRenderer";
+import MathRenderer from "../../../components/MathRenderer";
 import {
   XAxis,
   YAxis,
@@ -9,22 +9,14 @@ import {
   Line,
 } from "recharts";
 
+import { QueueMetrics } from "../../../types";
+
 interface DiscreteEventSimulationProps {
   onAddService: (service: {
     name: string;
     arrivalQueue: string;
     serviceQueue: string;
-    metrics: {
-      lambda: number;
-      mu: number;
-      rho: number;
-      L: number;
-      Lq: number;
-      W: number;
-      Wq: number;
-      P: (number | null)[];
-      numServers: number;
-    };
+    metrics: QueueMetrics;
   }) => void;
 }
 
@@ -41,17 +33,7 @@ export function DiscreteEventSimulation({
       queueLength: number;
       serverUtilization: number;
     }[];
-    metrics: {
-      lambda: number;
-      mu: number;
-      rho: number;
-      L: number;
-      Lq: number;
-      W: number;
-      Wq: number;
-      P: (number | null)[];
-      numServers: number;
-    };
+    metrics: QueueMetrics;
   } | null>(null);
 
   const runDiscreteEventSimulation = () => {
@@ -147,7 +129,7 @@ export function DiscreteEventSimulation({
         Lq,
         W,
         Wq,
-        P,
+        P: (P as (number | null)[]).map((p) => (p === null ? 0 : p)),
         numServers,
       },
     });

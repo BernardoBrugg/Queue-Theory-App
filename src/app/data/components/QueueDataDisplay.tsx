@@ -1,7 +1,9 @@
 import React from "react";
-import { useQueueData, useQueues, useQueueTotals } from "../hooks/useData";
-import { useAuth } from "./AuthContext";
-import { QueueRecord } from "../types";
+import { useQueueData } from "../../../hooks/useQueueData";
+import { useQueues } from "../../../hooks/useQueues";
+import { useQueueTotals } from "../../../hooks/useQueueTotals";
+import { useAuth } from "../../../components/AuthContext";
+import { QueueRecord } from "../../../types";
 
 interface QueueDataDisplayProps {
   selectedQueue?: string;
