@@ -99,11 +99,11 @@ export function MonteCarloSimulation() {
   };
 
   return (
-    <div className="mb-8">
-      <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
+    <div style={{ marginBottom: "2rem" }}>
+      <h2 className="section-title">
         Simulação de Monte Carlo
       </h2>
-      <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl">
+      <div className="glass-card" style={{ padding: "1.5rem" }}>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
           <div>
             <label className="block text-[var(--text-primary)] mb-2">
@@ -166,19 +166,16 @@ export function MonteCarloSimulation() {
             />
           </div>
         </div>
-        <button
-          onClick={runMonteCarlo}
-          className="px-6 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg"
-        >
+        <button onClick={runMonteCarlo} className="btn btn-primary" style={{ marginTop: "1rem" }}>
           Executar Monte Carlo
         </button>
 
         {monteResults && (
-          <div className="mt-6 border-t border-[var(--element-border)] pt-4">
-            <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
+          <div style={{ marginTop: "1.5rem", borderTop: "1px solid var(--border)", paddingTop: "1.5rem" }}>
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>
               Resultados Médios (Monte Carlo)
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
               <div>
                 Tamanho da Fila:{" "}
                 <span className="font-bold">

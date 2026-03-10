@@ -1,38 +1,34 @@
+import { AuthProvider } from "../components/AuthContext";
+import { ToastContainer } from "react-toastify";
+import Footer from "../components/Footer";
+import "../styles/tokens.css";
+import "../styles/animations.css";
+import "../styles/globals.css";
+import "react-toastify/dist/ReactToastify.css";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "../components/ThemeProvider";
-import { ClientLayout } from "../components/ClientLayout";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
-  title: "Teoria das filas: CronApp",
-  description:
-    "Um aplicativo para analisar teoria de filas com cronômetros, visualização de dados e painéis.",
+  title: "QueueTheoryApp — Teoria das Filas",
+  description: "Analise sistemas de filas com cronometria precisa, dashboards interativos e simulações.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt" suppressHydrationWarning={true}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider>
-          <ClientLayout>{children}</ClientLayout>
-        </ThemeProvider>
+    <html lang="pt-BR" suppressHydrationWarning>
+      <body>
+        <AuthProvider>
+          {children}
+          <Footer />
+          <ToastContainer
+            position="bottom-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            pauseOnHover
+            theme="dark"
+          />
+        </AuthProvider>
       </body>
     </html>
   );

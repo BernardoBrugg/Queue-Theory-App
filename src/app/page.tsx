@@ -1,249 +1,73 @@
 import Link from "next/link";
-import Image from "next/image";
-import { Nav } from "../components/Nav";
-import { Card } from "../components/ui/card";
-import { Button } from "../components/ui/button";
+import { Logo } from "../components/Logo";
+import { ROUTES } from "../config/routes";
 
-export default function Home() {
+const WORKFLOW_STEPS = [
+  { step: 1, href: ROUTES.services, title: "Criar Serviço", desc: "Defina filas e atendentes", color: "#7C3AED" },
+  { step: 2, href: ROUTES.chronometers, title: "Cronometrar", desc: "Registre chegadas e atendimentos", color: "#06B6D4" },
+  { step: 3, href: ROUTES.data, title: "Revisar Dados", desc: "Visualize e exporte registros", color: "#10B981" },
+  { step: 4, href: ROUTES.dashboards, title: "Ver Métricas", desc: "Gráficos e análise automática", color: "#F59E0B" },
+];
+
+export default function HomePage() {
   return (
-    <>
-      <Nav />
-      <div className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="mb-32">
-            <Image
-              src="/cronAppLogo.png"
-              alt="Logo do Teoria das filas: CronApp"
-              width={112}
-              height={112}
-              className="h-32 w-auto mx-auto mb-8 rounded-lg"
-            />
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-[var(--text-primary)] mb-12 leading-tight">
-              Teoria das filas: CronApp
-            </h1>
-            <p className="text-xl sm:text-2xl text-[var(--text-secondary)] mb-16 max-w-4xl mx-auto leading-relaxed">
-              Analise sistemas de filas medindo tempos de chegada, visualizando
-              dados e explorando painéis com gráficos e métricas importantes.
-              Mergulhe no mundo da teoria de filas com precisão e elegância.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-10 py-4 rounded-xl font-semibold uppercase tracking-wide"
-                asChild
-              >
-                <Link href="/chronometers">Iniciar Cronômetros</Link>
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-10 py-4 rounded-xl font-semibold uppercase tracking-wide"
-                asChild
-              >
-                <Link href="/data">Ver Dados</Link>
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-10 py-4 rounded-xl font-semibold uppercase tracking-wide"
-                asChild
-              >
-                <Link href="/dashboards">Ver Painéis</Link>
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-10 py-4 rounded-xl font-semibold uppercase tracking-wide"
-                asChild
-              >
-                <Link href="/simulations">Simulações</Link>
-              </Button>
-            </div>
+    <div style={{ minHeight: "100vh", position: "relative", overflow: "hidden", background: "var(--bg)", display: "flex", flexDirection: "column" }}>
+      <div className="hero-bg" />
+
+      <header style={{ position: "relative", zIndex: 1, padding: "1.25rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 1280, margin: "0 auto", width: "100%" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <Logo size={36} />
+          <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--text-primary)" }}>QueueTheoryApp</span>
+        </div>
+        <Link href={ROUTES.login} className="btn btn-primary btn-sm">Entrar →</Link>
+      </header>
+
+      <main style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "4rem 1.5rem", position: "relative", zIndex: 1 }}>
+        <div className="animate-slide-up" style={{ textAlign: "center", maxWidth: 680, marginBottom: "4rem" }}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "2rem" }}>
+            <Logo size={80} />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            <Card className="p-12">
-              <div className="w-16 h-16 bg-[var(--icon-bg)] rounded-xl flex items-center justify-center mb-8 mx-auto">
-                <svg
-                  className="w-8 h-8 text-[var(--icon-text)]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-semibold mb-6 text-[var(--text-primary)]">
-                Cronômetros
-              </h2>
-              <p className="text-[var(--text-secondary)] mb-8 leading-relaxed">
-                Meça tempos de chegada para diferentes filas usando
-                temporizadores integrados. Temporização precisa para análise de
-                filas precisa.
-              </p>
-              <Link
-                href="/chronometers"
-                className="inline-flex items-center text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold"
-              >
-                Ir para Cronômetros
-                <svg
-                  className="w-5 h-5 ml-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </Link>
-            </Card>
-            <Card className="p-12">
-              <div className="w-16 h-16 bg-[var(--icon-bg)] rounded-xl flex items-center justify-center mb-8 mx-auto">
-                <svg
-                  className="w-8 h-8 text-[var(--icon-text)]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-semibold mb-6 text-[var(--text-primary)]">
-                Dados
-              </h2>
-              <p className="text-[var(--text-secondary)] mb-8 leading-relaxed">
-                Visualize e gerencie todos os dados registrados em um formato
-                estruturado. Exporte para CSV para análise adicional.
-              </p>
-              <Link
-                href="/data"
-                className="inline-flex items-center text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold"
-              >
-                Ir para Dados
-                <svg
-                  className="w-5 h-5 ml-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </Link>
-            </Card>
-            <Card className="p-12">
-              <div className="w-16 h-16 bg-[var(--icon-bg)] rounded-xl flex items-center justify-center mb-8 mx-auto">
-                <svg
-                  className="w-8 h-8 text-[var(--icon-text)]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-semibold mb-6 text-[var(--text-primary)]">
-                Painéis
-              </h2>
-              <p className="text-[var(--text-secondary)] mb-8 leading-relaxed">
-                Explore gráficos e métricas importantes para análise de filas.
-                Visualize seus dados com gráficos impressionantes.
-              </p>
-              <Link
-                href="/dashboards"
-                className="inline-flex items-center text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold"
-              >
-                Ir para Painéis
-                <svg
-                  className="w-5 h-5 ml-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </Link>
-            </Card>
-            <Card className="p-12">
-              <div className="w-16 h-16 bg-[var(--icon-bg)] rounded-xl flex items-center justify-center mb-8 mx-auto">
-                <svg
-                  className="w-8 h-8 text-[var(--icon-text)]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-semibold mb-6 text-[var(--text-primary)]">
-                Simulações
-              </h2>
-              <p className="text-[var(--text-secondary)] mb-8 leading-relaxed">
-                Simule sistemas de filas com parâmetros personalizados e
-                visualize o comportamento da fila ao longo do tempo.
-              </p>
-              <Link
-                href="/simulations"
-                className="inline-flex items-center text-[var(--accent)] hover:text-[var(--accent-hover)] font-semibold"
-              >
-                Ir para Simulações
-                <svg
-                  className="w-5 h-5 ml-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </Link>
-            </Card>
-          </div>
-          <div className="mt-20 text-center">
-            <p className="text-[var(--text-muted)] text-sm">
-              Todos os dados são armazenados na nuvem de forma segura e privada.
-              Exporte para CSV para análise adicional.
-            </p>
+          <h1 style={{ fontSize: "clamp(2.25rem, 6vw, 4rem)", fontWeight: 900, lineHeight: 1.1, marginBottom: "1.25rem", color: "var(--text-primary)" }}>
+            Teoria das Filas{" "}
+            <span style={{ background: "linear-gradient(135deg, var(--accent) 0%, var(--accent-cyan) 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>precisa</span>
+            {" "}e intuitiva
+          </h1>
+          <p style={{ fontSize: "1.1rem", color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: "2rem" }}>
+            Meça filas reais, calcule métricas M/M/c e visualize o comportamento do sistema — do cronômetro ao dashboard, tudo guiado.
+          </p>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href={ROUTES.login} className="btn btn-primary btn-lg">Começar agora →</Link>
+            <Link href={ROUTES.about} className="btn btn-secondary btn-lg">Saiba mais</Link>
           </div>
         </div>
-      </div>
-    </>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", width: "100%", maxWidth: 900 }}>
+          {WORKFLOW_STEPS.map(({ step, href, title, desc, color }, i) => (
+            <Link key={href} href={ROUTES.login}
+              className={`glass-card animate-slide-up delay-${(i + 1) * 100}`}
+              style={{ padding: "1.5rem", textDecoration: "none", display: "block" }}>
+              <div className="step-dot" style={{ background: color, color: "white", marginBottom: "0.875rem" }}>{step}</div>
+              <h3 style={{ fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.25rem", fontSize: "0.95rem" }}>{title}</h3>
+              <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>{desc}</p>
+            </Link>
+          ))}
+        </div>
+      </main>
+
+      <style>{`
+        .hero-bg {
+          position: fixed; inset: 0; z-index: 0;
+          background:
+            radial-gradient(ellipse 60% 50% at 15% 40%, rgba(124,58,237,0.18) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 40% at 85% 20%, rgba(6,182,212,0.14) 0%, transparent 55%),
+            radial-gradient(ellipse 40% 60% at 70% 80%, rgba(139,92,246,0.12) 0%, transparent 50%);
+          animation: hero-bg-pulse 10s ease-in-out infinite alternate;
+        }
+        @keyframes hero-bg-pulse {
+          0% { opacity: 0.8; transform: scale(1); }
+          100% { opacity: 1; transform: scale(1.03); }
+        }
+      `}</style>
+    </div>
   );
 }

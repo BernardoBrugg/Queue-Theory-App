@@ -22,17 +22,14 @@ export function LoadedServices({ services }: LoadedServicesProps) {
   if (services.length === 0) return null;
 
   return (
-    <div className="mb-8">
-      <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
+    <div style={{ marginBottom: "2rem" }}>
+      <h2 className="section-title">
         Serviços Carregados
       </h2>
-      <div className="grid grid-cols-1 gap-6">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.25rem" }}>
         {services.map((service, index) => (
-          <div
-            key={index}
-            className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200"
-          >
-            <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
+          <div key={index} className="glass-card" style={{ padding: "1.5rem" }}>
+            <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>
               {service.name}
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -90,8 +87,8 @@ export function LoadedServices({ services }: LoadedServicesProps) {
                   : "N/A"}
               </div>
             </div>
-            <div className="mt-4">
-              <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+            <div style={{ marginTop: "1.5rem", borderTop: "1px solid var(--border)", paddingTop: "1.5rem" }}>
+              <h4 style={{ fontSize: "1rem", fontWeight: 600, color: "var(--text-primary)", marginBottom: "1rem" }}>
                 Gráfico de Probabilidades P(n)
               </h4>
               <BarChart

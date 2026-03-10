@@ -1,86 +1,75 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth } from "../../components/AuthContext";
-import { useQueueData } from "../../hooks/useQueueData";
-import { QueueRecord } from "../../types";
-import { Nav } from "../../components/Nav";
-import { ImportData } from "./components/ImportData";
-import { ClearData } from "./components/ClearData";
-import { QueueManager } from "./components/QueueManager";
-import { QueueDataDisplay } from "./components/QueueDataDisplay";
-import { ExportButton } from "./components/ExportButton";
-import { useDataActions } from "./hooks/useDataActions";
+import { NavBar } from "../../components/NavBar";
+import { AuthGuard } from "../../components/AuthGuard";
+import { RecordsTable } from "./components/RecordsTable";
+import { useRecords } from "./hooks/useRecords";
 
-export default function Data() {
-  const { user } = useAuth();
-  const { data } = useQueueData(user?.uid || null);
-  const [selectedQueue, setSelectedQueue] = useState<string | null>(null);
-  const [selectedArrivalQueue, setSelectedArrivalQueue] = useState<string | null>(null);
-  const [selectedServiceQueues, setSelectedServiceQueues] = useState<string[]>([]);
-
-  const { handleImport, clearAllData, exportToCSV } = useDataActions(
-    user,
-    data
-  );
-
-  const handleRecordSelect = (record: QueueRecord) => {
-    // Handle record selection if needed
-    console.log("Selected record:", record);
-  };
+function DataContent() {
+  const { 
+    services, selectedService, setSelectedService,
+    records, loading, queues, filter, setFilter, remove, exportCsv 
+  } = useRecords();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
-        <Nav />
-        <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-8 text-center">
-          Dados
-        </h1>
-        <ImportData handleImport={handleImport} />
-        <ClearData dataLength={data.length} clearAllData={clearAllData} />
+    <div className="page-container">
+      <NavBar />
+      <main style={{ padding: "2.5rem 1.5rem" }}>
+        <div className="content-wrapper">
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem", marginBottom: "2rem" }}>
+            <div>
+              <div className="badge badge-accent" style={{ marginBottom: "0.5rem" }}>Passo 3 de 4</div>
+              <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "0.25rem" }}>Dados Registrados</h1>
+              <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>Revise os dados coletados antes de calcular as métricas.</p>
+            </div>
+            
+            <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+              <select
+                className="input"
+                style={{ minWidth: 200, padding: "0.6rem 1rem" }}
+                value={selectedService?.id || ""}
+                onChange={(e) => {
+                  const s = services.find((x) => x.id === e.target.value);
+                  setSelectedService(s || null);
+                }}
+              >
+                <option value="" disabled>Selecione um Serviço</option>
+                {services.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
 
-        {data.length === 0 ? (
-          <div className="text-center">
-            <p className="text-[var(--text-secondary)] mb-4">
-              Nenhum dado registrado ainda.
-            </p>
-            <QueueManager onQueueSelect={setSelectedQueue} />
+              <button onClick={exportCsv} className="btn btn-secondary" disabled={records.length === 0}>
+                ↓ Exportar CSV
+              </button>
+            </div>
           </div>
-        ) : selectedArrivalQueue && selectedServiceQueues.length > 0 ? (
-          <div>
-            <button
-              onClick={() => {
-                setSelectedArrivalQueue(null);
-                setSelectedServiceQueues([]);
-              }}
-              className="mb-4 px-4 py-2 bg-[var(--button-bg)] text-[var(--button-text)] rounded-lg hover:bg-[var(--button-hover-bg)] transition-colors"
-            >
-              ← Voltar
+
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1.5rem" }}>
+            <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em" }}>Filtrar:</span>
+            <button className={`btn btn-sm ${filter === "all" ? "btn-primary" : "btn-secondary"}`} onClick={() => setFilter("all")}>
+              Todos ({records.length})
             </button>
-            <ExportButton
-              selectedArrivalQueue={selectedArrivalQueue}
-              exportToCSV={exportToCSV}
-            />
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
-              {selectedArrivalQueue}
-            </h2>
-            <QueueDataDisplay
-              selectedQueue={selectedArrivalQueue}
-              onRecordSelect={handleRecordSelect}
-            />
+            {queues.map((q) => (
+              <button key={q} className={`btn btn-sm ${filter === q ? "btn-primary" : "btn-secondary"}`} onClick={() => setFilter(q)}>
+                {q}
+              </button>
+            ))}
           </div>
-        ) : (
-          <div className="space-y-8">
-            <QueueManager onQueueSelect={setSelectedQueue} />
-            {selectedQueue && (
-              <QueueDataDisplay
-                selectedQueue={selectedQueue}
-                onRecordSelect={handleRecordSelect}
-              />
-            )}
-          </div>
-        )}
-      </div>
+
+          {loading ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              {[1, 2, 3, 4, 5].map((i) => <div key={i} className="skeleton" style={{ height: 48 }} />)}
+            </div>
+          ) : (
+            <RecordsTable records={records} onDelete={remove} />
+          )}
+        </div>
+      </main>
     </div>
   );
+}
+
+export default function DataPage() {
+  return <AuthGuard><DataContent /></AuthGuard>;
 }

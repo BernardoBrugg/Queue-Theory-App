@@ -29,41 +29,66 @@ export function CustomSimulation({ onAddService }: CustomSimulationProps) {
       alert("Sistema instável (ρ >= 1).");
       return;
     }
+    const r = lambda / mu;
+    let P0 = 0;
+    
+    if (rho < 1) {
+      let sumProb = 0;
+      for (let n = 0; n < numServers; n++) {
+        let fact = 1;
+        for (let i = 1; i <= n; i++) fact *= i;
+        sumProb += Math.pow(r, n) / fact;
+      }
+      let factC = 1;
+      for (let i = 1; i <= numServers; i++) factC *= i;
+      sumProb += (Math.pow(r, numServers) / factC) * (1 / (1 - rho));
+      P0 = 1 / sumProb;
+    }
+
     const N = customMaxN;
-    const C = new Array(N + 1).fill(0);
-    C[0] = 1;
-    for (let n = 1; n <= N; n++) {
-      if (n < numServers) {
-        C[n] = C[n - 1] * (lambda / (n * mu));
+    const P: number[] = [];
+    for (let n = 0; n <= N; n++) {
+      if (rho >= 1) {
+        P[n] = 0;
+      } else if (n < numServers) {
+        let fact = 1;
+        for (let i = 1; i <= n; i++) fact *= i;
+        P[n] = P0 * (Math.pow(r, n) / fact);
       } else {
-        C[n] = C[n - 1] * (lambda / (numServers * mu));
+        let factC = 1;
+        for (let i = 1; i <= numServers; i++) factC *= i;
+        P[n] = P0 * (Math.pow(r, n) / (factC * Math.pow(numServers, n - numServers)));
       }
     }
-    let sumC = 0;
-    for (let n = 0; n <= N; n++) {
-      sumC += C[n];
-    }
-    const P0 = 1 / sumC;
-    const P = C.map((c) => c * P0);
-    let L = 0;
-    for (let n = 0; n <= N; n++) {
-      L += n * P[n];
-    }
+
     let Lq = 0;
-    for (let n = numServers; n <= N; n++) {
-      Lq += (n - numServers) * P[n];
+    let Wq = 0;
+    let W = 0;
+    let L = 0;
+
+    if (rho < 1) {
+      let factC = 1;
+      for (let i = 1; i <= numServers; i++) factC *= i;
+      Lq = (P0 * Math.pow(r, numServers) * rho) / (factC * Math.pow(1 - rho, 2));
+      Wq = Lq / lambda;
+      W = Wq + 1 / mu;
+      L = lambda * W;
+    } else {
+      Lq = Infinity;
+      Wq = Infinity;
+      W = Infinity;
+      L = Infinity;
     }
-    const W = L / lambda;
-    const Wq = Lq / lambda;
+
     setCustomMetrics({ lambda, mu, rho, L, Lq, W, Wq, P, numServers });
   };
 
   return (
-    <div className="mb-8">
-      <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
+    <div style={{ marginBottom: "2rem" }}>
+      <h2 className="section-title">
         Simulação Personalizada
       </h2>
-      <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl mb-4">
+      <div className="glass-card" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <div>
             <label className="block text-[var(--text-primary)] mb-2">
@@ -114,16 +139,13 @@ export function CustomSimulation({ onAddService }: CustomSimulationProps) {
             />
           </div>
         </div>
-        <button
-          onClick={calculateCustomMetrics}
-          className="px-6 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg"
-        >
+        <button onClick={calculateCustomMetrics} className="btn btn-primary" style={{ marginTop: "1rem" }}>
           Calcular Métricas
         </button>
       </div>
       {customMetrics && (
-        <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl">
-          <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
+        <div className="glass-card" style={{ padding: "1.5rem" }}>
+          <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>
             Resultados da Simulação Personalizada
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -186,7 +208,8 @@ export function CustomSimulation({ onAddService }: CustomSimulationProps) {
               onAddService(newService);
               alert("Simulação adicionada aos Serviços!");
             }}
-            className="mt-4 px-6 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="btn btn-secondary"
+            style={{ marginTop: "1rem" }}
           >
             Adicionar aos Serviços
           </button>

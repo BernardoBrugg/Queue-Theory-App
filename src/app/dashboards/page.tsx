@@ -1,92 +1,74 @@
 "use client";
 
-import { Nav } from "../../components/Nav";
-import { ServiceCard } from "./components/ServiceCard";
-import { QueueSelector } from "./components/QueueSelector";
-import { MetricsResults } from "./components/MetricsResults";
-import { useDashboardMetrics } from "./hooks/useDashboardMetrics";
+import { NavBar } from "../../components/NavBar";
+import { AuthGuard } from "../../components/AuthGuard";
+import { MetricsPanel } from "./components/MetricsPanel";
+import { ChartsGrid } from "./components/ChartsGrid";
+import { useDashboard } from "./hooks/useDashboard";
 
-export default function Dashboards() {
-  const {
-    data,
-    services,
-    selectedArrivalQueue,
-    setSelectedArrivalQueue,
-    selectedServiceQueue,
-    setSelectedServiceQueue,
-    results,
-    setResults,
-    numServers,
-    setNumServers,
-    maxN,
-    setMaxN,
-    newServiceName,
-    setNewServiceName,
-    arrivalQueues,
-    serviceQueues,
-    getCumulativeData,
-    calculateQueueMetrics,
-    createService,
-    deleteService,
-    exportServiceToPDF,
-    clearAllData,
-  } = useDashboardMetrics();
+function DashboardContent() {
+  const { services, selectedService, setSelectedService, maxN, setMaxN, metrics, loading, calculate } = useDashboard();
 
   return (
-    <div>
-      <Nav />
-      <div className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-center flex-1">
-              Dashboards
-            </h1>
-            <button
-              onClick={clearAllData}
-              className="px-4 py-2 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm"
-            >
-              Limpar Dados
-            </button>
+    <div className="page-container">
+      <NavBar />
+      <main style={{ padding: "2.5rem 1.5rem" }}>
+        <div className="content-wrapper">
+          <div style={{ marginBottom: "2rem" }}>
+            <div className="badge badge-accent" style={{ marginBottom: "0.5rem" }}>Passo 4 de 4</div>
+            <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "0.25rem" }}>Painel de Métricas</h1>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>Selecione um serviço e calcule as métricas M/M/c automaticamente.</p>
           </div>
-          <div
-            className="mb-8"
-            style={{ animationDelay: "0.2s" }}
-          >
-            <QueueSelector
-              selectedArrivalQueue={selectedArrivalQueue}
-              setSelectedArrivalQueue={setSelectedArrivalQueue}
-              selectedServiceQueue={selectedServiceQueue}
-              setSelectedServiceQueue={setSelectedServiceQueue}
-              numServers={numServers}
-              setNumServers={setNumServers}
-              maxN={maxN}
-              setMaxN={setMaxN}
-              calculateQueueMetrics={calculateQueueMetrics}
-              arrivalQueues={arrivalQueues}
-              serviceQueues={serviceQueues}
-              data={data}
-            />
-            <MetricsResults
-              results={results}
-              newServiceName={newServiceName}
-              setNewServiceName={setNewServiceName}
-              createService={createService}
-            />
+
+          <div className="glass-card" style={{ padding: "1.5rem", marginBottom: "2rem" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "flex-end" }}>
+              <div style={{ flex: "1 1 240px" }}>
+                <label className="label" htmlFor="dash-service">Serviço</label>
+                <select id="dash-service" className="input"
+                  value={selectedService?.id ?? ""}
+                  onChange={(e) => setSelectedService(services.find((s) => s.id === e.target.value) ?? null)}>
+                  <option value="">Selecione um serviço...</option>
+                  {services.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </div>
+              <div style={{ flex: "0 1 140px" }}>
+                <label className="label" htmlFor="dash-maxn">Máximo N (estados)</label>
+                <input id="dash-maxn" className="input" type="number" min={5} max={50} value={maxN}
+                  onChange={(e) => setMaxN(Math.max(5, Number(e.target.value)))} />
+              </div>
+              <button className="btn btn-primary" onClick={calculate} disabled={loading || !selectedService} style={{ alignSelf: "flex-end" }}>
+                {loading ? "Calculando..." : "Calcular →"}
+              </button>
+            </div>
+            {!selectedService && services.length === 0 && (
+              <p style={{ marginTop: "0.75rem", fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                💡 Primeiro crie um serviço na página <strong>Serviços</strong> e registre dados com os <strong>Cronômetros</strong>.
+              </p>
+            )}
           </div>
-          <div className="grid grid-cols-1 gap-8">
-            {services.map((service, index) => (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                index={index}
-                deleteService={deleteService}
-                exportServiceToPDF={exportServiceToPDF}
-                getCumulativeData={getCumulativeData}
-              />
-            ))}
-          </div>
+
+          {metrics && (
+            <div className="animate-slide-up">
+              <MetricsPanel metrics={metrics} />
+              <ChartsGrid metrics={metrics} />
+            </div>
+          )}
+
+          {!metrics && !loading && (
+            <div className="glass-card" style={{ padding: "3rem", textAlign: "center" }}>
+              <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>📊</div>
+              <p style={{ color: "var(--text-secondary)", fontWeight: 500 }}>Nenhuma métrica calculada ainda.</p>
+              <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", marginTop: "0.375rem" }}>
+                Selecione um serviço acima e clique em &quot;Calcular&quot;.
+              </p>
+            </div>
+          )}
         </div>
-      </div>
+      </main>
     </div>
   );
+}
+
+export default function DashboardPage() {
+  return <AuthGuard><DashboardContent /></AuthGuard>;
 }

@@ -10,12 +10,12 @@ interface CaseStudyCardProps {
 
 export function CaseStudyCard({ study, onLoad }: CaseStudyCardProps) {
   return (
-    <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500">
-      <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
+    <div className="glass-card" style={{ padding: "1.5rem" }}>
+      <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "0.5rem" }}>
         {study.name}
       </h3>
-      <p className="text-[var(--text-secondary)] mb-4">{study.description}</p>
-      <div className="grid grid-cols-2 gap-2 mb-4">
+      <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: "1.25rem", lineHeight: 1.5 }}>{study.description}</p>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginBottom: "1.25rem", fontSize: "0.9rem", color: "var(--text-secondary)" }}>
         <div>
           <MathRenderer math="\lambda" />: {study.metrics.lambda}
         </div>
@@ -35,10 +35,7 @@ export function CaseStudyCard({ study, onLoad }: CaseStudyCardProps) {
           <MathRenderer math="W_q" />: {study.metrics.Wq.toFixed(2)} s
         </div>
       </div>
-      <button
-        onClick={() => onLoad(study)}
-        className="w-full px-4 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg"
-      >
+      <button onClick={() => onLoad(study)} className="btn btn-primary" style={{ width: "100%" }}>
         Carregar Estudo
       </button>
     </div>

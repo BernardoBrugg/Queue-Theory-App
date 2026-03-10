@@ -136,11 +136,11 @@ export function DiscreteEventSimulation({
   };
 
   return (
-    <div className="mb-8">
-      <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
+    <div style={{ marginBottom: "2rem" }}>
+      <h2 className="section-title">
         Simulação por Eventos Discretos
       </h2>
-      <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl mb-4">
+      <div className="glass-card" style={{ padding: "1.5rem", marginBottom: "1.5rem" }}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <div>
             <label className="block text-[var(--text-primary)] mb-2">
@@ -190,16 +190,13 @@ export function DiscreteEventSimulation({
             />
           </div>
         </div>
-        <button
-          onClick={runDiscreteEventSimulation}
-          className="px-6 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg"
-        >
+        <button onClick={runDiscreteEventSimulation} className="btn btn-primary" style={{ marginTop: "1rem" }}>
           Executar Simulação
         </button>
       </div>
       {simulationResults && (
-        <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-2xl shadow-xl">
-          <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
+        <div className="glass-card" style={{ padding: "1.5rem" }}>
+          <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>
             Resultados da Simulação por Eventos Discretos
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -263,7 +260,8 @@ export function DiscreteEventSimulation({
               onAddService(newService);
               alert("Simulação adicionada aos Serviços!");
             }}
-            className="mt-4 px-6 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="btn btn-secondary"
+            style={{ marginTop: "1rem" }}
           >
             Adicionar aos Serviços
           </button>

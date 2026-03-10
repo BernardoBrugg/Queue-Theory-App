@@ -66,27 +66,28 @@ export function calculateMetrics(
     }
 
     // Compute inter-arrivals for lambda
-    const interArrivals = [];
-    for (let i = 1; i < filteredArrivalData.length; i++) {
-        const diff =
-          (new Date(filteredArrivalData[i].timestamp).getTime() -
-            new Date(filteredArrivalData[i - 1].timestamp).getTime()) /
-          1000;
-        if (diff > 0) {
-          interArrivals.push(diff);
-        }
-    }
+    const sortedTimestamps = filteredArrivalData
+      .map(d => new Date(d.timestamp).getTime())
+      .sort((a,b) => a - b);
+      
+    const lastTimestamp = sortedTimestamps[sortedTimestamps.length - 1];
+    const firstTimestamp = sortedTimestamps[0];
+    const totalTimeSpanStr = (lastTimestamp - firstTimestamp) / 1000;
 
-    if (interArrivals.length === 0) {
+    if (totalTimeSpanStr <= 0 || sortedTimestamps.length < 2) {
       toast.error(
-        "Todos os tempos de chegada são idênticos. Por favor, registre chegadas com timestamps diferentes para calcular a taxa de chegada (λ)."
+        "Tempo insuficiente entre a primeira e a última chegada para calcular a taxa de chegada (λ)."
       );
       return;
     }
 
-    const avgInterArrival =
-      interArrivals.reduce((a, b) => a + b, 0) / interArrivals.length;
-    const lambda = 1 / avgInterArrival;
+    const lambda = (sortedTimestamps.length - 1) / totalTimeSpanStr;
+    
+    // Keep interArrivals for formatting, but compute lambda globally
+    const interArrivals = [];
+    for (let i = 1; i < sortedTimestamps.length; i++) {
+        interArrivals.push((sortedTimestamps[i] - sortedTimestamps[i - 1]) / 1000);
+    }
 
     if (!isFinite(lambda) || lambda <= 0) {
       toast.error(
@@ -139,38 +140,58 @@ export function calculateMetrics(
       );
     }
 
-    const lambdaK = () => lambda;
-    const muK = (_k: number) => Math.min(_k, numServers) * mu;
-
-    const C: number[] = [1];
-    for (let n = 1; n <= maxN; n++) {
-      C[n] = C[n - 1] * (lambdaK() / muK(n));
+    const r = lambda / mu;
+    let P0 = 0;
+    
+    if (rho < 1) {
+      let sumProb = 0;
+      for (let n = 0; n < numServers; n++) {
+        let fact = 1;
+        for (let i = 1; i <= n; i++) fact *= i;
+        sumProb += Math.pow(r, n) / fact;
+      }
+      let factC = 1;
+      for (let i = 1; i <= numServers; i++) factC *= i;
+      sumProb += (Math.pow(r, numServers) / factC) * (1 / (1 - rho));
+      P0 = 1 / sumProb;
     }
-
-    const sumC = C.slice(1).reduce((sum, c) => sum + c, 0);
-    const P0 = 1 / (1 + sumC);
 
     const P: number[] = [];
     for (let n = 0; n <= maxN; n++) {
-      P[n] = C[n] * P0;
+      if (rho >= 1) {
+        P[n] = 0;
+      } else if (n < numServers) {
+        let fact = 1;
+        for (let i = 1; i <= n; i++) fact *= i;
+        P[n] = P0 * (Math.pow(r, n) / fact);
+      } else {
+        let factC = 1;
+        for (let i = 1; i <= numServers; i++) factC *= i;
+        P[n] = P0 * (Math.pow(r, n) / (factC * Math.pow(numServers, n - numServers)));
+      }
     }
 
-    if (P.some((p) => !isFinite(p))) {
-      toast.error("Métricas inválidas devido a sistema instável (probabilidades infinitas).");
-      return;
+    let Lq = 0;
+    let Wq = 0;
+    let W = 0;
+    let L = 0;
+
+    if (rho < 1) {
+      let factC = 1;
+      for (let i = 1; i <= numServers; i++) factC *= i;
+      Lq = (P0 * Math.pow(r, numServers) * rho) / (factC * Math.pow(1 - rho, 2));
+      Wq = Lq / lambda;
+      W = Wq + 1 / mu;
+      L = lambda * W;
+    } else {
+      Lq = Infinity;
+      Wq = Infinity;
+      W = Infinity;
+      L = Infinity;
     }
 
-    const L = P.reduce((sum, p, n) => sum + n * p, 0);
-    const Lq = P.slice(numServers).reduce(
-      (sum, p, idx) => sum + (idx + numServers - numServers) * p,
-      0
-    );
-
-    const W = L / lambda;
-    const Wq = Lq / lambda;
-
-    if (!isFinite(L) || !isFinite(Lq) || !isFinite(W) || !isFinite(Wq)) {
-      toast.error("Métricas inválidas devido a dados instáveis.");
+    if (P.some((p) => !isFinite(p) && rho < 1)) {
+      toast.error("Métricas inválidas devido a sistema instável (probabilidades matemáticas excedidas).");
       return;
     }
 

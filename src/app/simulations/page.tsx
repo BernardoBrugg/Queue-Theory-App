@@ -1,6 +1,6 @@
 "use client";
 
-import { Nav } from "../../components/Nav";
+import { NavBar } from "../../components/NavBar";
 import { caseStudies } from "./utils/caseStudies";
 
 import { CaseStudyCard } from "./components/CaseStudyCard";
@@ -16,25 +16,19 @@ export default function Simulations() {
   const { services, loadCaseStudy, handleAddService } = useSimulations();
 
   return (
-    <>
-      <Nav />
-      <div className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] mb-8 text-center">
+    <div className="page-container">
+      <NavBar />
+      <main style={{ padding: "2.5rem 1.5rem" }}>
+        <div className="content-wrapper">
+          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "2rem" }}>
             Simulações e Estudos de Caso
           </h1>
 
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
-              Estudos de Caso Pré-definidos
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div style={{ marginBottom: "2rem" }}>
+            <h2 className="section-title">Estudos de Caso Pré-definidos</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
               {caseStudies.map((study, index) => (
-                <CaseStudyCard
-                  key={index}
-                  study={study}
-                  onLoad={loadCaseStudy}
-                />
+                <CaseStudyCard key={index} study={study} onLoad={loadCaseStudy} />
               ))}
             </div>
           </div>
@@ -45,7 +39,8 @@ export default function Simulations() {
           <MonteCarloSimulation />
           <MarkovChainSimulation />
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
+
