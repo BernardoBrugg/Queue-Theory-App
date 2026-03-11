@@ -81,7 +81,7 @@ export function MarkovChainSimulation() {
               step="0.1"
               value={markovLambda}
               onChange={(e) => setMarkovLambda(parseFloat(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -93,7 +93,7 @@ export function MarkovChainSimulation() {
               step="0.1"
               value={markovMu}
               onChange={(e) => setMarkovMu(parseFloat(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -105,7 +105,7 @@ export function MarkovChainSimulation() {
               min="1"
               value={markovNumServers}
               onChange={(e) => setMarkovNumServers(parseInt(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -117,7 +117,7 @@ export function MarkovChainSimulation() {
               min="10"
               value={markovSteps}
               onChange={(e) => setMarkovSteps(parseInt(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
         </div>

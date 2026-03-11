@@ -11,35 +11,32 @@ export function useRecords() {
   const { user } = useAuth();
   const [records, setRecords] = useState<QueueRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>("all");
 
   const [services, setServices] = useState<ServiceDefinition[]>([]);
-  const [selectedService, setSelectedService] = useState<ServiceDefinition | null>(null);
 
   useEffect(() => {
     if (!user) return;
     getServiceDefinitions(user.uid).then((list) => {
       setServices(list);
-      if (list.length > 0) setSelectedService(list[0]);
     });
   }, [user]);
 
   const load = useCallback(async () => {
-    if (!user || !selectedService) {
+    if (!user) {
       setRecords([]);
       setLoading(false);
       return;
     }
     setLoading(true);
     try {
-      const data = await getQueueRecords(user.uid, selectedService.id);
+      const data = await getQueueRecords(user.uid);
       setRecords(data);
     } catch {
       toast.error("Erro ao carregar registros.");
     } finally {
       setLoading(false);
     }
-  }, [user, selectedService]);
+  }, [user]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -50,13 +47,11 @@ export function useRecords() {
     toast.success("Registro removido.");
   };
 
-  const queues = [...new Set(records.map((r) => r.queue))].sort();
-  const filtered = filter === "all" ? records : records.filter((r) => r.queue === filter);
-
-  const exportCsv = () => {
-    if (filtered.length === 0) { toast.warn("Nenhum dado para exportar."); return; }
-    const headers = ["queue", "type", "timestamp", "element", "totalTime", "arriving", "exiting"];
-    const rows = filtered.map((r) => headers.map((h) => (r as unknown as Record<string, unknown>)[h] ?? "").join(","));
+  const exportCsv = (serviceId?: string) => {
+    const toExport = serviceId ? records.filter(r => r.serviceId === serviceId) : records;
+    if (toExport.length === 0) { toast.warn("Nenhum dado para exportar."); return; }
+    const headers = ["serviceId", "queue", "type", "timestamp", "element", "totalTime", "arriving", "exiting"];
+    const rows = toExport.map((r) => headers.map((h) => (r as unknown as Record<string, unknown>)[h] ?? "").join(","));
     const csv = [headers.join(","), ...rows].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -66,7 +61,7 @@ export function useRecords() {
   };
 
   return { 
-    services, selectedService, setSelectedService,
-    records: filtered, loading, queues, filter, setFilter, remove, exportCsv, reload: load 
+    services, 
+    records, loading, remove, exportCsv, reload: load 
   };
 }

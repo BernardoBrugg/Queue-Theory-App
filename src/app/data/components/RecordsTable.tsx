@@ -7,11 +7,15 @@ interface RecordsTableProps {
   onDelete: (id: string) => void;
 }
 
+import { ClipboardList } from "lucide-react";
+
 export function RecordsTable({ records, onDelete }: RecordsTableProps) {
   if (records.length === 0) {
     return (
       <div className="glass-card" style={{ padding: "3rem", textAlign: "center" }}>
-        <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>📋</div>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.75rem", color: "var(--text-muted)" }}>
+          <ClipboardList className="w-12 h-12" />
+        </div>
         <p style={{ color: "var(--text-secondary)", fontWeight: 500 }}>Nenhum registro encontrado.</p>
         <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", marginTop: "0.375rem" }}>Use os cronômetros para registrar chegadas e atendimentos.</p>
       </div>

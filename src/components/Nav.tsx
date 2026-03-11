@@ -2,21 +2,38 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useTheme } from "next-themes";
 import { useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
+import { ThemeToggle } from "./ThemeToggle";
+import { motion, AnimatePresence } from "framer-motion";
+
+const NAV_LINKS = [
+  { href: "/", label: "Início" },
+  { href: "/data", label: "Dados" },
+  { href: "/dashboards", label: "Painéis" },
+  { href: "/simulations", label: "Simulações" },
+  { href: "/about", label: "Sobre" },
+];
 
 export function Nav() {
-  const { theme, setTheme } = useTheme();
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(timer);
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = () => setIsProfileOpen(false);
+    if (isProfileOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [isProfileOpen]);
 
   const handleLogout = async () => {
     try {
@@ -28,274 +45,311 @@ export function Nav() {
     }
   };
 
+  const navStyle: React.CSSProperties = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    backgroundColor: scrolled ? "var(--nav-bg)" : "transparent",
+    borderBottom: scrolled ? "1px solid var(--nav-border)" : "1px solid transparent",
+    transition: "all 400ms cubic-bezier(0.2, 0, 0, 1)",
+  };
+
+  const containerStyle: React.CSSProperties = {
+    maxWidth: 1280,
+    margin: "0 auto",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "0.75rem 1.5rem",
+  };
+
+  const linkStyle: React.CSSProperties = {
+    color: "var(--text-secondary)",
+    textDecoration: "none",
+    fontSize: "0.9rem",
+    fontWeight: 500,
+    transition: "color 200ms ease",
+    letterSpacing: "-0.01em",
+  };
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[var(--element-bg)]/80 backdrop-blur-lg shadow-lg">
-      <div className="container mx-auto flex justify-between items-center px-4 py-4">
+    <nav style={navStyle}>
+      <div style={containerStyle}>
         <Link
           href="/"
-          className="transition-all duration-300 hover:scale-105"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            textDecoration: "none",
+            transition: "opacity 200ms ease",
+          }}
           onClick={() => setIsMenuOpen(false)}
         >
           <Image
             src="/cronAppLogo.png"
-            alt="Teoria das filas: CronApp"
-            width={40}
-            height={40}
-            className="h-10 w-auto rounded-lg sm:h-12"
+            alt="QueueTheoryApp"
+            width={32}
+            height={32}
+            style={{ borderRadius: "var(--radius-sm)" }}
           />
+          <span style={{
+            fontWeight: 700,
+            fontSize: "0.95rem",
+            color: "var(--text-primary)",
+            letterSpacing: "-0.02em",
+          }}>
+            QueueTheoryApp
+          </span>
         </Link>
-        <div className="hidden md:flex items-center space-x-6">
-          <Link
-            href="/"
-            className="text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-          >
-            Início
-          </Link>
-          <Link
-            href="/chronometers"
-            className="text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-          >
-            Cronômetros
-          </Link>
-          <Link
-            href="/data"
-            className="text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-          >
-            Dados
-          </Link>
-          <Link
-            href="/dashboards"
-            className="text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-          >
-            Painéis
-          </Link>
-          <Link
-            href="/simulations"
-            className="text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-          >
-            Simulações
-          </Link>
-          <Link
-            href="/about"
-            className="text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-          >
-            Sobre
-          </Link>
+
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "1.75rem",
+        }}
+          className="nav-desktop"
+        >
+          {NAV_LINKS.map(({ href, label }) => (
+            <Link key={href} href={href} style={linkStyle}>
+              {label}
+            </Link>
+          ))}
+
           {user ? (
-            <div className="relative">
+            <div style={{ position: "relative" }}>
               <button
-                onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="p-2 rounded-full bg-[var(--button-bg)] hover:bg-[var(--button-hover)] text-white transition-all duration-300 flex items-center justify-center"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsProfileOpen(!isProfileOpen);
+                }}
+                style={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: "50%",
+                  background: "var(--accent)",
+                  color: "white",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "transform 200ms ease, box-shadow 200ms ease",
+                }}
                 title={user.email || "Perfil"}
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                    clipRule="evenodd"
-                  />
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                 </svg>
               </button>
-              {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-[var(--element-bg)]/95 backdrop-blur-lg border-2 border-[var(--element-border)] rounded-lg shadow-xl py-2">
-                  <div className="px-4 py-3 border-b border-[var(--element-border)]">
-                    <p className="text-sm text-[var(--text-muted)]">Logado como</p>
-                    <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
+              <AnimatePresence>
+                {isProfileOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                    transition={{ duration: 0.2 }}
+                    style={{
+                      position: "absolute",
+                      right: 0,
+                      top: "calc(100% + 8px)",
+                      width: 260,
+                      background: "var(--surface)",
+                      backdropFilter: "blur(20px)",
+                      WebkitBackdropFilter: "blur(20px)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--radius-lg)",
+                      boxShadow: "var(--shadow-lg)",
+                      overflow: "hidden",
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div style={{
+                      padding: "0.875rem 1rem",
+                      borderBottom: "1px solid var(--border)",
+                    }}>
+                      <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "0.125rem" }}>
+                        Logado como
+                      </p>
+                      <p style={{
+                        fontSize: "0.85rem",
+                        fontWeight: 600,
+                        color: "var(--text-primary)",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}>
+                        {user.email}
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      style={{
+                        width: "100%",
+                        textAlign: "left",
+                        padding: "0.75rem 1rem",
+                        background: "none",
+                        border: "none",
+                        color: "var(--danger)",
+                        fontWeight: 600,
+                        fontSize: "0.85rem",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        transition: "background 150ms ease",
+                      }}
+                    >
+                      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                        <polyline points="16,17 21,12 16,7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                      </svg>
+                      Sair
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <Link href="/login" className="btn btn-primary btn-sm">
+              Entrar
+            </Link>
+          )}
+
+          <ThemeToggle />
+        </div>
+
+        <div className="nav-mobile">
+          <ThemeToggle />
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            style={{
+              padding: "0.5rem",
+              borderRadius: "var(--radius-md)",
+              background: "none",
+              border: "1px solid var(--border)",
+              color: "var(--text-primary)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 200ms ease",
+            }}
+          >
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              {isMenuOpen ? (
+                <path d="M18 6L6 18M6 6l12 12" />
+              ) : (
+                <path d="M3 12h18M3 6h18M3 18h18" />
+              )}
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.2, 0, 0, 1] }}
+            style={{ overflow: "hidden" }}
+            className="nav-mobile-menu"
+          >
+            <div style={{
+              padding: "0.5rem 1.5rem 1.5rem",
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.25rem",
+            }}>
+              {NAV_LINKS.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  style={{
+                    ...linkStyle,
+                    display: "block",
+                    padding: "0.75rem 0.5rem",
+                    borderRadius: "var(--radius-md)",
+                    fontSize: "0.95rem",
+                    fontWeight: 600,
+                    color: "var(--text-primary)",
+                  }}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {label}
+                </Link>
+              ))}
+
+              {user ? (
+                <>
+                  <div style={{
+                    padding: "0.75rem",
+                    background: "var(--surface-raised)",
+                    borderRadius: "var(--radius-md)",
+                    marginTop: "0.5rem",
+                  }}>
+                    <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Logado como</p>
+                    <p style={{
+                      fontSize: "0.85rem",
+                      fontWeight: 600,
+                      color: "var(--text-primary)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}>
                       {user.email}
                     </p>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-[var(--text-primary)] hover:bg-[var(--accent-light)] transition-colors duration-200 flex items-center space-x-2"
+                    style={{
+                      ...linkStyle,
+                      display: "block",
+                      padding: "0.75rem 0.5rem",
+                      color: "var(--danger)",
+                      fontWeight: 600,
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      width: "100%",
+                    }}
                   >
-                    <svg
-                      className="w-5 h-5 text-[var(--button-danger)]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                      />
-                    </svg>
-                    <span className="font-semibold">Logout</span>
+                    Sair
                   </button>
-                </div>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="btn btn-primary"
+                  style={{ marginTop: "0.5rem" }}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Entrar
+                </Link>
               )}
             </div>
-          ) : (
-            <Link
-              href="/login"
-              className="text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-            >
-              Login
-            </Link>
-          )}
-          {mounted && (
-            <button
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              className="p-2 rounded-full bg-[var(--element-bg)] border-2 border-[var(--element-border)] hover:bg-[var(--accent-light)] text-[var(--text-primary)] transition-all duration-300"
-            >
-              {theme === "light" ? (
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                </svg>
-              ) : (
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-            </button>
-          )}
-        </div>
-        <div className="md:hidden flex items-center space-x-2">
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2 rounded-full bg-[var(--element-bg)] border-2 border-[var(--element-border)] hover:bg-[var(--accent-light)] text-[var(--text-primary)] transition-all duration-300"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d={
-                  isMenuOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-      {isMenuOpen && (
-        <div className="md:hidden bg-[var(--element-bg)]/95 backdrop-blur-lg shadow-lg">
-          <div className="px-4 py-4 space-y-4">
-            <Link
-              href="/"
-              className="block text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Início
-            </Link>
-            <Link
-              href="/chronometers"
-              className="block text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Cronômetros
-            </Link>
-            <Link
-              href="/data"
-              className="block text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Dados
-            </Link>
-            <Link
-              href="/dashboards"
-              className="block text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Painéis
-            </Link>
-            <Link
-              href="/simulations"
-              className="block text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Simulações
-            </Link>
-            <Link
-              href="/about"
-              className="block text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Sobre
-            </Link>
-            {user ? (
-              <>
-                <div className="px-2 py-2 bg-[var(--accent-light)] rounded-lg">
-                  <p className="text-xs text-[var(--text-muted)]">Logado como</p>
-                  <p className="text-sm font-semibold text-[var(--text-primary)] truncate">
-                    {user.email}
-                  </p>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left text-[var(--button-danger)] hover:text-[var(--button-danger-hover)] transition-colors duration-300 font-semibold"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link
-                href="/login"
-                className="block text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Login
-              </Link>
-            )}
-            {mounted && (
-              <button
-                onClick={() => {
-                  setTheme(theme === "light" ? "dark" : "light");
-                  setIsMenuOpen(false);
-                }}
-                className="flex items-center space-x-2 text-[var(--text-primary)] hover:text-[var(--button-bg)] transition-colors duration-300 font-semibold"
-              >
-                {theme === "light" ? (
-                  <svg
-                    className="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                  </svg>
-                ) : (
-                  <svg
-                    className="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                )}
-                <span className="text-[var(--text-primary)]">{theme === "light" ? "Modo Escuro" : "Modo Claro"}</span>
-              </button>
-            )}
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <style>{`
+        .nav-desktop { display: flex; }
+        .nav-mobile { display: none; }
+        .nav-mobile-menu { display: none; }
+        @media (max-width: 768px) {
+          .nav-desktop { display: none !important; }
+          .nav-mobile { display: flex; align-items: center; gap: 0.5rem; }
+          .nav-mobile-menu { display: block; }
+        }
+      `}</style>
     </nav>
   );
 }

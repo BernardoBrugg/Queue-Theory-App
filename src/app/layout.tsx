@@ -1,8 +1,6 @@
 import { AuthProvider } from "../components/AuthContext";
 import { ToastContainer } from "react-toastify";
 import Footer from "../components/Footer";
-import "../styles/tokens.css";
-import "../styles/animations.css";
 import "../styles/globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import type { Metadata } from "next";
@@ -15,6 +13,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body>
         <AuthProvider>
           {children}

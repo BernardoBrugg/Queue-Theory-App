@@ -5,6 +5,7 @@ import { AuthGuard } from "../../components/AuthGuard";
 import { MetricsPanel } from "./components/MetricsPanel";
 import { ChartsGrid } from "./components/ChartsGrid";
 import { useDashboard } from "./hooks/useDashboard";
+import { Lightbulb, BarChart2 } from "lucide-react";
 
 function DashboardContent() {
   const { services, selectedService, setSelectedService, maxN, setMaxN, metrics, loading, calculate } = useDashboard();
@@ -41,8 +42,8 @@ function DashboardContent() {
               </button>
             </div>
             {!selectedService && services.length === 0 && (
-              <p style={{ marginTop: "0.75rem", fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                💡 Primeiro crie um serviço na página <strong>Serviços</strong> e registre dados com os <strong>Cronômetros</strong>.
+              <p style={{ marginTop: "0.75rem", fontSize: "0.8rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                <Lightbulb className="w-4 h-4 text-[var(--accent)]" /> Primeiro crie um serviço na página <strong>Serviços</strong> e registre dados com os <strong>Cronômetros</strong>.
               </p>
             )}
           </div>
@@ -56,7 +57,9 @@ function DashboardContent() {
 
           {!metrics && !loading && (
             <div className="glass-card" style={{ padding: "3rem", textAlign: "center" }}>
-              <div style={{ fontSize: "2.5rem", marginBottom: "0.75rem" }}>📊</div>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.75rem", color: "var(--text-muted)" }}>
+                <BarChart2 className="w-12 h-12" />
+              </div>
               <p style={{ color: "var(--text-secondary)", fontWeight: 500 }}>Nenhuma métrica calculada ainda.</p>
               <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", marginTop: "0.375rem" }}>
                 Selecione um serviço acima e clique em &quot;Calcular&quot;.

@@ -99,7 +99,7 @@ export function CustomSimulation({ onAddService }: CustomSimulationProps) {
               step="0.1"
               value={customLambda}
               onChange={(e) => setCustomLambda(parseFloat(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -111,7 +111,7 @@ export function CustomSimulation({ onAddService }: CustomSimulationProps) {
               step="0.1"
               value={customMu}
               onChange={(e) => setCustomMu(parseFloat(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -123,7 +123,7 @@ export function CustomSimulation({ onAddService }: CustomSimulationProps) {
               min="1"
               value={customNumServers}
               onChange={(e) => setCustomNumServers(parseInt(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -135,7 +135,7 @@ export function CustomSimulation({ onAddService }: CustomSimulationProps) {
               min="1"
               value={customMaxN}
               onChange={(e) => setCustomMaxN(parseInt(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
         </div>

@@ -1,101 +1,94 @@
-import { Card } from "../../../components/ui/card";
 import MathRenderer from "../../../components/MathRenderer";
 
 export function AboutFormulas() {
   return (
     <div className="mb-8">
-      <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
+      <h2 className="section-title">
         Parâmetros e Fórmulas Calculadas
       </h2>
       <div className="space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
             Probabilidades de Estado
           </h3>
-          <p className="text-[var(--text-secondary)] mb-2">
-            As probabilidades de equilíbrio são calculadas usando
-            coeficientes C_n e a probabilidade P_0.
+          <p className="text-[var(--text-secondary)] mb-4">
+            As probabilidades de estado M/M/c são calculadas identificando P0 e iterando.
           </p>
-          <Card className="bg-[var(--element-bg)] p-4 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300">
-            <p className="text-[var(--text-primary)]">
-              <strong>Coeficiente :</strong>{" "}
-              <MathRenderer math="C_n = \prod_{k=1}^{n} \frac{\mu_k}{\lambda_k}" />
+          <div className="glass-card p-6">
+            <p className="text-[var(--text-primary)] mb-3">
+              <strong>Múltiplos Servidores (c) P0:</strong>{" "}
+              <MathRenderer math="P_0 = \left[ \sum_{n=0}^{c-1} \frac{(c\rho)^n}{n!} + \frac{(c\rho)^c}{c!(1-\rho)} \right]^{-1}" />
             </p>
             <p className="text-[var(--text-primary)]">
-              <strong>Probabilidade :</strong>{" "}
-              <MathRenderer math="P_n = C_n \cdot P_0" />
+              <strong>Utilização do Sistema (ρ):</strong>{" "}
+              <MathRenderer math="\rho = \frac{\lambda}{c \mu}" />
             </p>
-            <p className="text-[var(--text-primary)]">
-              <strong>Probabilidade  (normalização):</strong>{" "}
-              <MathRenderer math="P_0 = \frac{1}{1 + \sum_{n=1}^{\infty} C_n}" />
-            </p>
-          </Card>
+          </div>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mt-6 mb-2">
             Número Esperado de Clientes no Sistema (L)
           </h3>
-          <p className="text-[var(--text-secondary)] mb-2">
-            Soma ponderada do número de clientes em cada estado.
+          <p className="text-[var(--text-secondary)] mb-4">
+            A média de clientes presentes no sistema completo (fila e em atendimento).
           </p>
-          <Card className="bg-[var(--element-bg)] p-4 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300">
+          <div className="glass-card p-6">
             <p className="text-[var(--text-primary)]">
-              <MathRenderer math="L = \sum_{n=0}^{\infty} n \cdot P_n" />
+              <MathRenderer math="L = L_q + \frac{\lambda}{\mu}" />
             </p>
-          </Card>
+          </div>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mt-6 mb-2">
             Número Esperado de Clientes na Fila (Lq)
           </h3>
-          <p className="text-[var(--text-secondary)] mb-2">
-            Somatório do produto do número de clientes em espera pela
-            probabilidade de cada estado, onde s é o número de servidores.
+          <p className="text-[var(--text-secondary)] mb-4">
+            A média de clientes aguardando na fila antes do atendimento (M/M/c).
           </p>
-          <Card className="bg-[var(--element-bg)] p-4 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300">
+          <div className="glass-card p-6">
             <p className="text-[var(--text-primary)]">
-              <MathRenderer math="L_q = \sum_{n=s}^{\infty} (n - s) \cdot P_n" />
+              <MathRenderer math="L_q = \frac{P_0 (c\rho)^c \rho}{c! (1-\rho)^2}" />
             </p>
-          </Card>
+          </div>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mt-6 mb-2">
             Taxa Média de Clientes Entrando no Sistema (λ)
           </h3>
-          <p className="text-[var(--text-secondary)] mb-2">
-            Usada quando as taxas de chegada λ_n não são iguais.
+          <p className="text-[var(--text-secondary)] mb-4">
+            Calculada a partir dos tempos de chegada inter-eventos (inverso da média).
           </p>
-          <Card className="bg-[var(--element-bg)] p-4 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300">
+          <div className="glass-card p-6">
             <p className="text-[var(--text-primary)]">
-              <MathRenderer math="\lambda = \sum_{n=0}^{\infty} \lambda_n \cdot P_n" />
+              <MathRenderer math="\lambda = \frac{1}{\text{Média do Tempo entre Chegadas}}" />
             </p>
-          </Card>
+          </div>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mt-6 mb-2">
             Tempo Esperado no Sistema (W)
           </h3>
-          <p className="text-[var(--text-secondary)] mb-2">
-            Razão entre L e λ.
+          <p className="text-[var(--text-secondary)] mb-4">
+            Pela Lei de Little, equivale à razão entre L e λ.
           </p>
-          <Card className="bg-[var(--element-bg)] p-4 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300">
+          <div className="glass-card p-6">
             <p className="text-[var(--text-primary)]">
               <MathRenderer math="W = \frac{L}{\lambda}" />
             </p>
-          </Card>
+          </div>
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mt-6 mb-2">
             Tempo Esperado na Fila (Wq)
           </h3>
-          <p className="text-[var(--text-secondary)] mb-2">
-            Razão entre Lq e λ.
+          <p className="text-[var(--text-secondary)] mb-4">
+            Pela Lei de Little, equivale à razão entre L_q e λ.
           </p>
-          <Card className="bg-[var(--element-bg)] p-4 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300">
+          <div className="glass-card p-6">
             <p className="text-[var(--text-primary)]">
               <MathRenderer math="W_q = \frac{L_q}{\lambda}" />
             </p>
-          </Card>
+          </div>
         </div>
       </div>
     </div>

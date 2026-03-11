@@ -151,7 +151,7 @@ export function DiscreteEventSimulation({
               step="0.1"
               value={arrivalRate}
               onChange={(e) => setArrivalRate(parseFloat(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -163,7 +163,7 @@ export function DiscreteEventSimulation({
               step="0.1"
               value={serviceRate}
               onChange={(e) => setServiceRate(parseFloat(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -175,7 +175,7 @@ export function DiscreteEventSimulation({
               min="1"
               value={numServers}
               onChange={(e) => setNumServers(parseInt(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -186,7 +186,7 @@ export function DiscreteEventSimulation({
               type="number"
               value={simulationTime}
               onChange={(e) => setSimulationTime(parseFloat(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
         </div>

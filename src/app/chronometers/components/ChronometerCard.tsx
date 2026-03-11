@@ -2,6 +2,7 @@
 
 import { useChronometer } from "../hooks/useChronometer";
 import { formatMs } from "../utils/formatMs";
+import { Check } from "lucide-react";
 
 interface ChronometerCardProps {
   serviceId: string;
@@ -133,9 +134,9 @@ export function ChronometerCard({
               <button
                 onClick={completedService}
                 className="btn btn-success"
-                style={{ width: "100%", height: "48px" }}
+                style={{ width: "100%", height: "48px", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
               >
-                Concluir Atendimento ✓
+                Concluir Atendimento <Check className="w-5 h-5" />
               </button>
             )}
           </>

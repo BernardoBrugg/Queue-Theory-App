@@ -1,13 +1,12 @@
-import { Card } from "../../../components/ui/card";
 
 export function AboutConcepts() {
   return (
     <div className="mb-8">
-      <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
+      <h2 className="section-title">
         Conceitos Fundamentais da Teoria das Filas
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card className="bg-[var(--element-bg)] p-6 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300">
+        <div className="glass-card p-6">
           <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
             Elementos de um Sistema de Filas
           </h3>
@@ -31,8 +30,8 @@ export function AboutConcepts() {
               Ser Atendido).
             </li>
           </ul>
-        </Card>
-        <Card className="bg-[var(--element-bg)] p-6 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300">
+        </div>
+        <div className="glass-card p-6">
           <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
             Processos Estocásticos
           </h3>
@@ -49,7 +48,7 @@ export function AboutConcepts() {
             <li>Um único servidor.</li>
             <li>Capacidade infinita da fila.</li>
           </ul>
-        </Card>
+        </div>
       </div>
     </div>
   );

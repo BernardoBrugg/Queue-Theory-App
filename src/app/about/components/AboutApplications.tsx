@@ -2,7 +2,7 @@ export function AboutApplications() {
   return (
     <>
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
+        <h2 className="section-title">
           Interpretação dos Gráficos
         </h2>
         <div className="space-y-4">
@@ -29,7 +29,7 @@ export function AboutApplications() {
         </div>
       </div>
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
+        <h2 className="section-title">
           Aplicações Práticas
         </h2>
         <p className="text-[var(--text-secondary)] mb-4">

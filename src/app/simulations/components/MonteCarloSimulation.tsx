@@ -114,7 +114,7 @@ export function MonteCarloSimulation() {
               step="0.1"
               value={monteLambda}
               onChange={(e) => setMonteLambda(parseFloat(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -126,7 +126,7 @@ export function MonteCarloSimulation() {
               step="0.1"
               value={monteMu}
               onChange={(e) => setMonteMu(parseFloat(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -138,7 +138,7 @@ export function MonteCarloSimulation() {
               min="1"
               value={monteNumServers}
               onChange={(e) => setMonteNumServers(parseInt(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -150,7 +150,7 @@ export function MonteCarloSimulation() {
               min="10"
               value={monteTime}
               onChange={(e) => setMonteTime(parseInt(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
           <div>
@@ -162,7 +162,7 @@ export function MonteCarloSimulation() {
               min="1"
               value={monteRuns}
               onChange={(e) => setMonteRuns(parseInt(e.target.value))}
-              className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
+              className="input"
             />
           </div>
         </div>

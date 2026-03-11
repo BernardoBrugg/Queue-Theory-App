@@ -6,9 +6,8 @@ import { ROUTES } from "../config/routes";
 
 const NAV_LINKS = [
   { href: ROUTES.services, label: "Serviços", step: 1 },
-  { href: ROUTES.chronometers, label: "Cronômetros", step: 2 },
-  { href: ROUTES.data, label: "Dados", step: 3 },
-  { href: ROUTES.dashboards, label: "Painéis", step: 4 },
+  { href: ROUTES.data, label: "Dados", step: 2 },
+  { href: ROUTES.dashboards, label: "Painéis", step: 3 },
   { href: ROUTES.simulations, label: "Simulações", step: null },
   { href: ROUTES.about, label: "Sobre", step: null },
 ];

@@ -1,14 +1,24 @@
-# Components
+# Components Directory
 
-This directory contains reusable UI components for the QueueTheoryApp.
+Shared UI components for QueueTheoryApp, styled with the Antigravity-inspired design system.
 
-## Main Components
+## Components
 
-- **Footer.tsx**: The global application footer, featuring a glassmorphic design and project credits.
-- **Header/Nav**: Navigation components for application-wide routing.
-- **Auth**: Components for user authentication and protection.
-- **ui/**: Atomic UI components (buttons, inputs, etc.) based on the design system.
+| Component | Purpose |
+|---|---|
+| `Nav.tsx` | Glassmorphic sticky navigation with backdrop-blur, framer-motion mobile drawer, profile dropdown |
+| `Footer.tsx` | Column-layout footer with product/resource links, giant semi-transparent brand text |
+| `ThemeToggle.tsx` | Animated sun/moon toggle using framer-motion rotation |
+| `FloatingParticles.tsx` | Canvas-based animated dot-field background (blue/purple/cyan hues) |
+| `Logo.tsx` | SVG logo component |
+| `AuthContext.tsx` | Authentication context provider (Firebase) |
+| `AuthGuard.tsx` | Route protection wrapper |
+| `Login.tsx` | Login form component |
+| `ClientLayout.tsx` | Client-side layout wrapper (includes Nav) |
 
-## Data Flow
+## Design Patterns
 
-Components are designed to be mostly stateless or to interact with global contexts (like `AuthContext`) to ensure a consistent user experience and easy modularity.
+- All components use CSS custom properties from `src/styles/tokens.css`
+- Inline styles used for component-specific layout; global CSS classes for shared patterns
+- framer-motion used for enter/exit animations (Nav menu, ThemeToggle, profile dropdown)
+- `FloatingParticles` respects `prefers-reduced-motion` media query

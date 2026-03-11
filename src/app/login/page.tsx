@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../components/AuthContext";
 import { Logo } from "../../components/Logo";
 import { ROUTES } from "../../config/routes";
+import { AlertTriangle } from "lucide-react";
 
 type Mode = "login" | "register";
 
@@ -14,8 +15,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user, loading: authLoading } = useAuth();
   const router = useRouter();
+  
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace(ROUTES.services);
+    }
+  }, [user, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,8 +69,8 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="badge badge-danger animate-slide-down" style={{ width: "100%", padding: "0.75rem 1rem", borderRadius: "var(--radius-md)", marginBottom: "1.25rem", fontSize: "0.875rem" }}>
-            ⚠️ {error}
+          <div className="badge badge-danger animate-slide-down" style={{ width: "100%", padding: "0.75rem 1rem", borderRadius: "var(--radius-md)", marginBottom: "1.25rem", fontSize: "0.875rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <AlertTriangle className="w-4 h-4" /> {error}
           </div>
         )}
 

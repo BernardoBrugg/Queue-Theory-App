@@ -3,8 +3,8 @@ import { Card } from "../../../components/ui/card";
 export function AboutHero() {
   return (
     <>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
+      <div className="mb-8 p-6 glass-card">
+        <h2 className="section-title">
           Pesquisa Operacional
         </h2>
         <p className="text-[var(--text-primary)] text-lg leading-relaxed mb-4">
@@ -13,7 +13,7 @@ export function AboutHero() {
           avançados para auxiliar na tomada de decisões, oferecendo apoio
           matemático na resolução de problemas.
         </p>
-        <Card className="p-4">
+        <Card className="p-4 bg-[var(--surface-raised)] border-[var(--border)]">
           <p className="text-[var(--text-secondary)] italic">
             &quot;Resolução de problemas reais envolvendo situações de
             tomada de decisão, através de modelos matemáticos habitualmente
@@ -36,8 +36,8 @@ export function AboutHero() {
           eventos ocorrem em pontos específicos no tempo.
         </p>
       </div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
+      <div className="mb-8 p-6 glass-card">
+        <h2 className="section-title">
           Teoria das Filas
         </h2>
         <p className="text-[var(--text-primary)] leading-relaxed mb-4">

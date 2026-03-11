@@ -5,6 +5,7 @@ import { AuthGuard } from "../../components/AuthGuard";
 import { ServiceSetupWizard } from "./components/ServiceSetupWizard";
 import { ServiceListCard } from "./components/ServiceListCard";
 import { useServiceDefinitions } from "./hooks/useServiceDefinitions";
+import { ClipboardList } from "lucide-react";
 
 function ServicesContent() {
   const { services, loading, create, remove } = useServiceDefinitions();
@@ -35,7 +36,9 @@ function ServicesContent() {
               )}
               {!loading && services.length === 0 && (
                 <div className="glass-card" style={{ padding: "2rem", textAlign: "center", color: "var(--text-muted)" }}>
-                  <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📋</div>
+                  <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.5rem" }}>
+                    <ClipboardList className="w-10 h-10" />
+                  </div>
                   <p style={{ fontWeight: 500 }}>Nenhum serviço criado ainda.</p>
                   <p style={{ fontSize: "0.875rem", marginTop: "0.25rem" }}>Use o formulário ao lado para começar.</p>
                 </div>

@@ -1,13 +1,11 @@
-import { Card } from "../../../components/ui/card";
-
 export function AboutFeatures() {
   return (
     <div className="mb-8">
-      <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
+      <h2 className="section-title">
         Funcionalidades Principais
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <Card className="bg-[var(--element-bg)] p-8 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300 group">
+        <div className="glass-card p-8 group">
           <div className="w-12 h-12 bg-[var(--accent)] rounded-xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform duration-300">
             <svg
               className="w-6 h-6 text-white"
@@ -30,8 +28,8 @@ export function AboutFeatures() {
             Adicione filas e meça tempos de chegada e saída de clientes em
             tempo real.
           </p>
-        </Card>
-        <Card className="bg-[var(--element-bg)] p-8 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300 group">
+        </div>
+        <div className="glass-card p-8 group">
           <div className="w-12 h-12 bg-[var(--accent)] rounded-xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform duration-300">
             <svg
               className="w-6 h-6 text-white"
@@ -54,8 +52,8 @@ export function AboutFeatures() {
             Visualize, importe e exporte dados coletados para análise
             externa.
           </p>
-        </Card>
-        <Card className="bg-[var(--element-bg)] p-8 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300 group">
+        </div>
+        <div className="glass-card p-8 group">
           <div className="w-12 h-12 bg-[var(--accent)] rounded-xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform duration-300">
             <svg
               className="w-6 h-6 text-white"
@@ -78,8 +76,8 @@ export function AboutFeatures() {
             Calcule e explore métricas de desempenho com gráficos
             interativos.
           </p>
-        </Card>
-        <Card className="bg-[var(--element-bg)] p-8 rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] transition-shadow duration-300 group">
+        </div>
+        <div className="glass-card p-8 group">
           <div className="w-12 h-12 bg-[var(--accent)] rounded-xl flex items-center justify-center mb-6 mx-auto group-hover:scale-110 transition-transform duration-300">
             <svg
               className="w-6 h-6 text-white"
@@ -102,7 +100,7 @@ export function AboutFeatures() {
             Carregue estudos de caso pré-definidos para comparar cenários
             diferentes.
           </p>
-        </Card>
+        </div>
       </div>
     </div>
   );
