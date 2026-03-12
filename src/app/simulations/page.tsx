@@ -1,1045 +1,123 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import MathRenderer from "../../components/MathRenderer";
-import { Nav } from "../../components/Nav";
-import {
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-} from "recharts";
-import { toast } from "react-toastify";
-import { Button } from '@/components/ui/button';
-
-interface QueueMetrics {
-  lambda: number;
-  mu: number;
-  rho: number;
-  L: number;
-  Lq: number;
-  W: number;
-  Wq: number;
-  P: number[];
-  numServers: number;
-}
-
-interface CaseStudy {
-  name: string;
-  description: string;
-  metrics: QueueMetrics;
-  chartData: { time: number; arrivals: number; departures: number }[];
-}
-
-interface StoredService {
-  id: string;
-  name: string;
-  arrivalQueue: string;
-  serviceQueue: string;
-  metrics: {
-    lambda: number;
-    mu: number;
-    rho: number;
-    L: number;
-    Lq: number;
-    W: number;
-    Wq: number;
-    P: number[];
-    numServers: number;
-  };
-  serviceTimes: number[];
-  waitingTimes: number[];
-  idleTimes: number[];
-}
-
-const caseStudies: CaseStudy[] = [
-  {
-    name: "Estudo de Caso 1: Sistema M/M/1 Estável",
-    description:
-      "Um sistema de fila simples com taxa de chegada λ = 0.5 clientes/min e taxa de serviço μ = 1 cliente/min. Sistema estável com ρ = 0.5.",
-    metrics: {
-      lambda: 0.5,
-      mu: 1,
-      rho: 0.5,
-      L: 1,
-      Lq: 0.5,
-      W: 2,
-      Wq: 1,
-      P: [
-        0.5, 0.25, 0.125, 0.0625, 0.03125, 0.015625, 0.0078125, 0.00390625,
-        0.001953125, 0.0009765625, 0.00048828125,
-      ],
-      numServers: 1,
-    },
-    chartData: [
-      { time: 0, arrivals: 0, departures: 0 },
-      { time: 1, arrivals: 1, departures: 0 },
-      { time: 2, arrivals: 1, departures: 1 },
-      { time: 3, arrivals: 2, departures: 1 },
-      { time: 4, arrivals: 2, departures: 2 },
-      { time: 5, arrivals: 3, departures: 2 },
-    ],
-  },
-  {
-    name: "Estudo de Caso 2: Sistema M/M/1 Sobrecarregado",
-    description:
-      "Sistema com alta utilização ρ = 0.8, λ = 0.8, μ = 1. Mostra o impacto da sobrecarga.",
-    metrics: {
-      lambda: 0.8,
-      mu: 1,
-      rho: 0.8,
-      L: 4,
-      Lq: 3.2,
-      W: 5,
-      Wq: 4,
-      P: [
-        0.2, 0.16, 0.128, 0.1024, 0.08192, 0.065536, 0.0524288, 0.04194304,
-        0.033554432, 0.0268435456, 0.02147483648,
-      ],
-      numServers: 1,
-    },
-    chartData: [
-      { time: 0, arrivals: 0, departures: 0 },
-      { time: 1, arrivals: 1, departures: 0 },
-      { time: 2, arrivals: 2, departures: 0 },
-      { time: 3, arrivals: 3, departures: 0 },
-      { time: 4, arrivals: 4, departures: 1 },
-      { time: 5, arrivals: 5, departures: 1 },
-    ],
-  },
-  {
-    name: "Estudo de Caso 3: Sistema Eficiente",
-    description:
-      "Sistema com baixa espera, λ = 0.2, μ = 2. ρ = 0.1, muito eficiente.",
-    metrics: {
-      lambda: 0.2,
-      mu: 2,
-      rho: 0.1,
-      L: 0.1111,
-      Lq: 0.01111,
-      W: 0.5556,
-      Wq: 0.0556,
-      P: [
-        0.9, 0.09, 0.009, 0.0009, 0.00009, 0.000009, 0.0000009, 0.00000009,
-        0.000000009, 0.0000000009, 0.00000000009,
-      ],
-      numServers: 1,
-    },
-    chartData: [
-      { time: 0, arrivals: 0, departures: 0 },
-      { time: 1, arrivals: 1, departures: 1 },
-      { time: 2, arrivals: 1, departures: 1 },
-      { time: 3, arrivals: 2, departures: 2 },
-      { time: 4, arrivals: 2, departures: 2 },
-      { time: 5, arrivals: 3, departures: 3 },
-    ],
-  },
-  {
-    name: "Estudo de Caso 4: Sistema M/M/2 Estável",
-    description:
-      "Sistema com dois servidores, λ = 0.8 clientes/min, μ = 0.5 clientes/min por servidor. ρ = 0.8, sistema estável com múltiplos servidores.",
-    metrics: {
-      lambda: 0.8,
-      mu: 0.5,
-      rho: 0.8,
-      L: 4.4444,
-      Lq: 2.8444,
-      W: 5.5555,
-      Wq: 3.5555,
-      P: [
-        0.1111, 0.1778, 0.1422, 0.1138, 0.091, 0.0727, 0.0582, 0.0466, 0.0373,
-        0.0298, 0.0239,
-      ],
-      numServers: 2,
-    },
-    chartData: [
-      { time: 0, arrivals: 0, departures: 0 },
-      { time: 1, arrivals: 1, departures: 0 },
-      { time: 2, arrivals: 1, departures: 1 },
-      { time: 3, arrivals: 2, departures: 1 },
-      { time: 4, arrivals: 2, departures: 2 },
-      { time: 5, arrivals: 3, departures: 2 },
-    ],
-  },
-  {
-    name: "Estudo de Caso 5: Sistema M/M/3 Eficiente",
-    description:
-      "Sistema com três servidores, λ = 1.2 clientes/min, μ = 0.5 clientes/min por servidor. ρ = 0.8, demonstra eficiência com mais servidores.",
-    metrics: {
-      lambda: 1.2,
-      mu: 0.5,
-      rho: 0.8,
-      L: 4.9875,
-      Lq: 2.5875,
-      W: 4.156,
-      Wq: 2.156,
-      P: [
-        0.0562, 0.1348, 0.3234, 0.1294, 0.1066, 0.0852, 0.0681, 0.0545, 0.0436,
-        0.0349, 0.0279,
-      ],
-      numServers: 3,
-    },
-    chartData: [
-      { time: 0, arrivals: 0, departures: 0 },
-      { time: 1, arrivals: 1, departures: 0 },
-      { time: 2, arrivals: 2, departures: 1 },
-      { time: 3, arrivals: 3, departures: 2 },
-      { time: 4, arrivals: 3, departures: 3 },
-      { time: 5, arrivals: 4, departures: 3 },
-    ],
-  },
-];
+import { BarChart2 } from "lucide-react";
+import { NavBar } from "../../components/NavBar";
+import { MetricsPanel } from "../dashboards/components/MetricsPanel";
+import { StudySelector } from "./components/StudySelector";
+import { SimulationChartsGrid } from "./components/SimulationChartsGrid";
+import { useSimulationPage } from "./hooks/useSimulationPage";
 
 export default function Simulations() {
-  // Clean up localStorage on mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("queueing-services");
-      if (stored) {
-        try {
-          const services = JSON.parse(stored) as StoredService[];
-          const cleaned = services.map((service) => ({
-            ...service,
-            metrics: {
-              ...service.metrics,
-              numServers: service.metrics.numServers || 1,
-              P: service.metrics.P.map((p) =>
-                typeof p === "number" && isFinite(p) && p !== null ? p : 0
-              ),
-            },
-          }));
-          localStorage.setItem("queueing-services", JSON.stringify(cleaned));
-        } catch (e) {
-          console.error("Error cleaning localStorage:", e);
-        }
-      }
-    }
-  }, []);
-
-  const [services, setServices] = useState<
-    {
-      name: string;
-      arrivalQueue: string;
-      serviceQueue: string;
-      metrics: QueueMetrics;
-    }[]
-  >(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("queueing-services");
-      return stored
-        ? (JSON.parse(stored) as StoredService[]).map((service) => ({
-            ...service,
-            metrics: {
-              ...service.metrics,
-              P: service.metrics.P.map((p) =>
-                typeof p === "number" && isFinite(p) && p !== null ? p : 0
-              ),
-            },
-          }))
-        : [];
-    }
-    return [];
-  });
-
-  const saveServices = (newServices: typeof services) => {
-    setServices(newServices);
-    localStorage.setItem("queueing-services", JSON.stringify(newServices));
-  };
-
-  const loadCaseStudy = (study: CaseStudy) => {
-    const newService: StoredService = {
-      id: crypto.randomUUID(),
-      name: study.name,
-      arrivalQueue: "Chegada Exemplo",
-      serviceQueue: "Atendimento Exemplo",
-      metrics: study.metrics,
-      serviceTimes: [],
-      waitingTimes: [],
-      idleTimes: [],
-    };
-    saveServices([...services, newService]);
-    toast.success(`Estudo de caso "${study.name}" carregado com sucesso!`);
-  };
-
-  const [customLambda, setCustomLambda] = useState(0.5);
-  const [customMu, setCustomMu] = useState(1);
-  const [customNumServers, setCustomNumServers] = useState(1);
-  const [customMaxN, setCustomMaxN] = useState(10);
-  const [customMetrics, setCustomMetrics] = useState<QueueMetrics | null>(null);
-
-  const [simLambda, setSimLambda] = useState(0.5);
-  const [simMu, setSimMu] = useState(1);
-  const [simNumServers, setSimNumServers] = useState(1);
-  const [simTime, setSimTime] = useState(100);
-  const [simResults, setSimResults] = useState<
-    { time: number; queueLength: number }[] | null
-  >(null);
-
-  const [monteLambda, setMonteLambda] = useState(0.5);
-  const [monteMu, setMonteMu] = useState(1);
-  const [monteNumServers, setMonteNumServers] = useState(1);
-  const [monteTime, setMonteTime] = useState(100);
-  const [monteRuns, setMonteRuns] = useState(10);
-  const [monteResults, setMonteResults] = useState<{
-    avgQueueLength: number;
-    avgUtilization: number;
-    avgWaitingTime: number;
-  } | null>(null);
-
-  const [markovLambda, setMarkovLambda] = useState(0.5);
-  const [markovMu, setMarkovMu] = useState(1);
-  const [markovNumServers, setMarkovNumServers] = useState(1);
-  const [markovSteps, setMarkovSteps] = useState(100);
-  const [markovResults, setMarkovResults] = useState<{ step: number; state: number }[] | null>(null);
-  const [currentMarkovState, setCurrentMarkovState] = useState(0);
-  const [markovStepOffset, setMarkovStepOffset] = useState(0);
-
-  const calculateCustomMetrics = () => {
-    const lambda = customLambda;
-    const mu = customMu;
-    const numServers = customNumServers;
-    const rho = lambda / (numServers * mu);
-    if (rho >= 1) {
-      toast.error("Sistema instável (ρ >= 1).");
-      return;
-    }
-    const N = customMaxN; // Large number for summation approximation
-    const C = new Array(N + 1).fill(0);
-    C[0] = 1;
-    for (let n = 1; n <= N; n++) {
-      if (n < numServers) {
-        C[n] = C[n - 1] * (lambda / (n * mu));
-      } else {
-        C[n] = C[n - 1] * (lambda / (numServers * mu));
-      }
-    }
-    let sumC = 0;
-    for (let n = 0; n <= N; n++) {
-      sumC += C[n];
-    }
-    const P0 = 1 / sumC;
-    const P = C.map((c) => c * P0);
-    let L = 0;
-    for (let n = 0; n <= N; n++) {
-      L += n * P[n];
-    }
-    let Lq = 0;
-    for (let n = numServers; n <= N; n++) {
-      Lq += (n - numServers) * P[n];
-    }
-    const W = L / lambda;
-    const Wq = Lq / lambda;
-    setCustomMetrics({ lambda, mu, rho, L, Lq, W, Wq, P, numServers });
-  };
-
-  const runSimulation = () => {
-    const lambda = simLambda;
-    const mu = simMu;
-    const c = simNumServers;
-    const rho = lambda / (c * mu);
-    if (rho >= 1) {
-      alert("Sistema instável (ρ >= 1). A simulação não pode ser executada.");
-      return;
-    }
-    const totalTime = simTime;
-    let currentTime = 0;
-    let nextArrival = -Math.log(Math.random()) / lambda;
-    const departures: number[] = new Array(c).fill(Infinity);
-    const queue: number[] = []; // arrival times in queue
-    let inService = 0;
-    const data: { time: number; queueLength: number }[] = [];
-    while (currentTime < totalTime) {
-      // find next event
-      const nextEventTime = Math.min(nextArrival, ...departures);
-      if (nextEventTime > totalTime) break;
-      // advance time
-      currentTime = nextEventTime;
-      // record queue length
-      data.push({ time: currentTime, queueLength: queue.length + inService });
-      if (nextEventTime === nextArrival) {
-        // arrival
-        queue.push(currentTime);
-        nextArrival = currentTime + -Math.log(Math.random()) / lambda;
-        // assign to server if available
-        for (let i = 0; i < c; i++) {
-          if (departures[i] === Infinity) {
-            departures[i] = currentTime + -Math.log(Math.random()) / mu;
-            inService++;
-            queue.shift();
-            break;
-          }
-        }
-      } else {
-        // departure
-        for (let i = 0; i < c; i++) {
-          if (departures[i] === nextEventTime) {
-            departures[i] = Infinity;
-            inService--;
-            if (queue.length > 0) {
-              departures[i] = currentTime + -Math.log(Math.random()) / mu;
-              inService++;
-              queue.shift();
-            }
-            break;
-          }
-        }
-      }
-    }
-    setSimResults(data);
-  };
-
-  const runMonteCarlo = () => {
-    const lambda = monteLambda;
-    const mu = monteMu;
-    const c = monteNumServers;
-    const rho = lambda / (c * mu);
-    if (rho >= 1) {
-      toast.error("Sistema instável (ρ >= 1). A simulação não pode ser executada.");
-      return;
-    }
-    const totalTime = monteTime;
-    const numRuns = monteRuns;
-    let totalQueueLength = 0;
-    let totalUtilization = 0;
-    let totalWaitingTime = 0;
-    let totalCustomers = 0;
-
-    for (let run = 0; run < numRuns; run++) {
-      let currentTime = 0;
-      let nextArrival = -Math.log(Math.random()) / lambda;
-      const departures: number[] = new Array(c).fill(Infinity);
-      const queue: number[] = [];
-      let inService = 0;
-      let queueLengthSum = 0;
-      let utilizationSum = 0;
-      let customerCount = 0;
-      let waitingTimeSum = 0;
-
-      while (currentTime < totalTime) {
-        const nextEventTime = Math.min(nextArrival, ...departures);
-        if (nextEventTime > totalTime) break;
-        const timeDiff = nextEventTime - currentTime;
-        queueLengthSum += (queue.length + inService) * timeDiff;
-        utilizationSum += inService * timeDiff;
-        currentTime = nextEventTime;
-
-        if (nextEventTime === nextArrival) {
-          // arrival
-          const arrivalTime = currentTime;
-          queue.push(arrivalTime);
-          nextArrival = currentTime + -Math.log(Math.random()) / lambda;
-          customerCount++;
-          // assign to server if available
-          for (let i = 0; i < c; i++) {
-            if (departures[i] === Infinity) {
-              const serviceTime = -Math.log(Math.random()) / mu;
-              departures[i] = currentTime + serviceTime;
-              inService++;
-              const waitTime = currentTime - arrivalTime;
-              waitingTimeSum += waitTime;
-              queue.shift();
-              break;
-            }
-          }
-        } else {
-          // departure
-          for (let i = 0; i < c; i++) {
-            if (departures[i] === nextEventTime) {
-              departures[i] = Infinity;
-              inService--;
-              if (queue.length > 0) {
-                const arrivalTime = queue.shift()!;
-                const serviceTime = -Math.log(Math.random()) / mu;
-                departures[i] = currentTime + serviceTime;
-                inService++;
-                const waitTime = currentTime - arrivalTime;
-                waitingTimeSum += waitTime;
-              }
-              break;
-            }
-          }
-        }
-      }
-      const avgQueueLength = queueLengthSum / totalTime;
-      const avgUtilization = utilizationSum / (totalTime * c);
-      const avgWaitingTime = waitingTimeSum / customerCount;
-
-      totalQueueLength += avgQueueLength;
-      totalUtilization += avgUtilization;
-      totalWaitingTime += avgWaitingTime;
-      totalCustomers += customerCount;
-    }
-
-    setMonteResults({
-      avgQueueLength: totalQueueLength / numRuns,
-      avgUtilization: totalUtilization / numRuns,
-      avgWaitingTime: totalWaitingTime / numRuns,
-    });
-  };
-
-  const runMarkovChain = () => {
-    const lambda = markovLambda;
-    const mu = markovMu;
-    const c = markovNumServers;
-    const rho = lambda / (c * mu);
-    if (rho >= 1) {
-      toast.error("Sistema instável (ρ >= 1). A simulação não pode ser executada.");
-      return;
-    }
-    const steps = markovSteps;
-    let currentState = 0;
-    const data: { step: number; state: number }[] = [{ step: 0, state: 0 }];
-    for (let step = 1; step <= steps; step++) {
-      const arrivalProb = lambda / (lambda + Math.min(c, currentState) * mu);
-      const rand = Math.random();
-      if (rand < arrivalProb) {
-        // arrival
-        currentState++;
-      } else {
-        // departure
-        if (currentState > 0) currentState--;
-      }
-      data.push({ step, state: currentState });
-    }
-    setMarkovResults(data);
-    setCurrentMarkovState(currentState);
-    setMarkovStepOffset(steps);
-  };
-
-  const continueMarkovChain = () => {
-    if (!markovResults) {
-      toast.error("Execute a simulação inicial primeiro.");
-      return;
-    }
-    const lambda = markovLambda;
-    const mu = markovMu;
-    const c = markovNumServers;
-    const steps = markovSteps;
-    let currentState = currentMarkovState;
-    const data = [...markovResults];
-    for (let step = 1; step <= steps; step++) {
-      const arrivalProb = lambda / (lambda + Math.min(c, currentState) * mu);
-      const rand = Math.random();
-      if (rand < arrivalProb) {
-        // arrival
-        currentState++;
-      } else {
-        // departure
-        if (currentState > 0) currentState--;
-      }
-      data.push({ step: markovStepOffset + step, state: currentState });
-    }
-    setMarkovResults(data);
-    setCurrentMarkovState(currentState);
-    setMarkovStepOffset(markovStepOffset + steps);
-  };
+  const {
+    activeTab,
+    setActiveTab,
+    selectedStudyIndex,
+    setSelectedStudyIndex,
+    customParams,
+    setCustomParams,
+    metrics,
+    chartData,
+    studyName,
+    error,
+    loadStudy,
+    calculateCustom,
+  } = useSimulationPage();
 
   return (
-    <>
-      <Nav />
-      <div className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] mb-8 text-center">
-            Simulações e Estudos de Caso
-          </h1>
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
-              Estudos de Caso Pré-definidos
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {caseStudies.map((study, index) => (
-                <div
-                  key={index}
-                  className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200"
-                >
-                  <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
-                    {study.name}
-                  </h3>
-                  <p className="text-[var(--text-secondary)] mb-4">
-                    {study.description}
-                  </p>
-                  <div className="grid grid-cols-2 gap-2 mb-4">
-                    <div>
-                      <MathRenderer math="\lambda" />: {study.metrics.lambda}
-                    </div>
-                    <div>
-                      <MathRenderer math="\mu" />: {study.metrics.mu}
-                    </div>
-                    <div>
-                      <MathRenderer math="\rho" />:{" "}
-                      {study.metrics.rho.toFixed(2)}
-                    </div>
-                    <div>Servidores: {study.metrics.numServers}</div>
-                    <div>L: {study.metrics.L.toFixed(2)}</div>
-                    <div>
-                      <MathRenderer math="L_q" />: {study.metrics.Lq.toFixed(2)}
-                    </div>
-                    <div>W: {study.metrics.W.toFixed(2)} s</div>
-                    <div>
-                      <MathRenderer math="W_q" />: {study.metrics.Wq.toFixed(2)}{" "}
-                      s
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => loadCaseStudy(study)}
-                    className="w-full px-4 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg"
-                  >
-                    Carregar Estudo
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
-              Serviços Carregados
-            </h2>
-            <div className="grid grid-cols-1 gap-6">
-              {services.map((service, index) => (
-                <div
-                  key={index}
-                  className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200"
-                >
-                  <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
-                    {service.name}
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <div>
-                      <MathRenderer math="\lambda" />:{" "}
-                      {isFinite(service.metrics.lambda)
-                        ? service.metrics.lambda.toFixed(4)
-                        : "N/A"}{" "}
-                      chegadas/s
-                    </div>
-                    <div>
-                      <MathRenderer math="\mu" />:{" "}
-                      {isFinite(service.metrics.mu)
-                        ? service.metrics.mu.toFixed(4)
-                        : "N/A"}{" "}
-                      atendimentos/s
-                    </div>
-                    <div>
-                      <MathRenderer math="\rho" />:{" "}
-                      {isFinite(service.metrics.rho)
-                        ? service.metrics.rho.toFixed(4)
-                        : "N/A"}
-                    </div>
-                    <div>L: {isFinite(service.metrics.L) ? service.metrics.L.toFixed(4) : "N/A"}</div>
-                    <div>
-                      <MathRenderer math="L_q" />:{" "}
-                      {isFinite(service.metrics.Lq) ? service.metrics.Lq.toFixed(4) : "N/A"}
-                    </div>
-                    <div>W: {isFinite(service.metrics.W) ? service.metrics.W.toFixed(4) : "N/A"} s</div>
-                    <div>
-                      <MathRenderer math="W_q" />:{" "}
-                      {isFinite(service.metrics.Wq) ? service.metrics.Wq.toFixed(4) : "N/A"} s
-                    </div>
-                    <div>P0: {service.metrics.P?.[0] !== null && isFinite(service.metrics.P?.[0]) ? service.metrics.P[0].toFixed(4) : "N/A"}</div>
-                  </div>
-                  <div className="mb-4">
-                    <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-                      Probabilidades P(n):
-                    </h4>
-                    <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                      {service.metrics.P?.map((p, n) => (
-                        <div key={n}>
-                          P({n}): {p !== null && isFinite(p) ? p.toFixed(4) : "N/A"}
-                        </div>
-                      )) || <div>No P data available</div>}
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-                      Gráfico de Probabilidades P(n)
-                    </h4>
-                    <BarChart
-                      width={800}
-                      height={300}
-                      data={service.metrics.P?.map((p, n) => ({ n, p: p !== null ? p : 0 })) || []}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="n" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="p" fill="var(--chart-1)" />
-                    </BarChart>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
-              Simulação Personalizada
-            </h2>
-            <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200 mb-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                <div>
-                  <label className="block text-[var(--text-primary)] mb-2">
-                    <MathRenderer math="\lambda" /> (taxa de chegada)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={customLambda}
-                    onChange={(e) =>
-                      setCustomLambda(parseFloat(e.target.value))
-                    }
-                    className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[var(--text-primary)] mb-2">
-                    <MathRenderer math="\mu" /> (taxa de serviço por servidor)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={customMu}
-                    onChange={(e) => setCustomMu(parseFloat(e.target.value))}
-                    className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[var(--text-primary)] mb-2">
-                    Número de Servidores (c)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={customNumServers}
-                    onChange={(e) =>
-                      setCustomNumServers(parseInt(e.target.value))
-                    }
-                    className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[var(--text-primary)] mb-2">
-                    Número máximo de P(n)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={customMaxN}
-                    onChange={(e) => setCustomMaxN(parseInt(e.target.value))}
-                    className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
-                  />
-                </div>
-              </div>
-              <button
-                onClick={calculateCustomMetrics}
-                className="px-6 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg"
-              >
-                Calcular Métricas
-              </button>
-            </div>
-            {customMetrics && (
-              <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200">
-                <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
-                  Resultados da Simulação Personalizada
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                  <div>
-                    <MathRenderer math="\lambda" />:{" "}
-                    {isFinite(customMetrics.lambda) ? customMetrics.lambda.toFixed(4) : "N/A"}
-                  </div>
-                  <div>
-                    <MathRenderer math="\mu" />: {isFinite(customMetrics.mu) ? customMetrics.mu.toFixed(4) : "N/A"}
-                  </div>
-                  <div>
-                    <MathRenderer math="\rho" />: {isFinite(customMetrics.rho) ? customMetrics.rho.toFixed(4) : "N/A"}
-                  </div>
-                  <div>Servidores: {customMetrics.numServers}</div>
-                  <div>L: {isFinite(customMetrics.L) ? customMetrics.L.toFixed(4) : "N/A"}</div>
-                  <div>
-                    <MathRenderer math="L_q" />: {isFinite(customMetrics.Lq) ? customMetrics.Lq.toFixed(4) : "N/A"}
-                  </div>
-                  <div>W: {isFinite(customMetrics.W) ? customMetrics.W.toFixed(4) : "N/A"} s</div>
-                  <div>
-                    <MathRenderer math="W_q" />: {isFinite(customMetrics.Wq) ? customMetrics.Wq.toFixed(4) : "N/A"} s
-                  </div>
-                  <div>P0: {customMetrics.P[0] !== null && isFinite(customMetrics.P[0]) ? customMetrics.P[0].toFixed(4) : "N/A"}</div>
-                </div>
-                <div className="mb-4">
-                  <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-                    Probabilidades P(n):
-                  </h4>
-                  <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                    {customMetrics.P.map((p, n) => (
-                      <div key={n}>
-                        P({n}): {p !== null && isFinite(p) ? p.toFixed(4) : "N/A"}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-                    Gráfico de Probabilidades P(n)
-                  </h4>
-                  <BarChart
-                    width={800}
-                    height={300}
-                    data={customMetrics.P.map((p, n) => ({ n, p: p !== null ? p : 0 }))}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="n" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="p" fill="var(--chart-1)" />
-                  </BarChart>
-                </div>
-                <button
-                  onClick={() => {
-                    const newService = {
-                      name: `Simulação Personalizada M/M/${customNumServers}`,
-                      arrivalQueue: "Chegada Personalizada",
-                      serviceQueue: "Atendimento Personalizado",
-                      metrics: customMetrics,
-                    };
-                    saveServices([...services, newService]);
-                    alert("Simulação adicionada aos Serviços!");
-                  }}
-                  className="mt-4 px-6 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg"
-                >
-                  Adicionar aos Serviços
-                </button>
-              </div>
-            )}
-          </div>
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
-              Simulação de Eventos Discretos
-            </h2>
-            <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200 mb-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                <div>
-                  <label className="block text-[var(--text-primary)] mb-2">
-                    <MathRenderer math="\lambda" /> (taxa de chegada)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={simLambda}
-                    onChange={(e) => setSimLambda(parseFloat(e.target.value))}
-                    className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[var(--text-primary)] mb-2">
-                    <MathRenderer math="\mu" /> (taxa de serviço por servidor)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={simMu}
-                    onChange={(e) => setSimMu(parseFloat(e.target.value))}
-                    className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[var(--text-primary)] mb-2">
-                    Número de Servidores (c)
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={simNumServers}
-                    onChange={(e) => setSimNumServers(parseInt(e.target.value))}
-                    className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[var(--text-primary)] mb-2">
-                    Tempo Total de Simulação
-                  </label>
-                  <input
-                    type="number"
-                    min="10"
-                    value={simTime}
-                    onChange={(e) => setSimTime(parseInt(e.target.value))}
-                    className="w-full px-3 py-2 bg-[var(--input-bg)] border border-[var(--element-border)] rounded-lg text-[var(--text-primary)]"
-                  />
-                </div>
-              </div>
-              <button
-                onClick={runSimulation}
-                className="px-6 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg"
-              >
-                Executar Simulação
-              </button>
-            </div>
-            {simResults && (
-              <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200">
-                <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
-                  Resultados da Simulação
-                </h3>
-                <div className="mt-4">
-                  <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-                    Evolução do Comprimento da Fila ao Longo do Tempo
-                  </h4>
-                  <LineChart width={800} height={400} data={simResults}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="time" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="queueLength"
-                      stroke="var(--chart-1)"
-                    />
-                  </LineChart>
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">Simulação Monte Carlo</h2>
-            <p className="mb-4">Executa múltiplas simulações para obter métricas médias.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Taxa de Chegada (λ)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={monteLambda}
-                  onChange={(e) => setMonteLambda(parseFloat(e.target.value))}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Taxa de Serviço (μ)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={monteMu}
-                  onChange={(e) => setMonteMu(parseFloat(e.target.value))}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Número de Servidores</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={monteNumServers}
-                  onChange={(e) => setMonteNumServers(parseInt(e.target.value))}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Tempo Total por Simulação</label>
-                <input
-                  type="number"
-                  value={monteTime}
-                  onChange={(e) => setMonteTime(parseInt(e.target.value))}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Número de Execuções</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={monteRuns}
-                  onChange={(e) => setMonteRuns(parseInt(e.target.value))}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-            </div>
-            <Button onClick={runMonteCarlo} className="px-6 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg">
-              Executar Simulação Monte Carlo
-            </Button>
-            {monteResults && (
-              <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200 mt-4">
-                <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">Resultados Médios</h3>
-                <p>Comprimento Médio da Fila: {monteResults.avgQueueLength.toFixed(2)}</p>
-                <p>Utilização Média: {(monteResults.avgUtilization * 100).toFixed(2)}%</p>
-                <p>Tempo Médio de Espera: {monteResults.avgWaitingTime.toFixed(2)}</p>
-              </div>
-            )}
-          </div>
-          <div className="mt-8">
-            <h2 className="text-2xl font-bold mb-4">Simulação de Markov Chain</h2>
-            <p className="mb-4">Simula a cadeia de Markov do sistema de filas ao longo de passos discretos.</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Taxa de Chegada (λ)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={markovLambda}
-                  onChange={(e) => setMarkovLambda(parseFloat(e.target.value))}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Taxa de Serviço (μ)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={markovMu}
-                  onChange={(e) => setMarkovMu(parseFloat(e.target.value))}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Número de Servidores</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={markovNumServers}
-                  onChange={(e) => setMarkovNumServers(parseInt(e.target.value))}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Número de Passos</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={markovSteps}
-                  onChange={(e) => setMarkovSteps(parseInt(e.target.value))}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-            </div>
-            <button
-              onClick={runMarkovChain}
-              className="px-6 py-2 bg-gradient-to-r from-[var(--accent)] to-[var(--accent)] text-white rounded-xl font-semibold hover:from-[var(--accent)] hover:to-[var(--accent)] transition-all duration-300 transform hover:scale-105 shadow-lg"
+    <div className="page-container">
+      <NavBar />
+      <main style={{ padding: "2.5rem 1.5rem" }}>
+        <div className="content-wrapper">
+          <div style={{ marginBottom: "2rem" }}>
+            <div
+              className="badge badge-accent"
+              style={{ marginBottom: "0.5rem" }}
             >
-              Executar Simulação Markov Chain
-            </button>
-            {markovResults && (
-              <div className="bg-[var(--element-bg)] border border-[var(--element-border)] p-6 rounded-lg shadow-sm hover:shadow-md transition-colors duration-200 mt-4">
-                <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
-                  Resultados da Simulação Markov Chain
-                </h3>
-                <div className="mt-4">
-                  <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-                    Evolução do Estado ao Longo dos Passos
-                  </h4>
-                  <LineChart width={800} height={400} data={markovResults}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="step" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="state"
-                      stroke="var(--chart-1)"
-                    />
-                  </LineChart>
-                </div>
-              </div>
-            )}
+              Análise Teórica
+            </div>
+            <h1
+              style={{
+                fontSize: "1.75rem",
+                fontWeight: 800,
+                color: "var(--text-primary)",
+                marginBottom: "0.25rem",
+              }}
+            >
+              Simulações M/M/c
+            </h1>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+              Selecione um estudo de caso pré-definido ou configure parâmetros
+              personalizados para visualizar as métricas do sistema.
+            </p>
           </div>
+
+          <StudySelector
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            selectedStudyIndex={selectedStudyIndex}
+            setSelectedStudyIndex={setSelectedStudyIndex}
+            customParams={customParams}
+            setCustomParams={setCustomParams}
+            onLoadStudy={loadStudy}
+            onCalculateCustom={calculateCustom}
+            error={error}
+          />
+
+          {metrics && (
+            <div className="animate-slide-up">
+              {studyName && (
+                <p
+                  style={{
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    color: "var(--text-muted)",
+                    marginBottom: "1.25rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  Resultados — {studyName}
+                </p>
+              )}
+              <MetricsPanel metrics={metrics} />
+              <div style={{ marginTop: "1.25rem" }}>
+                <SimulationChartsGrid metrics={metrics} chartData={chartData} />
+              </div>
+            </div>
+          )}
+
+          {!metrics && (
+            <div
+              className="glass-card"
+              style={{ padding: "3rem", textAlign: "center" }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginBottom: "0.75rem",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <BarChart2 className="w-12 h-12" />
+              </div>
+              <p style={{ color: "var(--text-secondary)", fontWeight: 500 }}>
+                Nenhuma simulação carregada ainda.
+              </p>
+              <p
+                style={{
+                  color: "var(--text-muted)",
+                  fontSize: "0.875rem",
+                  marginTop: "0.375rem",
+                }}
+              >
+                Selecione um estudo de caso ou insira parâmetros personalizados
+                acima.
+              </p>
+            </div>
+          )}
         </div>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }

@@ -1,38 +1,49 @@
+import { AuthProvider } from "../components/AuthContext";
+import { ToastContainer } from "react-toastify";
+import Footer from "../components/Footer";
+import "../styles/globals.css";
+import "react-toastify/dist/ReactToastify.css";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "../components/ThemeProvider";
-import { ClientLayout } from "../components/ClientLayout";
-import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
-  title: "Teoria das filas: CronApp",
+  title: "QueueTheoryApp — Teoria das Filas",
   description:
-    "Um aplicativo para analisar teoria de filas com cronômetros, visualização de dados e painéis.",
+    "Analise sistemas de filas com cronometria precisa, dashboards interativos e simulações.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="pt" suppressHydrationWarning={true}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider>
-          <ClientLayout>{children}</ClientLayout>
-        </ThemeProvider>
+    <html lang="pt-BR" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body>
+        <AuthProvider>
+          {children}
+          <Footer />
+          <ToastContainer
+            position="bottom-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop
+            closeOnClick
+            pauseOnHover
+            theme="dark"
+          />
+        </AuthProvider>
       </body>
     </html>
   );

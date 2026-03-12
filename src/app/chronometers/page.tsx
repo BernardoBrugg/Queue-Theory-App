@@ -1,164 +1,413 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { Nav } from "../../components/Nav";
-import { AddQueue } from "../../components/AddQueue";
-import { QueueItem } from "../../components/QueueItem";
-import { toast } from "react-toastify";
-import { useAuth } from "../../components/AuthContext";
-import { useQueues, useQueueTotals, useQueueData, useActiveServices } from "../../hooks/useData";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { NavBar } from "../../components/NavBar";
+import { AuthGuard } from "../../components/AuthGuard";
+import { ChronometerCard } from "./components/ChronometerCard";
+import { useChronometerPage } from "./hooks/useChronometerPage";
 
-interface Record {
-  id: string;
-  queue: string;
-  type: "arrival" | "service";
-  timestamp: string;
-  totalTime: number;
-  element: number;
-  arriving: string;
-  exiting: string;
+const ARRIVAL_KEYS = ["1", "2", "3", "4", "5"];
+const SERVICE_KEYS = ["Q", "W", "E", "R", "T"];
+
+function KeyboardShortcutsInfo({
+  arrivalQueues,
+  serviceQueues,
+}: {
+  arrivalQueues: { name: string }[];
+  serviceQueues: { name: string }[];
+}) {
+  if (arrivalQueues.length === 0 && serviceQueues.length === 0) return null;
+  return (
+    <div
+      style={{
+        marginBottom: "2rem",
+        padding: "1rem 1.25rem",
+        background: "var(--surface-raised)",
+        borderRadius: "var(--radius-lg)",
+        border: "1px solid var(--border)",
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "1.5rem",
+        alignItems: "flex-start",
+      }}
+    >
+      <div style={{ flexShrink: 0 }}>
+        <div
+          style={{
+            fontSize: "0.7rem",
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: "var(--text-muted)",
+            marginBottom: "0.5rem",
+          }}
+        >
+          Atalhos de teclado
+        </div>
+        <p
+          style={{
+            fontSize: "0.8125rem",
+            color: "var(--text-secondary)",
+            maxWidth: 280,
+          }}
+        >
+          Pressione a tecla correspondente para registrar sem usar o mouse. As
+          teclas funcionam apenas fora de campos de texto.
+        </p>
+      </div>
+      <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
+        {arrivalQueues.length > 0 && (
+          <div>
+            <div
+              style={{
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                color: "var(--accent-cyan)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                marginBottom: "0.375rem",
+              }}
+            >
+              Entradas
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+              }}
+            >
+              {arrivalQueues.map((q, i) => (
+                <div
+                  key={q.name}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    fontSize: "0.8125rem",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  <kbd
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minWidth: 22,
+                      height: 22,
+                      padding: "0 5px",
+                      background: "var(--surface)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--radius-sm)",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    {ARRIVAL_KEYS[i]}
+                  </kbd>
+                  {q.name}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {serviceQueues.length > 0 && (
+          <div>
+            <div
+              style={{
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                color: "var(--accent)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                marginBottom: "0.375rem",
+              }}
+            >
+              Postos de Atendimento
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+              }}
+            >
+              {serviceQueues.map((q, i) => (
+                <div
+                  key={q.name}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    fontSize: "0.8125rem",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  <kbd
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minWidth: 22,
+                      height: 22,
+                      padding: "0 5px",
+                      background: "var(--surface)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--radius-sm)",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    {SERVICE_KEYS[i]}
+                  </kbd>
+                  {q.name}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
-export default function Chronometers() {
-  const { user } = useAuth();
-  const { queues, addQueue: addQueueHook, deleteQueue: deleteQueueHook, loading: queuesLoading, error: queuesError } = useQueues(user?.uid || null);
-  const { totals: queueTotals, updateTotal, deleteTotal, loading: totalsLoading, error: totalsError } = useQueueTotals(user?.uid || null);
-  const { addRecord, loading: dataLoading, error: dataError } = useQueueData(user?.uid || null);
-  const { setActiveService, deleteActiveService, loading: activeServicesLoading, error: activeServicesError } = useActiveServices(user?.uid || null);
+function ChronometerPageInner() {
+  const params = useSearchParams();
+  const serviceId = params.get("service");
+  const {
+    definition,
+    queues,
+    loading,
+    session,
+    getNextElementId,
+    pushToWaitlist,
+    popFromWaitlist,
+  } = useChronometerPage(serviceId);
 
-  const [newQueue, setNewQueue] = useState("");
-  const [newQueueType, setNewQueueType] = useState<"arrival" | "service">(
-    "arrival"
-  );
-  const [numAttendants, setNumAttendants] = useState(1);
+  if (loading || !definition) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="skeleton"
+            style={{ height: 260, borderRadius: "var(--radius-lg)" }}
+          />
+        ))}
+      </div>
+    );
+  }
 
-  const [currentAppTimeMs, setCurrentAppTimeMs] = useState(() => Date.now());
-  const currentAppTime = useMemo(
-    () => new Date(currentAppTimeMs),
-    [currentAppTimeMs]
-  );
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentAppTimeMs(Date.now());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const addQueue = async () => {
-    if (
-      newQueue.trim() &&
-      !queues.some((queue) => queue.name === newQueue.trim())
-    ) {
-      try {
-        await addQueueHook({
-          name: newQueue.trim(),
-          type: newQueueType,
-          ...(newQueueType === "service" ? { numAttendants } : {}),
-        });
-        await setActiveService(newQueue.trim(), {
-          currentServicing: [],
-        });
-        await updateTotal(newQueue.trim(), 0);
-        toast.success("Fila adicionada com sucesso!");
-        setNewQueue("");
-      } catch (error) {
-        toast.error(
-          "Erro ao adicionar fila: " +
-            (error instanceof Error ? error.message : String(error))
-        );
-      }
-    } else {
-      toast.warn("Nome da fila inválido ou já existe.");
-    }
-  };
-
-  const removeQueue = async (index: number) => {
-    const queueToRemove = queues[index];
-    try {
-      await deleteQueueHook(queueToRemove.name);
-      await deleteActiveService(queueToRemove.name);
-      await deleteTotal(queueToRemove.name);
-      toast.success("Fila removida com sucesso!");
-    } catch (error) {
-      toast.error(
-        "Erro ao remover fila: " +
-          (error instanceof Error ? error.message : String(error))
-      );
-    }
-  };
-
-  const getNextElement = (queue: string) => {
-    const current = queueTotals[queue] || 0;
-    try {
-      const next = current + 1;
-      updateTotal(queue, next);
-      return next;
-    } catch (error) {
-      console.error("Erro ao atualizar total da fila:", error);
-      toast.error("Erro ao atualizar total da fila.");
-      return current;
-    }
-  };
-
-  const recordEvent = (record: Omit<Record, "id">) => {
-    try {
-      addRecord(record);
-    } catch (error) {
-      console.error("Erro ao registrar evento:", error);
-      toast.error("Erro ao registrar evento.");
-    }
-  };
+  const arrivalQueues = queues.filter((q) => q.type === "arrival");
+  const serviceQueues = queues.filter((q) => q.type === "service");
+  const waitlistSize = session?.waitingPool?.length ?? 0;
 
   return (
-    <div>
-      <Nav />
-      <div className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-8">
+    <>
+      <div
+        style={{
+          marginBottom: "2.5rem",
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+          gap: "1rem",
+        }}
+      >
+        <div>
+          <div
+            className="badge badge-accent"
+            style={{ marginBottom: "0.5rem" }}
+          >
+            Passo 2 de 4
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-8 text-center">
-            Cronômetros
+          <h1
+            style={{
+              fontSize: "2rem",
+              fontWeight: 800,
+              color: "var(--text-primary)",
+              marginBottom: "0.5rem",
+            }}
+          >
+            {definition.name}
           </h1>
-          <div className="mb-8">
-            <AddQueue
-              newQueue={newQueue}
-              setNewQueue={setNewQueue}
-              newQueueType={newQueueType}
-              setNewQueueType={setNewQueueType}
-              numAttendants={numAttendants}
-              setNumAttendants={setNumAttendants}
-              addQueue={addQueue}
-            />
+          <p style={{ color: "var(--text-secondary)", fontSize: "1rem" }}>
+            {definition.numArrivalQueues} Entrada(s) · {definition.numServers}{" "}
+            Posto(s) de Atendimento
+          </p>
+        </div>
+        <div
+          className="glass-card"
+          style={{
+            padding: "0.75rem 1.25rem",
+            border: "1px solid var(--accent-cyan)",
+            textAlign: "right",
+            minWidth: "160px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "0.7rem",
+              color: "var(--accent-cyan)",
+              fontWeight: 700,
+              textTransform: "uppercase",
+            }}
+          >
+            Fila Única de Espera
           </div>
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
-              Filas Ativas
+          <div
+            style={{
+              fontSize: "1.5rem",
+              fontWeight: 800,
+              color: "var(--text-primary)",
+            }}
+          >
+            {waitlistSize}{" "}
+            <span style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>
+              pessoas
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <KeyboardShortcutsInfo
+        arrivalQueues={arrivalQueues}
+        serviceQueues={serviceQueues}
+      />
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "3rem" }}>
+        <section>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "1.25rem",
+            }}
+          >
+            <div
+              style={{
+                width: "4px",
+                height: "1.5rem",
+                borderRadius: "var(--radius-full)",
+                background: "var(--accent-cyan)",
+              }}
+            />
+            <h2
+              style={{
+                fontSize: "1.25rem",
+                fontWeight: 700,
+                color: "var(--text-primary)",
+              }}
+            >
+              Entradas (Chegadas)
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {queues.map((queue, index) => (
-              <QueueItem
-                key={index}
-                queue={queue}
-                index={index}
-                removeQueue={removeQueue}
-                getNextElement={getNextElement}
-                currentTotal={queueTotals[queue.name] || 0}
-                onRecord={recordEvent}
-                currentAppTimeMs={currentAppTimeMs}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+              gap: "1.5rem",
+            }}
+          >
+            {arrivalQueues.map((q, index) => (
+              <ChronometerCard
+                key={q.name}
+                serviceId={serviceId!}
+                queueName={q.name}
+                queueType={q.type}
+                numServers={q.numServers}
+                keyboardShortcut={ARRIVAL_KEYS[index]}
+                getNextElementId={getNextElementId}
+                pushToWaitlist={pushToWaitlist}
+                popFromWaitlist={popFromWaitlist}
               />
             ))}
           </div>
-          {queues.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-[var(--text-secondary)] text-lg">
-                Nenhuma fila configurada. Adicione uma fila acima para começar.
-              </p>
-            </div>
-          )}
-        </div>
+        </section>
+
+        <section>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "1.25rem",
+            }}
+          >
+            <div
+              style={{
+                width: "4px",
+                height: "1.5rem",
+                borderRadius: "var(--radius-full)",
+                background: "var(--accent)",
+              }}
+            />
+            <h2
+              style={{
+                fontSize: "1.25rem",
+                fontWeight: 700,
+                color: "var(--text-primary)",
+              }}
+            >
+              Postos de Atendimento
+            </h2>
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: "1.25rem",
+            }}
+          >
+            {serviceQueues.map((q, index) => (
+              <ChronometerCard
+                key={q.name}
+                serviceId={serviceId!}
+                queueName={q.name}
+                queueType={q.type}
+                numServers={q.numServers}
+                keyboardShortcut={SERVICE_KEYS[index]}
+                getNextElementId={getNextElementId}
+                pushToWaitlist={pushToWaitlist}
+                popFromWaitlist={popFromWaitlist}
+              />
+            ))}
+          </div>
+        </section>
       </div>
+    </>
+  );
+}
+
+function ChronometerPageBody() {
+  return (
+    <div className="page-container">
+      <NavBar />
+      <main style={{ padding: "2.5rem 1.5rem" }}>
+        <div className="content-wrapper">
+          <Suspense
+            fallback={
+              <div style={{ color: "var(--text-muted)" }}>Carregando...</div>
+            }
+          >
+            <ChronometerPageInner />
+          </Suspense>
+        </div>
+      </main>
     </div>
+  );
+}
+
+export default function ChronometerPage() {
+  return (
+    <AuthGuard>
+      <ChronometerPageBody />
+    </AuthGuard>
   );
 }

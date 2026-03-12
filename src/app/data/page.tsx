@@ -1,244 +1,261 @@
 "use client";
 
 import { useState } from "react";
-import Papa from "papaparse";
-import { Nav } from "../../components/Nav";
-import { ImportData } from "../../components/ImportData";
-import { ClearData } from "../../components/ClearData";
-import { QueueManager } from "../../components/QueueManager";
-import { QueueDataDisplay } from "../../components/QueueDataDisplay";
-import { ExportButton } from "../../components/ExportButton";
-import { db } from "../../lib/firebase";
-import { addDoc, collection, deleteDoc, doc, writeBatch } from "firebase/firestore";
-import { toast } from "react-toastify";
-import { useAuth } from "../../components/AuthContext";
-import { useQueueData } from "../../hooks/useData";
-import { QueueRecord } from "../../types";
+import { NavBar } from "../../components/NavBar";
+import { AuthGuard } from "../../components/AuthGuard";
+import { RecordsTable } from "./components/RecordsTable";
+import { useRecords } from "./hooks/useRecords";
+import { ClipboardList, Download, ChevronLeft } from "lucide-react";
 
-interface ImportedRecord {
-  queue: string;
-  type: "arrival" | "service";
-  timestamp: string;
-  totalTime: number;
-  element: number;
-  arriving: string;
-  exiting: string;
-}
+function DataContent() {
+  const { services, records, loading, remove, exportCsv } = useRecords();
+  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(
+    null,
+  );
 
-export default function Data() {
-  const { user } = useAuth();
-  const { data, deleteRecord } = useQueueData(user?.uid || null);
-  const [selectedQueue, setSelectedQueue] = useState<string | null>(null);
-  const [selectedArrivalQueue, setSelectedArrivalQueue] = useState<string | null>(null);
-  const [selectedServiceQueues, setSelectedServiceQueues] = useState<string[]>([]);
-
-  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) {
-      toast.warn("Selecione um ou mais arquivos.");
-      return;
-    }
-    let totalImported = 0;
-    let filesProcessed = 0;
-    const totalFiles = files.length;
-
-    Array.from(files).forEach((file) => {
-      const importQueue = file.name.split(".")[0];
-      Papa.parse(file, {
-        header: true,
-        complete: (results) => {
-          const importedData: ImportedRecord[] = (
-            results.data as Record<string, string>[]
-          )
-            .map((row) => {
-              const tipo = row["Tipo"];
-              const timestamp = row["Carimbo de Data/Hora"];
-              const tempoTotalStr = row["Tempo Total"];
-              const elemento = parseInt(row["Elemento"]);
-              const chegando = row["Chegando"];
-              const saindo = row["Saindo"];
-              if (
-                !tipo ||
-                !timestamp ||
-                isNaN(elemento) ||
-                !tempoTotalStr ||
-                typeof tempoTotalStr !== "string"
-              ) {
-                return null;
-              }
-              const totalTime =
-                parseFloat(tempoTotalStr.replace("s", "")) * 1000;
-              if (isNaN(totalTime)) {
-                return null;
-              }
-              return {
-                queue: importQueue.trim(),
-                type: tipo as "arrival" | "service",
-                timestamp,
-                totalTime,
-                element: elemento,
-                arriving: chegando,
-                exiting: saindo === "--" ? "" : saindo,
-              };
-            })
-            .filter((r) => r !== null);
-          if (importedData.length > 0) {
-            // Add to Firestore
-            importedData.forEach((record) =>
-              addDoc(collection(db, "users", user!.uid, "data"), record)
-            );
-            totalImported += importedData.length;
-          }
-          filesProcessed++;
-          if (filesProcessed === totalFiles) {
-            event.target.value = "";
-            if (totalImported > 0) {
-              toast.success(
-                `${totalImported} registros importados com sucesso de ${totalFiles} arquivo(s).`
-              );
-            } else {
-              toast.error("Nenhum dado válido encontrado nos arquivos CSV.");
-            }
-          }
-        },
-        error: (error) => {
-          toast.error("Erro ao importar CSV: " + (error as Error).message);
-          filesProcessed++;
-          if (filesProcessed === totalFiles) {
-            event.target.value = "";
-            if (totalImported > 0) {
-              toast.success(
-                `${totalImported} registros importados com sucesso de ${totalFiles} arquivo(s).`
-              );
-            } else {
-              toast.error("Nenhum dado válido encontrado nos arquivos CSV.");
-            }
-          }
-        },
-      });
-    });
-  };
-
-  const clearAllData = () => {
-    if (
-      confirm(
-        "Tem certeza de que deseja limpar todos os dados? Esta ação afetará todos os usuários."
-      )
-    ) {
-      // Note: Clearing all data for all users
-      // In a real app, you might want to restrict this
-      // Since we're using hooks now, the data will automatically update
-      toast.success("Dados limpos com sucesso.");
-    }
-  };
-
-  const formatTime = (ms: number) => {
-    const seconds = (ms / 1000).toFixed(2);
-    return `${seconds}s`;
-  };
-
-  const formatDateWithMilliseconds = (dateString: string) => {
-    if (!dateString || dateString === "--") return "--";
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    const seconds = String(date.getSeconds()).padStart(2, "0");
-    const milliseconds = String(date.getMilliseconds()).padStart(3, "0");
-    return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}.${milliseconds}`;
-  };
-
-  const exportToCSV = (queueName: string) => {
-    const queueData = data.filter((record) => record.queue === queueName);
-    const csvData = queueData.map((record) => ({
-      Tipo: record.type,
-      "Carimbo de Data/Hora": formatDateWithMilliseconds(record.timestamp),
-      "Tempo Total": formatTime(record.totalTime),
-      Elemento: record.element,
-      Chegando: formatDateWithMilliseconds(record.arriving),
-      Saindo: record.exiting
-        ? formatDateWithMilliseconds(record.exiting)
-        : "--",
-    }));
-    const csv = Papa.unparse(csvData, { delimiter: ";" });
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `dados-${queueName}.csv`);
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const onSelectQueue = (queueName: string) => {
-    if (!selectedArrivalQueue) {
-      setSelectedArrivalQueue(queueName);
-    } else {
-      setSelectedServiceQueues((prev) => [...prev, queueName]);
-    }
-  };
-
-  const handleRecordSelect = (record: QueueRecord) => {
-    // Handle record selection if needed
-    console.log("Selected record:", record);
-  };
+  const selectedService =
+    services.find((s) => s.id === selectedServiceId) ?? null;
+  const selectedRecords = selectedService
+    ? records.filter((r) => r.serviceId === selectedService.id)
+    : [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[var(--bg-gradient-start)] via-[var(--element-bg)] to-[var(--bg-gradient-end)] py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
-        <Nav />
-        <h1 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-8 text-center">
-          Dados
-        </h1>
-        <ImportData handleImport={handleImport} />
-        <ClearData dataLength={data.length} clearAllData={clearAllData} />
-
-        {data.length === 0 ? (
-          <div className="text-center">
-            <p className="text-[var(--text-secondary)] mb-4">
-              Nenhum dado registrado ainda.
-            </p>
-            <QueueManager onQueueSelect={setSelectedQueue} />
-          </div>
-        ) : selectedArrivalQueue && selectedServiceQueues.length > 0 ? (
-          <div>
-            <button
-              onClick={() => {
-                setSelectedArrivalQueue(null);
-                setSelectedServiceQueues([]);
-              }}
-              className="mb-4 px-4 py-2 bg-[var(--button-bg)] text-[var(--button-text)] rounded-lg hover:bg-[var(--button-hover-bg)] transition-colors"
+    <div className="page-container">
+      <NavBar />
+      <main style={{ padding: "2.5rem 1.5rem" }}>
+        <div className="content-wrapper">
+          {/* Header */}
+          <div style={{ marginBottom: "2rem" }}>
+            <div
+              className="badge badge-accent"
+              style={{ marginBottom: "0.5rem" }}
             >
-              ← Voltar
-            </button>
-            <ExportButton
-              selectedArrivalQueue={selectedArrivalQueue}
-              exportToCSV={exportToCSV}
-            />
-            <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-4">
-              {selectedArrivalQueue}
-            </h2>
-            <QueueDataDisplay
-              selectedQueue={selectedArrivalQueue}
-              onRecordSelect={handleRecordSelect}
-            />
+              Passo 3 de 4
+            </div>
+            <h1
+              style={{
+                fontSize: "1.75rem",
+                fontWeight: 800,
+                color: "var(--text-primary)",
+                marginBottom: "0.25rem",
+              }}
+            >
+              Dados Registrados
+            </h1>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+              Selecione um serviço para visualizar e revisar os dados coletados.
+            </p>
           </div>
-        ) : (
-          <div className="space-y-8">
-            <QueueManager onQueueSelect={setSelectedQueue} />
-            {selectedQueue && (
-              <QueueDataDisplay
-                selectedQueue={selectedQueue}
-                onRecordSelect={handleRecordSelect}
-              />
-            )}
-          </div>
-        )}
-      </div>
+
+          {loading ? (
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                gap: "1rem",
+              }}
+            >
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="skeleton"
+                  style={{ height: 110, borderRadius: "0.75rem" }}
+                />
+              ))}
+            </div>
+          ) : services.length === 0 ? (
+            <div
+              className="glass-card"
+              style={{ padding: "3rem", textAlign: "center" }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginBottom: "0.75rem",
+                  color: "var(--text-muted)",
+                }}
+              >
+                <ClipboardList style={{ width: 48, height: 48 }} />
+              </div>
+              <p style={{ color: "var(--text-secondary)", fontWeight: 500 }}>
+                Nenhum serviço encontrado.
+              </p>
+              <p
+                style={{
+                  color: "var(--text-muted)",
+                  fontSize: "0.875rem",
+                  marginTop: "0.25rem",
+                }}
+              >
+                Crie um serviço e registre dados com os cronômetros primeiro.
+              </p>
+            </div>
+          ) : !selectedService ? (
+            /* ── Service selector grid ── */
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                gap: "1rem",
+              }}
+            >
+              {services.map((s) => {
+                const count = records.filter(
+                  (r) => r.serviceId === s.id,
+                ).length;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => setSelectedServiceId(s.id)}
+                    className="glass-card"
+                    style={{
+                      padding: "1.25rem",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      border: "1px solid var(--border)",
+                      transition:
+                        "border-color var(--transition-fast), box-shadow var(--transition-fast)",
+                      background: "var(--surface)",
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor =
+                        "var(--accent)";
+                      (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                        "0 0 0 2px var(--accent-alpha, rgba(99,102,241,.2))";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.borderColor =
+                        "var(--border)";
+                      (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                        "none";
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontWeight: 700,
+                        color: "var(--text-primary)",
+                        marginBottom: "0.35rem",
+                        fontSize: "1rem",
+                      }}
+                    >
+                      {s.name}
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "0.78rem",
+                        color: "var(--text-muted)",
+                        marginBottom: "0.75rem",
+                      }}
+                    >
+                      Criado em{" "}
+                      {new Date(s.createdAt).toLocaleDateString("pt-BR")}
+                    </p>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "0.4rem",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <span className="badge badge-accent">
+                        {s.numArrivalQueues} fila
+                        {s.numArrivalQueues > 1 ? "s" : ""}
+                      </span>
+                      <span className="badge badge-success">
+                        {s.numServers} atend.
+                      </span>
+                      <span
+                        className="badge"
+                        style={{
+                          background: "var(--surface-raised)",
+                          color: "var(--text-secondary)",
+                        }}
+                      >
+                        {count} registro{count !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            /* ── Data table for selected service ── */
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  flexWrap: "wrap",
+                  gap: "0.75rem",
+                  marginBottom: "1.25rem",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                  }}
+                >
+                  <button
+                    onClick={() => setSelectedServiceId(null)}
+                    className="btn btn-ghost btn-sm"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.35rem",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
+                    <ChevronLeft style={{ width: 16, height: 16 }} />
+                    Voltar
+                  </button>
+                  <h2
+                    style={{
+                      fontSize: "1.2rem",
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                    }}
+                  >
+                    {selectedService.name}
+                  </h2>
+                  <span
+                    className="badge"
+                    style={{
+                      background: "var(--surface-raised)",
+                      color: "var(--text-secondary)",
+                    }}
+                  >
+                    {selectedRecords.length} registro
+                    {selectedRecords.length !== 1 ? "s" : ""}
+                  </span>
+                </div>
+                <button
+                  onClick={() => exportCsv(selectedService.id)}
+                  className="btn btn-secondary btn-sm"
+                  disabled={selectedRecords.length === 0}
+                >
+                  <Download
+                    style={{ width: 14, height: 14, marginRight: "0.4rem" }}
+                  />
+                  Exportar CSV
+                </button>
+              </div>
+              <RecordsTable records={selectedRecords} onDelete={remove} />
+            </div>
+          )}
+        </div>
+      </main>
     </div>
+  );
+}
+
+export default function DataPage() {
+  return (
+    <AuthGuard>
+      <DataContent />
+    </AuthGuard>
   );
 }
