@@ -1,6 +1,7 @@
 "use client";
 
 import MathRenderer from "../../../components/MathRenderer";
+import { AppSelect } from "../../../components/AppSelect";
 import { caseStudies } from "../utils/caseStudies";
 
 interface CustomParams {
@@ -87,18 +88,15 @@ export function StudySelector({
             <label className="label" htmlFor="study-select">
               Estudo de Caso
             </label>
-            <select
+            <AppSelect
               id="study-select"
-              className="input"
-              value={selectedStudyIndex}
-              onChange={(e) => setSelectedStudyIndex(Number(e.target.value))}
-            >
-              {caseStudies.map((s, i) => (
-                <option key={i} value={i}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
+              value={String(selectedStudyIndex)}
+              onChange={(val) => setSelectedStudyIndex(Number(val))}
+              options={caseStudies.map((s, i) => ({
+                value: String(i),
+                label: s.name,
+              }))}
+            />
           </div>
           <div style={{ flexShrink: 0, alignSelf: "flex-end" }}>
             <button className="btn btn-primary" onClick={onLoadStudy}>

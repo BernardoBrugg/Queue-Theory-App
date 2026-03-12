@@ -74,8 +74,9 @@ export function useChronometer({
   useEffect(() => {
     if (!user) return;
 
-    // Listen for current servicing (for service type)
     let unsubscribeServicing: (() => void) | undefined;
+    let unsubscribeArrival: (() => void) | undefined;
+
     if (queueType === "service") {
       unsubscribeServicing = onSnapshot(
         doc(db, "users", user.uid, "activeServices", queueName),
@@ -83,6 +84,18 @@ export function useChronometer({
           setServicing(
             snap.exists() ? (snap.data().currentServicing ?? []) : [],
           );
+        },
+      );
+    }
+
+    if (queueType === "arrival") {
+      unsubscribeArrival = onSnapshot(
+        doc(db, "users", user.uid, "activeArrivals", queueName),
+        (snap) => {
+          if (snap.exists()) {
+            const t = snap.data().startTime as number | undefined;
+            if (t) setStartTime((prev) => prev ?? t);
+          }
         },
       );
     }
@@ -100,13 +113,22 @@ export function useChronometer({
 
     return () => {
       unsubscribeServicing?.();
+      unsubscribeArrival?.();
       unsubscribeCount();
     };
   }, [user, serviceId, queueName, queueType]);
 
   const recordArrival = async () => {
     const now = Date.now();
-    if (!startTime) setStartTime(now);
+    if (!startTime) {
+      setStartTime(now);
+      if (user)
+        await setDoc(
+          doc(db, "users", user.uid, "activeArrivals", queueName),
+          { startTime: now },
+          { merge: true },
+        );
+    }
     const element = await getNextElementId();
     const startTimeStr = new Date(now).toISOString();
     const record: Omit<QueueRecord, "id"> = {

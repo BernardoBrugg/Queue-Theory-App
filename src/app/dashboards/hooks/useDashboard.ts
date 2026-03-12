@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../../components/AuthContext";
-import { getQueueRecords } from "../../../services/recordsService";
 import { getServiceDefinitions } from "../../../services/serviceDefinitionService";
 import { calculateMetrics } from "../utils/metricsCalculator";
-import { QueueMetrics, ServiceDefinition } from "../../../types";
+import { QueueMetrics, QueueRecord, ServiceDefinition } from "../../../types";
+import { db } from "../../../lib/firebase";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { toast } from "react-toastify";
 
 export function useDashboard() {
@@ -22,44 +23,48 @@ export function useDashboard() {
     getServiceDefinitions(user.uid).then(setServices);
   }, [user]);
 
-  const calculate = useCallback(async () => {
+  useEffect(() => {
     if (!user || !selectedService) {
-      toast.warn("Selecione um serviço para calcular as métricas.");
+      setMetrics(null);
       return;
     }
     setLoading(true);
-    try {
-      const allRecords = await getQueueRecords(user.uid, selectedService.id);
-
-      // Filter records for this service's arrival and atendente queues
-      const arrivalPrefix = "Chegada ";
-      const servicePrefix = "Atendente "; // Matches my new naming in useChronometerPage
-
-      // Pre-aggregate data for metrics calculator
-      const processedRecords = allRecords.map((r) => {
-        if (r.queue.startsWith(arrivalPrefix)) {
-          return { ...r, queue: "SERVICE_ARRIVAL_POOL" };
-        }
-        if (r.queue.startsWith(servicePrefix)) {
-          return { ...r, queue: "SERVICE_EFFORT_POOL" };
-        }
-        return r;
-      });
-
-      calculateMetrics(
-        processedRecords,
-        "SERVICE_ARRIVAL_POOL",
-        "SERVICE_EFFORT_POOL",
-        selectedService.numServers,
-        maxN,
-        (result) => setMetrics(result),
-      );
-    } catch (error) {
-      console.error(error);
-      toast.error("Erro ao calcular métricas.");
-    } finally {
-      setLoading(false);
-    }
+    const q = query(
+      collection(db, "users", user.uid, "records"),
+      where("serviceId", "==", selectedService.id),
+    );
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        const allRecords = snap.docs.map(
+          (d) => ({ id: d.id, ...d.data() }) as QueueRecord,
+        );
+        const processedRecords = allRecords.map((r) => {
+          if (r.queue.startsWith("Chegada "))
+            return { ...r, queue: "SERVICE_ARRIVAL_POOL" };
+          if (r.queue.startsWith("Atendente "))
+            return { ...r, queue: "SERVICE_EFFORT_POOL" };
+          return r;
+        });
+        calculateMetrics(
+          processedRecords,
+          "SERVICE_ARRIVAL_POOL",
+          "SERVICE_EFFORT_POOL",
+          selectedService.numServers,
+          maxN,
+          (result) => {
+            setMetrics(result);
+            setLoading(false);
+          },
+        );
+      },
+      (error) => {
+        console.error(error);
+        toast.error("Erro ao sincronizar métricas.");
+        setLoading(false);
+      },
+    );
+    return () => unsub();
   }, [user, selectedService, maxN]);
 
   return {
@@ -70,6 +75,5 @@ export function useDashboard() {
     setMaxN,
     metrics,
     loading,
-    calculate,
   };
 }

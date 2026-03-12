@@ -3,6 +3,7 @@ import { useQueues } from "../../../hooks/useQueues";
 import { useQueueTotals } from "../../../hooks/useQueueTotals";
 import { useActiveServices } from "../../../hooks/useActiveServices";
 import { useAuth } from "../../../components/AuthContext";
+import { AppSelect } from "../../../components/AppSelect";
 import { toast } from "react-toastify";
 
 interface QueueManagerProps {
@@ -10,16 +11,32 @@ interface QueueManagerProps {
   selectedQueue?: string;
 }
 
-export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps) {
+export function QueueManager({
+  onQueueSelect,
+  selectedQueue,
+}: QueueManagerProps) {
   const { user } = useAuth();
-  const { queues, loading: queuesLoading, error: queuesError, addQueue, deleteQueue, renameQueue } = useQueues(user?.uid || null);
+  const {
+    queues,
+    loading: queuesLoading,
+    error: queuesError,
+    addQueue,
+    deleteQueue,
+    renameQueue,
+  } = useQueues(user?.uid || null);
   const { totals, loading: totalsLoading } = useQueueTotals(user?.uid || null);
-  const { activeServices, loading: servicesLoading, deleteActiveService } = useActiveServices(user?.uid || null);
+  const {
+    activeServices,
+    loading: servicesLoading,
+    deleteActiveService,
+  } = useActiveServices(user?.uid || null);
 
   const [isAddingQueue, setIsAddingQueue] = useState(false);
   const [editingQueue, setEditingQueue] = useState<string | null>(null);
   const [newQueueName, setNewQueueName] = useState("");
-  const [newQueueType, setNewQueueType] = useState<"arrival" | "service">("arrival");
+  const [newQueueType, setNewQueueType] = useState<"arrival" | "service">(
+    "arrival",
+  );
   const [newQueueAttendants, setNewQueueAttendants] = useState<number>(1);
 
   const loading = queuesLoading || totalsLoading || servicesLoading;
@@ -31,7 +48,7 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
       return;
     }
 
-    if (queues.some(q => q.name === newQueueName.trim())) {
+    if (queues.some((q) => q.name === newQueueName.trim())) {
       toast.error("Já existe uma fila com este nome");
       return;
     }
@@ -40,7 +57,8 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
       await addQueue({
         name: newQueueName.trim(),
         type: newQueueType,
-        numAttendants: newQueueType === "service" ? newQueueAttendants : undefined,
+        numAttendants:
+          newQueueType === "service" ? newQueueAttendants : undefined,
       });
 
       setNewQueueName("");
@@ -55,7 +73,11 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
   };
 
   const handleDeleteQueue = async (queueName: string) => {
-    if (!confirm(`Tem certeza que deseja excluir a fila "${queueName}" e todos os seus dados?`)) {
+    if (
+      !confirm(
+        `Tem certeza que deseja excluir a fila "${queueName}" e todos os seus dados?`,
+      )
+    ) {
       return;
     }
 
@@ -84,7 +106,7 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
       return;
     }
 
-    if (queues.some(q => q.name === newName.trim())) {
+    if (queues.some((q) => q.name === newName.trim())) {
       toast.error("Já existe uma fila com este nome");
       return;
     }
@@ -99,12 +121,13 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
     }
   };
 
-
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8 bg-[var(--element-bg)] border-2 border-[var(--element-border)] rounded-[var(--border-radius-large)] shadow-lg">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--button-bg)]"></div>
-        <span className="ml-2 text-[var(--text-primary)] font-medium">Carregando filas...</span>
+        <span className="ml-2 text-[var(--text-primary)] font-medium">
+          Carregando filas...
+        </span>
       </div>
     );
   }
@@ -112,7 +135,9 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
   if (error) {
     return (
       <div className="p-4 bg-[var(--button-danger)] border-2 border-[var(--button-danger-hover)] rounded-[var(--border-radius-large)] shadow-lg">
-        <p className="text-white font-medium">Erro ao carregar filas: {error}</p>
+        <p className="text-white font-medium">
+          Erro ao carregar filas: {error}
+        </p>
       </div>
     );
   }
@@ -120,18 +145,19 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
   return (
     <div className="space-y-6 bg-[var(--element-bg)] border-2 border-[var(--element-border)] rounded-[var(--border-radius-large)] p-6 shadow-lg">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-[var(--text-primary)]">Gerenciar Filas</h2>
-        <button
-          onClick={() => setIsAddingQueue(true)}
-          className="btn-primary"
-        >
+        <h2 className="text-2xl font-bold text-[var(--text-primary)]">
+          Gerenciar Filas
+        </h2>
+        <button onClick={() => setIsAddingQueue(true)} className="btn-primary">
           + Adicionar Fila
         </button>
       </div>
 
       {isAddingQueue && (
         <div className="bg-[var(--element-bg)] p-6 rounded-[var(--border-radius-large)] shadow-lg border-2 border-[var(--element-border)]">
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">Adicionar Nova Fila</h3>
+          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">
+            Adicionar Nova Fila
+          </h3>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
@@ -149,14 +175,16 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
               <label className="block text-sm font-semibold text-[var(--text-primary)] mb-2">
                 Tipo
               </label>
-              <select
+              <AppSelect
                 value={newQueueType}
-                onChange={(e) => setNewQueueType(e.target.value as "arrival" | "service")}
-                className="input-standard"
-              >
-                <option value="arrival">Chegada</option>
-                <option value="service">Serviço</option>
-              </select>
+                onChange={(val) =>
+                  setNewQueueType(val as "arrival" | "service")
+                }
+                options={[
+                  { value: "arrival", label: "Chegada" },
+                  { value: "service", label: "Serviço" },
+                ]}
+              />
             </div>
             {newQueueType === "service" && (
               <div>
@@ -167,16 +195,15 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
                   type="number"
                   min="1"
                   value={newQueueAttendants}
-                  onChange={(e) => setNewQueueAttendants(parseInt(e.target.value) || 1)}
+                  onChange={(e) =>
+                    setNewQueueAttendants(parseInt(e.target.value) || 1)
+                  }
                   className="input-standard"
                 />
               </div>
             )}
             <div className="flex gap-2">
-              <button
-                onClick={handleAddQueue}
-                className="btn-success"
-              >
+              <button onClick={handleAddQueue} className="btn-success">
                 Adicionar
               </button>
               <button
@@ -204,9 +231,12 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
         <div className="divide-y-2 divide-[var(--element-border)]">
           {queues.length === 0 ? (
             <div className="p-8 text-center bg-[var(--element-bg)]">
-              <p className="text-[var(--text-primary)] font-medium">Nenhuma fila encontrada.</p>
+              <p className="text-[var(--text-primary)] font-medium">
+                Nenhuma fila encontrada.
+              </p>
               <p className="text-sm text-[var(--text-secondary)] mt-1">
-                Clique em &quot;Adicionar Fila&quot; para criar sua primeira fila.
+                Clique em &quot;Adicionar Fila&quot; para criar sua primeira
+                fila.
               </p>
             </div>
           ) : (
@@ -214,7 +244,9 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
               <div
                 key={queue.name}
                 className={`p-4 hover:bg-[var(--accent-light)] transition-colors cursor-pointer bg-[var(--element-bg)] ${
-                  selectedQueue === queue.name ? "bg-[var(--accent-light)] border-l-4 border-[var(--button-bg)]" : ""
+                  selectedQueue === queue.name
+                    ? "bg-[var(--accent-light)] border-l-4 border-[var(--button-bg)]"
+                    : ""
                 }`}
                 onClick={() => onQueueSelect && onQueueSelect(queue.name)}
               >
@@ -228,7 +260,10 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
                           className="input-standard"
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                              handleRenameQueue(queue.name, (e.target as HTMLInputElement).value);
+                              handleRenameQueue(
+                                queue.name,
+                                (e.target as HTMLInputElement).value,
+                              );
                             } else if (e.key === "Escape") {
                               setEditingQueue(null);
                             }
@@ -246,7 +281,9 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
                       </div>
                     ) : (
                       <div>
-                        <h4 className="font-semibold text-[var(--text-primary)]">{queue.name}</h4>
+                        <h4 className="font-semibold text-[var(--text-primary)]">
+                          {queue.name}
+                        </h4>
                         <div className="flex items-center gap-4 mt-1">
                           <span className="text-sm text-[var(--text-primary)] font-medium capitalize">
                             {queue.type === "arrival" ? "Chegada" : "Serviço"}
@@ -277,8 +314,18 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
                       className="p-2 text-[var(--button-bg)] hover:text-[var(--button-hover)] transition-colors rounded-lg bg-[var(--element-bg)] border border-[var(--element-border)]"
                       title="Renomear"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                        />
                       </svg>
                     </button>
                     <button
@@ -289,8 +336,18 @@ export function QueueManager({ onQueueSelect, selectedQueue }: QueueManagerProps
                       className="p-2 text-[var(--button-danger)] hover:text-[var(--button-danger-hover)] transition-colors rounded-lg bg-[var(--element-bg)] border border-[var(--element-border)]"
                       title="Excluir"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
                       </svg>
                     </button>
                   </div>

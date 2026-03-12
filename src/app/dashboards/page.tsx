@@ -5,10 +5,19 @@ import { AuthGuard } from "../../components/AuthGuard";
 import { MetricsPanel } from "./components/MetricsPanel";
 import { ChartsGrid } from "./components/ChartsGrid";
 import { useDashboard } from "./hooks/useDashboard";
+import { AppSelect } from "../../components/AppSelect";
 import { Lightbulb, BarChart2 } from "lucide-react";
 
 function DashboardContent() {
-  const { services, selectedService, setSelectedService, maxN, setMaxN, metrics, loading, calculate } = useDashboard();
+  const {
+    services,
+    selectedService,
+    setSelectedService,
+    maxN,
+    setMaxN,
+    metrics,
+    loading,
+  } = useDashboard();
 
   return (
     <div className="page-container">
@@ -16,34 +25,87 @@ function DashboardContent() {
       <main style={{ padding: "2.5rem 1.5rem" }}>
         <div className="content-wrapper">
           <div style={{ marginBottom: "2rem" }}>
-            <div className="badge badge-accent" style={{ marginBottom: "0.5rem" }}>Passo 4 de 4</div>
-            <h1 style={{ fontSize: "1.75rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "0.25rem" }}>Painel de Métricas</h1>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>Selecione um serviço e calcule as métricas M/M/c automaticamente.</p>
+            <div
+              className="badge badge-accent"
+              style={{ marginBottom: "0.5rem" }}
+            >
+              Passo 4 de 4
+            </div>
+            <h1
+              style={{
+                fontSize: "1.75rem",
+                fontWeight: 800,
+                color: "var(--text-primary)",
+                marginBottom: "0.25rem",
+              }}
+            >
+              Painel de Métricas
+            </h1>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.9rem" }}>
+              Selecione um serviço e calcule as métricas M/M/c automaticamente.
+            </p>
           </div>
 
-          <div className="glass-card" style={{ padding: "1.5rem", marginBottom: "2rem" }}>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "flex-end" }}>
+          <div
+            className="glass-card"
+            style={{ padding: "1.5rem", marginBottom: "2rem" }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "1rem",
+                alignItems: "flex-end",
+              }}
+            >
               <div style={{ flex: "1 1 240px" }}>
-                <label className="label" htmlFor="dash-service">Serviço</label>
-                <select id="dash-service" className="input"
+                <label className="label" htmlFor="dash-service">
+                  Serviço
+                </label>
+                <AppSelect
+                  id="dash-service"
                   value={selectedService?.id ?? ""}
-                  onChange={(e) => setSelectedService(services.find((s) => s.id === e.target.value) ?? null)}>
-                  <option value="">Selecione um serviço...</option>
-                  {services.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
+                  onChange={(val) =>
+                    setSelectedService(
+                      services.find((s) => s.id === val) ?? null,
+                    )
+                  }
+                  placeholder="Selecione um serviço..."
+                  options={services.map((s) => ({
+                    value: s.id,
+                    label: s.name,
+                  }))}
+                />
               </div>
               <div style={{ flex: "0 1 140px" }}>
-                <label className="label" htmlFor="dash-maxn">Máximo N (estados)</label>
-                <input id="dash-maxn" className="input" type="number" min={5} max={50} value={maxN}
-                  onChange={(e) => setMaxN(Math.max(5, Number(e.target.value)))} />
+                <label className="label" htmlFor="dash-maxn">
+                  Máximo N (estados)
+                </label>
+                <input
+                  id="dash-maxn"
+                  className="input"
+                  type="number"
+                  min={5}
+                  max={50}
+                  value={maxN}
+                  onChange={(e) => setMaxN(Math.max(5, Number(e.target.value)))}
+                />
               </div>
-              <button className="btn btn-primary" onClick={calculate} disabled={loading || !selectedService} style={{ alignSelf: "flex-end" }}>
-                {loading ? "Calculando..." : "Calcular →"}
-              </button>
             </div>
             {!selectedService && services.length === 0 && (
-              <p style={{ marginTop: "0.75rem", fontSize: "0.8rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "0.25rem" }}>
-                <Lightbulb className="w-4 h-4 text-[var(--accent)]" /> Primeiro crie um serviço na página <strong>Serviços</strong> e registre dados com os <strong>Cronômetros</strong>.
+              <p
+                style={{
+                  marginTop: "0.75rem",
+                  fontSize: "0.8rem",
+                  color: "var(--text-muted)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.25rem",
+                }}
+              >
+                <Lightbulb className="w-4 h-4 text-[var(--accent)]" /> Primeiro
+                crie um serviço na página <strong>Serviços</strong> e registre
+                dados com os <strong>Cronômetros</strong>.
               </p>
             )}
           </div>
@@ -56,13 +118,31 @@ function DashboardContent() {
           )}
 
           {!metrics && !loading && (
-            <div className="glass-card" style={{ padding: "3rem", textAlign: "center" }}>
-              <div style={{ display: "flex", justifyContent: "center", marginBottom: "0.75rem", color: "var(--text-muted)" }}>
+            <div
+              className="glass-card"
+              style={{ padding: "3rem", textAlign: "center" }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginBottom: "0.75rem",
+                  color: "var(--text-muted)",
+                }}
+              >
                 <BarChart2 className="w-12 h-12" />
               </div>
-              <p style={{ color: "var(--text-secondary)", fontWeight: 500 }}>Nenhuma métrica calculada ainda.</p>
-              <p style={{ color: "var(--text-muted)", fontSize: "0.875rem", marginTop: "0.375rem" }}>
-                Selecione um serviço acima e clique em &quot;Calcular&quot;.
+              <p style={{ color: "var(--text-secondary)", fontWeight: 500 }}>
+                Nenhuma métrica calculada ainda.
+              </p>
+              <p
+                style={{
+                  color: "var(--text-muted)",
+                  fontSize: "0.875rem",
+                  marginTop: "0.375rem",
+                }}
+              >
+                Selecione um serviço acima para visualizar as métricas.
               </p>
             </div>
           )}
@@ -73,5 +153,9 @@ function DashboardContent() {
 }
 
 export default function DashboardPage() {
-  return <AuthGuard><DashboardContent /></AuthGuard>;
+  return (
+    <AuthGuard>
+      <DashboardContent />
+    </AuthGuard>
+  );
 }
