@@ -1,8 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-@import './tokens.css';
-@import './animations.css';
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./animations.css";
+@source "../";
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -13,13 +16,15 @@ html {
 }
 
 body {
-  font-family: 'Inter', var(--font-sans);
+  font-family: "Inter", var(--font-sans);
   background-color: var(--bg);
   color: var(--text-primary);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color var(--transition-slow), color var(--transition-slow);
+  transition:
+    background-color var(--transition-slow),
+    color var(--transition-slow);
 }
 
 .page-container {
@@ -29,20 +34,35 @@ body {
 }
 
 .page-container::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 60% 45% at 10% 30%, var(--glow-primary) 0%, transparent 65%),
-    radial-gradient(ellipse 50% 40% at 90% 15%, var(--glow-cyan) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 55% at 50% 85%, var(--glow-secondary) 0%, transparent 50%),
+    radial-gradient(
+      ellipse 60% 45% at 10% 30%,
+      var(--glow-primary) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 90% 15%,
+      var(--glow-cyan) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 40% 55% at 50% 85%,
+      var(--glow-secondary) 0%,
+      transparent 50%
+    ),
     var(--bg);
   animation: drift-bg 14s ease-in-out infinite alternate;
 }
 
-.page-container > * { position: relative; z-index: 1; }
+.page-container > * {
+  position: relative;
+  z-index: 1;
+}
 
 .content-wrapper {
   max-width: 1280px;
@@ -238,10 +258,22 @@ body {
   border-radius: var(--radius-full);
 }
 
-.badge-accent { background: var(--accent-light); color: var(--accent); }
-.badge-success { background: var(--success-light); color: var(--success); }
-.badge-warning { background: var(--warning-light); color: var(--warning); }
-.badge-danger { background: var(--danger-light); color: var(--danger); }
+.badge-accent {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+.badge-success {
+  background: var(--success-light);
+  color: var(--success);
+}
+.badge-warning {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+.badge-danger {
+  background: var(--danger-light);
+  color: var(--danger);
+}
 
 .metric-value {
   font-size: 2rem;
@@ -282,25 +314,55 @@ body {
   flex-shrink: 0;
 }
 
-.step-dot.active { background: var(--accent); color: white; }
-.step-dot.done { background: var(--success); color: white; }
-.step-dot.pending { background: var(--surface-raised); color: var(--text-muted); border: 2px solid var(--border); }
+.step-dot.active {
+  background: var(--accent);
+  color: white;
+}
+.step-dot.done {
+  background: var(--success);
+  color: white;
+}
+.step-dot.pending {
+  background: var(--surface-raised);
+  color: var(--text-muted);
+  border: 2px solid var(--border);
+}
 
 .skeleton {
-  background: linear-gradient(90deg, var(--surface-raised) 25%, var(--border) 50%, var(--surface-raised) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--surface-raised) 25%,
+    var(--border) 50%,
+    var(--surface-raised) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-lg);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-blue) 50%, var(--accent-cyan) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--accent) 0%,
+    var(--accent-blue) 50%,
+    var(--accent-cyan) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}

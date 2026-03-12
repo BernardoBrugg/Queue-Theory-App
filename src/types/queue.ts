@@ -10,7 +10,8 @@ export interface QueueRecord {
   element: number;
   arriving: string;
   exiting: string;
-};
+  serviceStart?: string; // ISO timestamp of when the server actually began serving this customer
+}
 
 export type Queue = {
   name: string;

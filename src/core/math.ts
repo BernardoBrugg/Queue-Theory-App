@@ -1,5 +1,15 @@
-export function calculateMetrics(lambda: number, mu: number, numServers: number = 1) {
-  if (!isFinite(lambda) || lambda <= 0 || !isFinite(mu) || mu <= 0 || numServers < 1) {
+export function calculateMetrics(
+  lambda: number,
+  mu: number,
+  numServers: number = 1,
+) {
+  if (
+    !isFinite(lambda) ||
+    lambda <= 0 ||
+    !isFinite(mu) ||
+    mu <= 0 ||
+    numServers < 1
+  ) {
     return {
       lambda,
       mu,
@@ -18,24 +28,51 @@ export function calculateMetrics(lambda: number, mu: number, numServers: number 
   let Lq = 0;
 
   if (rho >= 1) {
-    return { lambda, mu, rho, L: Infinity, Lq: Infinity, W: Infinity, Wq: Infinity, P: [] };
+    return {
+      lambda,
+      mu,
+      rho,
+      L: Infinity,
+      Lq: Infinity,
+      W: Infinity,
+      Wq: Infinity,
+      P: [],
+    };
   }
+
+  const maxN = 50;
+  const r = lambda / mu;
 
   if (numServers === 1) {
     const p0 = 1 - rho;
-    P.push(p0);
     L = rho / (1 - rho);
     Lq = Math.pow(rho, 2) / (1 - rho);
+    for (let n = 0; n <= maxN; n++) {
+      P.push(p0 * Math.pow(rho, n));
+    }
   } else {
     let sum = 0;
     for (let n = 0; n < numServers; n++) {
-      sum += Math.pow(numServers * rho, n) / factorial(n);
+      sum += Math.pow(r, n) / factorial(n);
     }
-    const p0 = 1 / (sum + Math.pow(numServers * rho, numServers) / (factorial(numServers) * (1 - rho)));
-    P.push(p0);
-    
-    Lq = (p0 * Math.pow(lambda / mu, numServers) * rho) / (factorial(numServers) * Math.pow(1 - rho, 2));
-    L = Lq + (lambda / mu);
+    const p0 =
+      1 / (sum + Math.pow(r, numServers) / (factorial(numServers) * (1 - rho)));
+
+    Lq =
+      (p0 * Math.pow(r, numServers) * rho) /
+      (factorial(numServers) * Math.pow(1 - rho, 2));
+    L = Lq + r;
+
+    for (let n = 0; n <= maxN; n++) {
+      if (n < numServers) {
+        P.push((p0 * Math.pow(r, n)) / factorial(n));
+      } else {
+        P.push(
+          (p0 * Math.pow(r, n)) /
+            (factorial(numServers) * Math.pow(numServers, n - numServers)),
+        );
+      }
+    }
   }
 
   const W = L / lambda;
@@ -53,28 +90,38 @@ export function factorial(n: number): number {
   return result;
 }
 
-export function calculateInterArrivalTimes(arrivalRecords: { startTime: number; endTime: number; type: string }[]) {
+export function calculateInterArrivalTimes(
+  arrivalRecords: { startTime: number; endTime: number; type: string }[],
+) {
   if (arrivalRecords.length < 2) return { avgInterArrival: 0, lambda: 0 };
-  
-  const sortedArrivals = [...arrivalRecords].sort((a, b) => a.startTime - b.startTime);
+
+  const sortedArrivals = [...arrivalRecords].sort(
+    (a, b) => a.startTime - b.startTime,
+  );
   let totalInterArrival = 0;
-  
+
   for (let i = 1; i < sortedArrivals.length; i++) {
-    totalInterArrival += (sortedArrivals[i].startTime - sortedArrivals[i - 1].startTime);
+    totalInterArrival +=
+      sortedArrivals[i].startTime - sortedArrivals[i - 1].startTime;
   }
-  
+
   const avgInterArrival = totalInterArrival / (sortedArrivals.length - 1);
   const lambda = avgInterArrival > 0 ? 1 / avgInterArrival : 0;
-  
+
   return { avgInterArrival, lambda };
 }
 
-export function calculateServiceTimes(serviceRecords: { startTime: number; endTime: number; type: string }[]) {
+export function calculateServiceTimes(
+  serviceRecords: { startTime: number; endTime: number; type: string }[],
+) {
   if (serviceRecords.length === 0) return { avgServiceTime: 0, mu: 0 };
-  
-  const totalServiceTime = serviceRecords.reduce((acc, curr) => acc + (curr.endTime - curr.startTime), 0);
+
+  const totalServiceTime = serviceRecords.reduce(
+    (acc, curr) => acc + (curr.endTime - curr.startTime),
+    0,
+  );
   const avgServiceTime = totalServiceTime / serviceRecords.length;
   const mu = avgServiceTime > 0 ? 1 / avgServiceTime : 0;
-  
+
   return { avgServiceTime, mu };
 }

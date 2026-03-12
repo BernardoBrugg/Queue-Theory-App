@@ -1,96 +1,162 @@
 import MathRenderer from "../../../components/MathRenderer";
 
+function FormulaRow({ label, math }: { label: string; math: string }) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.25rem",
+        padding: "0.75rem 0",
+        borderBottom: "1px solid var(--border)",
+      }}
+      className="formula-row"
+    >
+      <span
+        style={{
+          color: "var(--text-secondary)",
+          fontSize: "0.875rem",
+          fontWeight: 500,
+          minWidth: 200,
+        }}
+      >
+        {label}
+      </span>
+      <span style={{ color: "var(--text-primary)" }}>
+        <MathRenderer math={math} />
+      </span>
+      <style>{`.formula-row:last-child { border-bottom: none; }`}</style>
+    </div>
+  );
+}
+
 export function AboutFormulas() {
   return (
-    <div className="mb-8">
-      <h2 className="section-title">
+    <section
+      style={{
+        marginBottom: "3rem",
+        paddingTop: "2rem",
+        borderTop: "1px solid var(--border)",
+      }}
+    >
+      <h2
+        style={{
+          fontSize: "1.375rem",
+          fontWeight: 700,
+          color: "var(--text-primary)",
+          marginBottom: "0.5rem",
+          letterSpacing: "-0.02em",
+        }}
+      >
         Parâmetros e Fórmulas Calculadas
       </h2>
-      <div className="space-y-6">
+      <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
-            Probabilidades de Estado
+          <h3
+            style={{
+              fontSize: "1rem",
+              fontWeight: 700,
+              color: "var(--text-primary)",
+              marginBottom: "0.375rem",
+            }}
+          >
+            Fórmulas Gerais — Processo de Birth-Death
           </h3>
-          <p className="text-[var(--text-secondary)] mb-4">
-            As probabilidades de estado M/M/c são calculadas identificando P0 e iterando.
+          <p
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "0.9rem",
+              marginBottom: "1rem",
+              lineHeight: 1.6,
+            }}
+          >
+            Válidas para qualquer modelo com taxas de chegada{" "}
+            <MathRenderer math="\lambda_n" /> e serviço{" "}
+            <MathRenderer math="\mu_n" /> dependentes do estado.
           </p>
           <div className="glass-card p-6">
-            <p className="text-[var(--text-primary)] mb-3">
-              <strong>Múltiplos Servidores (c) P0:</strong>{" "}
-              <MathRenderer math="P_0 = \left[ \sum_{n=0}^{c-1} \frac{(c\rho)^n}{n!} + \frac{(c\rho)^c}{c!(1-\rho)} \right]^{-1}" />
-            </p>
-            <p className="text-[var(--text-primary)]">
-              <strong>Utilização do Sistema (ρ):</strong>{" "}
-              <MathRenderer math="\rho = \frac{\lambda}{c \mu}" />
-            </p>
+            <FormulaRow
+              label="Coeficiente Cₙ"
+              math="C_n = \prod_{k=1}^{n} \frac{\lambda_{k-1}}{\mu_k}"
+            />
+            <FormulaRow label="Probabilidade Pₙ" math="P_n = C_n \cdot P_0" />
+            <FormulaRow
+              label="Normalização P₀"
+              math="P_0 = \frac{1}{1 + \displaystyle\sum_{n=1}^{\infty} C_n}"
+            />
+            <FormulaRow
+              label="Clientes no sistema (L)"
+              math="L = \sum_{n=0}^{\infty} n \cdot P_n"
+            />
+            <FormulaRow
+              label="Clientes na fila (Lq)"
+              math="L_q = \sum_{n=s}^{\infty} (n - s) \cdot P_n"
+            />
+            <FormulaRow
+              label="Taxa efetiva de chegada"
+              math="\bar{\lambda} = \sum_{n=0}^{\infty} \lambda_n \cdot P_n"
+            />
+            <FormulaRow
+              label="Tempo no sistema (W)"
+              math="W = \dfrac{L}{\bar{\lambda}}"
+            />
+            <FormulaRow
+              label="Tempo na fila (Wq)"
+              math="W_q = \dfrac{L_q}{\bar{\lambda}}"
+            />
           </div>
         </div>
+
         <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mt-6 mb-2">
-            Número Esperado de Clientes no Sistema (L)
+          <h3
+            style={{
+              fontSize: "1rem",
+              fontWeight: 700,
+              color: "var(--text-primary)",
+              marginBottom: "0.375rem",
+            }}
+          >
+            Fórmulas Fechadas — Modelo M/M/c (Erlang-C)
           </h3>
-          <p className="text-[var(--text-secondary)] mb-4">
-            A média de clientes presentes no sistema completo (fila e em atendimento).
+          <p
+            style={{
+              color: "var(--text-secondary)",
+              fontSize: "0.9rem",
+              marginBottom: "1rem",
+              lineHeight: 1.6,
+            }}
+          >
+            Forma analítica para chegadas Poisson, serviço exponencial e{" "}
+            <em>c</em> servidores idênticos.
           </p>
           <div className="glass-card p-6">
-            <p className="text-[var(--text-primary)]">
-              <MathRenderer math="L = L_q + \frac{\lambda}{\mu}" />
-            </p>
-          </div>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mt-6 mb-2">
-            Número Esperado de Clientes na Fila (Lq)
-          </h3>
-          <p className="text-[var(--text-secondary)] mb-4">
-            A média de clientes aguardando na fila antes do atendimento (M/M/c).
-          </p>
-          <div className="glass-card p-6">
-            <p className="text-[var(--text-primary)]">
-              <MathRenderer math="L_q = \frac{P_0 (c\rho)^c \rho}{c! (1-\rho)^2}" />
-            </p>
-          </div>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mt-6 mb-2">
-            Taxa Média de Clientes Entrando no Sistema (λ)
-          </h3>
-          <p className="text-[var(--text-secondary)] mb-4">
-            Calculada a partir dos tempos de chegada inter-eventos (inverso da média).
-          </p>
-          <div className="glass-card p-6">
-            <p className="text-[var(--text-primary)]">
-              <MathRenderer math="\lambda = \frac{1}{\text{Média do Tempo entre Chegadas}}" />
-            </p>
-          </div>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mt-6 mb-2">
-            Tempo Esperado no Sistema (W)
-          </h3>
-          <p className="text-[var(--text-secondary)] mb-4">
-            Pela Lei de Little, equivale à razão entre L e λ.
-          </p>
-          <div className="glass-card p-6">
-            <p className="text-[var(--text-primary)]">
-              <MathRenderer math="W = \frac{L}{\lambda}" />
-            </p>
-          </div>
-        </div>
-        <div>
-          <h3 className="text-lg font-semibold text-[var(--text-primary)] mt-6 mb-2">
-            Tempo Esperado na Fila (Wq)
-          </h3>
-          <p className="text-[var(--text-secondary)] mb-4">
-            Pela Lei de Little, equivale à razão entre L_q e λ.
-          </p>
-          <div className="glass-card p-6">
-            <p className="text-[var(--text-primary)]">
-              <MathRenderer math="W_q = \frac{L_q}{\lambda}" />
-            </p>
+            <FormulaRow
+              label="Utilização por servidor (ρ)"
+              math="\rho = \dfrac{\lambda}{c\,\mu}"
+            />
+            <FormulaRow
+              label="Probabilidade P₀"
+              math="P_0 = \left[ \sum_{n=0}^{c-1} \frac{(c\rho)^n}{n!} + \frac{(c\rho)^c}{c!\,(1-\rho)} \right]^{-1}"
+            />
+            <FormulaRow
+              label="Clientes na fila (Lq)"
+              math="L_q = \dfrac{P_0\,(c\rho)^c\,\rho}{c!\,(1-\rho)^2}"
+            />
+            <FormulaRow
+              label="Clientes no sistema (L)"
+              math="L = L_q + \dfrac{\lambda}{\mu}"
+            />
+            <FormulaRow
+              label="Tempo no sistema (W)"
+              math="W = \dfrac{L}{\lambda}"
+            />
+            <FormulaRow
+              label="Tempo na fila (Wq)"
+              math="W_q = \dfrac{L_q}{\lambda}"
+            />
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

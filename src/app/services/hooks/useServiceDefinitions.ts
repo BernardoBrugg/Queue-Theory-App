@@ -7,6 +7,9 @@ import {
   deleteServiceDefinition,
   getServiceDefinitions,
 } from "../../../services/serviceDefinitionService";
+import { deleteAllRecordsForService } from "../../../services/recordsService";
+import { db } from "../../../lib/firebase";
+import { doc, deleteDoc } from "firebase/firestore";
 import { ServiceDefinition } from "../../../types";
 
 export function useServiceDefinitions() {
@@ -25,7 +28,9 @@ export function useServiceDefinitions() {
     }
   }, [user]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const create = async (data: Omit<ServiceDefinition, "id" | "createdAt">) => {
     if (!user) return;
@@ -35,6 +40,11 @@ export function useServiceDefinitions() {
 
   const remove = async (id: string) => {
     if (!user) return;
+    // Cascade: delete all chronometer records and active session for this service
+    await Promise.all([
+      deleteAllRecordsForService(user.uid, id),
+      deleteDoc(doc(db, "users", user.uid, "activeServiceSessions", id)),
+    ]);
     await deleteServiceDefinition(user.uid, id);
     setServices((prev) => prev.filter((s) => s.id !== id));
   };

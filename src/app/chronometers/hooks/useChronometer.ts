@@ -4,8 +4,14 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import { db } from "../../../lib/firebase";
 import {
-  doc, onSnapshot, setDoc, arrayUnion, arrayRemove,
-  collection, query, where,
+  doc,
+  onSnapshot,
+  setDoc,
+  arrayUnion,
+  arrayRemove,
+  collection,
+  query,
+  where,
 } from "firebase/firestore";
 import { useAuth } from "../../../components/AuthContext";
 import { QueueRecord } from "../../../types";
@@ -15,6 +21,7 @@ interface ServicingEntry {
   element: number;
   arrivedTime: number;
   startTime: string;
+  serviceStartTime?: string; // ISO timestamp of when this server actually began serving
 }
 
 interface UseChronometerOptions {
@@ -23,12 +30,26 @@ interface UseChronometerOptions {
   queueType: "arrival" | "service";
   numServers: number;
   getNextElementId: () => Promise<number>;
-  pushToWaitlist: (element: number, arrivedTime: number, startTime: string) => Promise<void>;
-  popFromWaitlist: () => Promise<{ element: number, arrivedTime: number, startTime: string } | null>;
+  pushToWaitlist: (
+    element: number,
+    arrivedTime: number,
+    startTime: string,
+  ) => Promise<void>;
+  popFromWaitlist: () => Promise<{
+    element: number;
+    arrivedTime: number;
+    startTime: string;
+  } | null>;
 }
 
 export function useChronometer({
-  serviceId, queueName, queueType, numServers, getNextElementId, pushToWaitlist, popFromWaitlist,
+  serviceId,
+  queueName,
+  queueType,
+  numServers,
+  getNextElementId,
+  pushToWaitlist,
+  popFromWaitlist,
 }: UseChronometerOptions) {
   const { user } = useAuth();
   const [startTime, setStartTime] = useState<number | null>(null);
@@ -40,26 +61,39 @@ export function useChronometer({
     const interval = setInterval(() => {
       const now = Date.now();
       if (queueType === "arrival" && startTime) setDisplayMs(now - startTime);
-      else if (queueType === "service" && servicing.length > 0) setDisplayMs(now - servicing[0].arrivedTime);
-      else setDisplayMs(0);
+      else if (queueType === "service" && servicing.length > 0) {
+        const serviceStartMs = servicing[0].serviceStartTime
+          ? new Date(servicing[0].serviceStartTime).getTime()
+          : servicing[0].arrivedTime;
+        setDisplayMs(now - serviceStartMs);
+      } else setDisplayMs(0);
     }, 10);
     return () => clearInterval(interval);
   }, [startTime, servicing, queueType]);
 
   useEffect(() => {
     if (!user) return;
-    
+
     // Listen for current servicing (for service type)
     let unsubscribeServicing: (() => void) | undefined;
     if (queueType === "service") {
-      unsubscribeServicing = onSnapshot(doc(db, "users", user.uid, "activeServices", queueName), (snap) => {
-        setServicing(snap.exists() ? snap.data().currentServicing ?? [] : []);
-      });
+      unsubscribeServicing = onSnapshot(
+        doc(db, "users", user.uid, "activeServices", queueName),
+        (snap) => {
+          setServicing(
+            snap.exists() ? (snap.data().currentServicing ?? []) : [],
+          );
+        },
+      );
     }
 
     // Listen for total count of records for this queue within the current service
     const recordsRef = collection(db, "users", user.uid, "records");
-    const q = query(recordsRef, where("serviceId", "==", serviceId), where("queue", "==", queueName));
+    const q = query(
+      recordsRef,
+      where("serviceId", "==", serviceId),
+      where("queue", "==", queueName),
+    );
     const unsubscribeCount = onSnapshot(q, (snap) => {
       setTotalCount(snap.size);
     });
@@ -75,15 +109,15 @@ export function useChronometer({
     if (!startTime) setStartTime(now);
     const element = await getNextElementId();
     const startTimeStr = new Date(now).toISOString();
-    const record: Omit<QueueRecord, "id"> = { 
+    const record: Omit<QueueRecord, "id"> = {
       serviceId,
-      queue: queueName, 
-      type: "arrival", 
-      timestamp: startTimeStr, 
-      totalTime: 0, 
-      element, 
-      arriving: startTimeStr, 
-      exiting: "" 
+      queue: queueName,
+      type: "arrival",
+      timestamp: startTimeStr,
+      totalTime: 0,
+      element,
+      arriving: startTimeStr,
+      exiting: "",
     };
     if (user) await addQueueRecord(user.uid, record);
     // Also push to the shared waitlist so an atendente can pick it up
@@ -92,7 +126,7 @@ export function useChronometer({
 
   const arrivedAtService = async () => {
     if (!user || servicing.length >= numServers) return;
-    
+
     // Attempt to pull from waitlist
     const waitingEntry = await popFromWaitlist();
     if (!waitingEntry) {
@@ -101,43 +135,62 @@ export function useChronometer({
     }
 
     const { element, arrivedTime, startTime: originalStartTime } = waitingEntry;
-    
+    const serviceStartTime = new Date().toISOString(); // global timestamp when service actually begins
+
     const ref = doc(db, "users", user.uid, "activeServices", queueName);
-    await setDoc(ref, {
-      currentServicing: arrayUnion({ element, arrivedTime, startTime: originalStartTime }),
-    }, { merge: true });
+    await setDoc(
+      ref,
+      {
+        currentServicing: arrayUnion({
+          element,
+          arrivedTime,
+          startTime: originalStartTime,
+          serviceStartTime,
+        }),
+      },
+      { merge: true },
+    );
   };
 
   const completedService = async () => {
     if (!user || servicing.length === 0) return;
     const now = Date.now();
     const entry = servicing[0];
-    const totalTime = now - entry.arrivedTime;
-    const record: Omit<QueueRecord, "id"> = { 
+    // Service duration is from when service started, not from when customer arrived in the arrival queue
+    const serviceStartMs = entry.serviceStartTime
+      ? new Date(entry.serviceStartTime).getTime()
+      : entry.arrivedTime;
+    const totalTime = now - serviceStartMs;
+    const record: Omit<QueueRecord, "id"> = {
       serviceId,
-      queue: queueName, 
-      type: "service", 
-      timestamp: entry.startTime, 
-      totalTime, 
-      element: entry.element, 
-      arriving: entry.startTime, 
-      exiting: new Date(now).toISOString() 
+      queue: queueName,
+      type: "service",
+      timestamp: entry.serviceStartTime ?? entry.startTime,
+      totalTime,
+      element: entry.element,
+      arriving: entry.startTime, // when customer arrived at the arrival queue
+      serviceStart: entry.serviceStartTime ?? entry.startTime, // when server actually began serving
+      exiting: new Date(now).toISOString(),
     };
     if (user) await addQueueRecord(user.uid, record);
-    
+
     const ref = doc(db, "users", user.uid, "activeServices", queueName);
-    await setDoc(ref, { 
-      currentServicing: arrayRemove(entry) 
-    }, { merge: true });
+    await setDoc(
+      ref,
+      {
+        currentServicing: arrayRemove(entry),
+      },
+      { merge: true },
+    );
   };
 
-  return { 
-    displayMs, 
-    servicing, 
+  return {
+    displayMs,
+    servicing,
     totalCount,
-    recordArrival, 
-    arrivedAtService, 
-    completedService, 
-    isActive: queueType === "arrival" ? !!startTime : servicing.length > 0 
+    recordArrival,
+    arrivedAtService,
+    completedService,
+    isActive: queueType === "arrival" ? !!startTime : servicing.length > 0,
   };
 }

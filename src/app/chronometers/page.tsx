@@ -7,58 +7,322 @@ import { AuthGuard } from "../../components/AuthGuard";
 import { ChronometerCard } from "./components/ChronometerCard";
 import { useChronometerPage } from "./hooks/useChronometerPage";
 
+const ARRIVAL_KEYS = ["1", "2", "3", "4", "5"];
+const SERVICE_KEYS = ["Q", "W", "E", "R", "T"];
+
+function KeyboardShortcutsInfo({
+  arrivalQueues,
+  serviceQueues,
+}: {
+  arrivalQueues: { name: string }[];
+  serviceQueues: { name: string }[];
+}) {
+  if (arrivalQueues.length === 0 && serviceQueues.length === 0) return null;
+  return (
+    <div
+      style={{
+        marginBottom: "2rem",
+        padding: "1rem 1.25rem",
+        background: "var(--surface-raised)",
+        borderRadius: "var(--radius-lg)",
+        border: "1px solid var(--border)",
+        display: "flex",
+        flexWrap: "wrap",
+        gap: "1.5rem",
+        alignItems: "flex-start",
+      }}
+    >
+      <div style={{ flexShrink: 0 }}>
+        <div
+          style={{
+            fontSize: "0.7rem",
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            color: "var(--text-muted)",
+            marginBottom: "0.5rem",
+          }}
+        >
+          Atalhos de teclado
+        </div>
+        <p
+          style={{
+            fontSize: "0.8125rem",
+            color: "var(--text-secondary)",
+            maxWidth: 280,
+          }}
+        >
+          Pressione a tecla correspondente para registrar sem usar o mouse. As
+          teclas funcionam apenas fora de campos de texto.
+        </p>
+      </div>
+      <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
+        {arrivalQueues.length > 0 && (
+          <div>
+            <div
+              style={{
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                color: "var(--accent-cyan)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                marginBottom: "0.375rem",
+              }}
+            >
+              Entradas
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+              }}
+            >
+              {arrivalQueues.map((q, i) => (
+                <div
+                  key={q.name}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    fontSize: "0.8125rem",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  <kbd
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minWidth: 22,
+                      height: 22,
+                      padding: "0 5px",
+                      background: "var(--surface)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--radius-sm)",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    {ARRIVAL_KEYS[i]}
+                  </kbd>
+                  {q.name}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {serviceQueues.length > 0 && (
+          <div>
+            <div
+              style={{
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                color: "var(--accent)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                marginBottom: "0.375rem",
+              }}
+            >
+              Postos de Atendimento
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.25rem",
+              }}
+            >
+              {serviceQueues.map((q, i) => (
+                <div
+                  key={q.name}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    fontSize: "0.8125rem",
+                    color: "var(--text-secondary)",
+                  }}
+                >
+                  <kbd
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      minWidth: 22,
+                      height: 22,
+                      padding: "0 5px",
+                      background: "var(--surface)",
+                      border: "1px solid var(--border)",
+                      borderRadius: "var(--radius-sm)",
+                      fontSize: "0.75rem",
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    {SERVICE_KEYS[i]}
+                  </kbd>
+                  {q.name}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ChronometerPageInner() {
   const params = useSearchParams();
   const serviceId = params.get("service");
-  const { 
-    definition, queues, loading, session, 
-    getNextElementId, pushToWaitlist, popFromWaitlist 
+  const {
+    definition,
+    queues,
+    loading,
+    session,
+    getNextElementId,
+    pushToWaitlist,
+    popFromWaitlist,
   } = useChronometerPage(serviceId);
 
   if (loading || !definition) {
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-        {[1, 2, 3].map((i) => <div key={i} className="skeleton" style={{ height: 260, borderRadius: "var(--radius-lg)" }} />)}
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="skeleton"
+            style={{ height: 260, borderRadius: "var(--radius-lg)" }}
+          />
+        ))}
       </div>
     );
   }
 
-  const arrivalQueues = queues.filter(q => q.type === "arrival");
-  const serviceQueues = queues.filter(q => q.type === "service");
+  const arrivalQueues = queues.filter((q) => q.type === "arrival");
+  const serviceQueues = queues.filter((q) => q.type === "service");
   const waitlistSize = session?.waitingPool?.length ?? 0;
 
   return (
     <>
-      <div style={{ marginBottom: "2.5rem", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: "1rem" }}>
+      <div
+        style={{
+          marginBottom: "2.5rem",
+          display: "flex",
+          flexWrap: "wrap",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
+          gap: "1rem",
+        }}
+      >
         <div>
-          <div className="badge badge-accent" style={{ marginBottom: "0.5rem" }}>Passo 2 de 4</div>
-          <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "0.5rem" }}>
+          <div
+            className="badge badge-accent"
+            style={{ marginBottom: "0.5rem" }}
+          >
+            Passo 2 de 4
+          </div>
+          <h1
+            style={{
+              fontSize: "2rem",
+              fontWeight: 800,
+              color: "var(--text-primary)",
+              marginBottom: "0.5rem",
+            }}
+          >
             {definition.name}
           </h1>
           <p style={{ color: "var(--text-secondary)", fontSize: "1rem" }}>
-            {definition.numArrivalQueues} Entrada(s) · {definition.numServers} Posto(s) de Atendimento
+            {definition.numArrivalQueues} Entrada(s) · {definition.numServers}{" "}
+            Posto(s) de Atendimento
           </p>
         </div>
-        <div className="glass-card" style={{ padding: "0.75rem 1.25rem", border: "1px solid var(--accent-cyan)", textAlign: "right", minWidth: "160px" }}>
-          <div style={{ fontSize: "0.7rem", color: "var(--accent-cyan)", fontWeight: 700, textTransform: "uppercase" }}>Fila Única de Espera</div>
-          <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "var(--text-primary)" }}>{waitlistSize} <span style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>pessoas</span></div>
+        <div
+          className="glass-card"
+          style={{
+            padding: "0.75rem 1.25rem",
+            border: "1px solid var(--accent-cyan)",
+            textAlign: "right",
+            minWidth: "160px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "0.7rem",
+              color: "var(--accent-cyan)",
+              fontWeight: 700,
+              textTransform: "uppercase",
+            }}
+          >
+            Fila Única de Espera
+          </div>
+          <div
+            style={{
+              fontSize: "1.5rem",
+              fontWeight: 800,
+              color: "var(--text-primary)",
+            }}
+          >
+            {waitlistSize}{" "}
+            <span style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>
+              pessoas
+            </span>
+          </div>
         </div>
       </div>
 
+      <KeyboardShortcutsInfo
+        arrivalQueues={arrivalQueues}
+        serviceQueues={serviceQueues}
+      />
+
       <div style={{ display: "flex", flexDirection: "column", gap: "3rem" }}>
         <section>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
-            <div style={{ width: "4px", height: "1.5rem", borderRadius: "var(--radius-full)", background: "var(--accent-cyan)" }} />
-            <h2 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-primary)" }}>Entradas (Chegadas)</h2>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "1.25rem",
+            }}
+          >
+            <div
+              style={{
+                width: "4px",
+                height: "1.5rem",
+                borderRadius: "var(--radius-full)",
+                background: "var(--accent-cyan)",
+              }}
+            />
+            <h2
+              style={{
+                fontSize: "1.25rem",
+                fontWeight: 700,
+                color: "var(--text-primary)",
+              }}
+            >
+              Entradas (Chegadas)
+            </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1.5rem" }}>
-            {arrivalQueues.map((q) => (
-              <ChronometerCard 
-                key={q.name} 
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+              gap: "1.5rem",
+            }}
+          >
+            {arrivalQueues.map((q, index) => (
+              <ChronometerCard
+                key={q.name}
                 serviceId={serviceId!}
-                queueName={q.name} 
+                queueName={q.name}
                 queueType={q.type}
-                numServers={q.numServers} 
+                numServers={q.numServers}
+                keyboardShortcut={ARRIVAL_KEYS[index]}
                 getNextElementId={getNextElementId}
                 pushToWaitlist={pushToWaitlist}
                 popFromWaitlist={popFromWaitlist}
@@ -68,18 +332,47 @@ function ChronometerPageInner() {
         </section>
 
         <section>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
-            <div style={{ width: "4px", height: "1.5rem", borderRadius: "var(--radius-full)", background: "var(--accent)" }} />
-            <h2 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-primary)" }}>Postos de Atendimento</h2>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "1.25rem",
+            }}
+          >
+            <div
+              style={{
+                width: "4px",
+                height: "1.5rem",
+                borderRadius: "var(--radius-full)",
+                background: "var(--accent)",
+              }}
+            />
+            <h2
+              style={{
+                fontSize: "1.25rem",
+                fontWeight: 700,
+                color: "var(--text-primary)",
+              }}
+            >
+              Postos de Atendimento
+            </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1.25rem" }}>
-            {serviceQueues.map((q) => (
-              <ChronometerCard 
-                key={q.name} 
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: "1.25rem",
+            }}
+          >
+            {serviceQueues.map((q, index) => (
+              <ChronometerCard
+                key={q.name}
                 serviceId={serviceId!}
-                queueName={q.name} 
+                queueName={q.name}
                 queueType={q.type}
-                numServers={q.numServers} 
+                numServers={q.numServers}
+                keyboardShortcut={SERVICE_KEYS[index]}
                 getNextElementId={getNextElementId}
                 pushToWaitlist={pushToWaitlist}
                 popFromWaitlist={popFromWaitlist}
@@ -98,7 +391,11 @@ function ChronometerPageBody() {
       <NavBar />
       <main style={{ padding: "2.5rem 1.5rem" }}>
         <div className="content-wrapper">
-          <Suspense fallback={<div style={{ color: "var(--text-muted)" }}>Carregando...</div>}>
+          <Suspense
+            fallback={
+              <div style={{ color: "var(--text-muted)" }}>Carregando...</div>
+            }
+          >
             <ChronometerPageInner />
           </Suspense>
         </div>
@@ -108,5 +405,9 @@ function ChronometerPageBody() {
 }
 
 export default function ChronometerPage() {
-  return <AuthGuard><ChronometerPageBody /></AuthGuard>;
+  return (
+    <AuthGuard>
+      <ChronometerPageBody />
+    </AuthGuard>
+  );
 }
