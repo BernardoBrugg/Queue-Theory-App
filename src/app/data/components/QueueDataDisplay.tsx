@@ -25,7 +25,7 @@ export function QueueDataDisplay({ selectedQueue, onRecordSelect }: QueueDataDis
 
   const handleDeleteRecord = async (record: QueueRecord) => {
     try {
-      await deleteRecord(record.id);
+      if (record.id) await deleteRecord(record.id);
     } catch (err) {
       console.error("Failed to delete record:", err);
     }
@@ -50,7 +50,7 @@ export function QueueDataDisplay({ selectedQueue, onRecordSelect }: QueueDataDis
 
   return (
     <div className="space-y-6">
-      {/* Queue Summary */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-[var(--element-bg)] p-4 rounded-lg shadow">
           <h3 className="text-lg font-semibold text-[var(--text-primary)]">Total de Filas</h3>
@@ -66,7 +66,7 @@ export function QueueDataDisplay({ selectedQueue, onRecordSelect }: QueueDataDis
         </div>
       </div>
 
-      {/* Queue List */}
+      {}
       <div className="bg-[var(--element-bg)] rounded-lg shadow overflow-hidden">
         <div className="p-4 border-b border-[var(--element-border)]">
           <h3 className="text-lg font-semibold text-[var(--text-primary)]">Filas Disponíveis</h3>
@@ -84,7 +84,7 @@ export function QueueDataDisplay({ selectedQueue, onRecordSelect }: QueueDataDis
                       ? "border-[var(--accent)] bg-[var(--accent-light)]"
                       : "border-[var(--element-border)] hover:border-[var(--accent)]"
                   }`}
-                  onClick={() => onRecordSelect && onRecordSelect({} as QueueRecord)} // Placeholder for queue selection
+                  onClick={() => onRecordSelect && onRecordSelect({} as QueueRecord)} 
                 >
                   <h4 className="font-semibold text-[var(--text-primary)]">{queue.name}</h4>
                   <p className="text-sm text-[var(--text-secondary)] capitalize">{queue.type}</p>
@@ -103,7 +103,7 @@ export function QueueDataDisplay({ selectedQueue, onRecordSelect }: QueueDataDis
         </div>
       </div>
 
-      {/* Data Records */}
+      {}
       {selectedQueue && (
         <div className="bg-[var(--element-bg)] rounded-lg shadow overflow-hidden">
           <div className="p-4 border-b border-[var(--element-border)]">

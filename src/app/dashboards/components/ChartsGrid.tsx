@@ -30,8 +30,8 @@ export function ChartsGrid({ metrics }: ChartsGridProps) {
   })) ?? [];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem" }}>
-      {/* Chart 1: Time Comparison */}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
+      {}
       <div className="glass-card" style={{ padding: "1.25rem" }}>
         <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>Comparação de Tempos Médios (s)</h3>
         <ResponsiveContainer width="100%" height={250}>
@@ -51,7 +51,7 @@ export function ChartsGrid({ metrics }: ChartsGridProps) {
         </ResponsiveContainer>
       </div>
 
-      {/* Chart 2: Probability Distribution */}
+      {}
       {probData.length > 0 && (
         <div className="glass-card" style={{ padding: "1.25rem" }}>
           <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>Distribuição de Probabilidade (Pn)</h3>
@@ -67,7 +67,7 @@ export function ChartsGrid({ metrics }: ChartsGridProps) {
         </div>
       )}
 
-      {/* Chart 3: Timeline Dynamics */}
+      {}
       {timelineData.length > 0 && (
         <div className="glass-card" style={{ padding: "1.25rem", gridColumn: "1 / -1" }}>
           <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>Dinâmica de Tempos por Cliente</h3>

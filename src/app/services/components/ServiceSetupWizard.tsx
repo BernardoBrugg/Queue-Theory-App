@@ -55,7 +55,7 @@ export function ServiceSetupWizard({ onCreate }: ServiceSetupWizardProps) {
             value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1rem" }}>
           <div>
             <label className="label" htmlFor="svc-queues">Filas de chegada</label>
             <input id="svc-queues" className="input" type="number" min={1} max={10}

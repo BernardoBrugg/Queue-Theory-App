@@ -40,7 +40,7 @@ export function useServiceDefinitions() {
 
   const remove = async (id: string) => {
     if (!user) return;
-    // Cascade: delete all chronometer records and active session for this service
+    
     await Promise.all([
       deleteAllRecordsForService(user.uid, id),
       deleteDoc(doc(db, "users", user.uid, "activeServiceSessions", id)),

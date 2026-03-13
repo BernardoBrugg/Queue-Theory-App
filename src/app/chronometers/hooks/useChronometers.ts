@@ -14,19 +14,34 @@ interface RecordType {
   element: number;
   arriving: string;
   exiting: string;
+  serviceId: string;
 }
 
 export function useChronometers() {
   const { user } = useAuth();
-  const { queues, addQueue: addQueueHook, deleteQueue: deleteQueueHook } = useQueues(user?.uid || null);
-  const { totals: queueTotals, updateTotal, deleteTotal } = useQueueTotals(user?.uid || null);
+  const {
+    queues,
+    addQueue: addQueueHook,
+    deleteQueue: deleteQueueHook,
+  } = useQueues(user?.uid || null);
+  const {
+    totals: queueTotals,
+    updateTotal,
+    deleteTotal,
+  } = useQueueTotals(user?.uid || null);
   const { addRecord } = useQueueData(user?.uid || null);
-  const { setActiveService, deleteActiveService } = useActiveServices(user?.uid || null);
+  const { setActiveService, deleteActiveService } = useActiveServices(
+    user?.uid || null,
+  );
 
   const [newQueue, setNewQueue] = useState("");
-  const [newQueueType, setNewQueueType] = useState<"arrival" | "service">("arrival");
+  const [newQueueType, setNewQueueType] = useState<"arrival" | "service">(
+    "arrival",
+  );
   const [numAttendants, setNumAttendants] = useState(1);
-  const [currentAppTimeMs, setCurrentAppTimeMs] = useState<number>(() => Date.now());
+  const [currentAppTimeMs, setCurrentAppTimeMs] = useState<number>(() =>
+    Date.now(),
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -36,7 +51,10 @@ export function useChronometers() {
   }, []);
 
   const addQueue = async () => {
-    if (newQueue.trim() && !queues.some((queue) => queue.name === newQueue.trim())) {
+    if (
+      newQueue.trim() &&
+      !queues.some((queue) => queue.name === newQueue.trim())
+    ) {
       try {
         await addQueueHook({
           name: newQueue.trim(),
@@ -48,7 +66,10 @@ export function useChronometers() {
         toast.success("Fila adicionada com sucesso!");
         setNewQueue("");
       } catch (error) {
-        toast.error("Erro ao adicionar fila: " + (error instanceof Error ? error.message : String(error)));
+        toast.error(
+          "Erro ao adicionar fila: " +
+            (error instanceof Error ? error.message : String(error)),
+        );
       }
     } else {
       toast.warn("Nome da fila inválido ou já existe.");
@@ -63,7 +84,10 @@ export function useChronometers() {
       await deleteTotal(queueToRemove.name);
       toast.success("Fila removida com sucesso!");
     } catch (error) {
-      toast.error("Erro ao remover fila: " + (error instanceof Error ? error.message : String(error)));
+      toast.error(
+        "Erro ao remover fila: " +
+          (error instanceof Error ? error.message : String(error)),
+      );
     }
   };
 

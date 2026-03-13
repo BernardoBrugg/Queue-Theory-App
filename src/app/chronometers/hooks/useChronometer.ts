@@ -21,7 +21,7 @@ interface ServicingEntry {
   element: number;
   arrivedTime: number;
   startTime: string;
-  serviceStartTime?: string; // ISO timestamp of when this server actually began serving
+  serviceStartTime?: string; 
 }
 
 interface UseChronometerOptions {
@@ -100,7 +100,7 @@ export function useChronometer({
       );
     }
 
-    // Listen for total count of records for this queue within the current service
+    
     const recordsRef = collection(db, "users", user.uid, "records");
     const q = query(
       recordsRef,
@@ -142,14 +142,12 @@ export function useChronometer({
       exiting: "",
     };
     if (user) await addQueueRecord(user.uid, record);
-    // Also push to the shared waitlist so an atendente can pick it up
     await pushToWaitlist(element, now, startTimeStr);
   };
 
   const arrivedAtService = async () => {
     if (!user || servicing.length >= numServers) return;
 
-    // Attempt to pull from waitlist
     const waitingEntry = await popFromWaitlist();
     if (!waitingEntry) {
       toast.info("Ninguém na fila de espera.");
@@ -157,7 +155,7 @@ export function useChronometer({
     }
 
     const { element, arrivedTime, startTime: originalStartTime } = waitingEntry;
-    const serviceStartTime = new Date().toISOString(); // global timestamp when service actually begins
+    const serviceStartTime = new Date().toISOString();
 
     const ref = doc(db, "users", user.uid, "activeServices", queueName);
     await setDoc(
@@ -178,7 +176,7 @@ export function useChronometer({
     if (!user || servicing.length === 0) return;
     const now = Date.now();
     const entry = servicing[0];
-    // Service duration is from when service started, not from when customer arrived in the arrival queue
+    
     const serviceStartMs = entry.serviceStartTime
       ? new Date(entry.serviceStartTime).getTime()
       : entry.arrivedTime;
@@ -190,8 +188,8 @@ export function useChronometer({
       timestamp: entry.serviceStartTime ?? entry.startTime,
       totalTime,
       element: entry.element,
-      arriving: entry.startTime, // when customer arrived at the arrival queue
-      serviceStart: entry.serviceStartTime ?? entry.startTime, // when server actually began serving
+      arriving: entry.startTime, 
+      serviceStart: entry.serviceStartTime ?? entry.startTime, 
       exiting: new Date(now).toISOString(),
     };
     if (user) await addQueueRecord(user.uid, record);

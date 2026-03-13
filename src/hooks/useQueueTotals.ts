@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { onSnapshot, collection } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { QueueTotalsAPI } from "../services/firebase/queueTotals.rts";
+import { QueueTotalsAPI } from "../services/firebase/queueTotals";
 import { QueueTotals } from "../types";
 
 export function useQueueTotals(userId: string | null) {

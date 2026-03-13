@@ -85,7 +85,7 @@ export function MarkovChainSimulation() {
             />
           </div>
           <div>
-            <label className="block text-[var(--text-primary)] mb-2">
+            <label className="block text-[var(--text-primary)] mb-2 dark:test">
               <MathRenderer math="\mu" /> (transição de serviço)
             </label>
             <input

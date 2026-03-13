@@ -15,7 +15,7 @@ export function CaseStudyCard({ study, onLoad }: CaseStudyCardProps) {
         {study.name}
       </h3>
       <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: "1.25rem", lineHeight: 1.5 }}>{study.description}</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginBottom: "1.25rem", fontSize: "0.9rem", color: "var(--text-secondary)" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "0.5rem", marginBottom: "1.25rem", fontSize: "0.9rem", color: "var(--text-secondary)" }}>
         <div>
           <MathRenderer math="\lambda" />: {study.metrics.lambda}
         </div>

@@ -175,7 +175,7 @@ export function MonteCarloSimulation() {
             <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>
               Resultados Médios (Monte Carlo)
             </h3>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1rem" }}>
               <div>
                 Tamanho da Fila:{" "}
                 <span className="font-bold">

@@ -16,25 +16,19 @@ export function NavLinks() {
   const pathname = usePathname();
 
   return (
-    <nav style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+    <nav className="flex flex-col md:flex-row md:items-center gap-1 md:gap-1">
       {NAV_LINKS.map(({ href, label, step }) => {
         const isActive = pathname === href || pathname.startsWith(href + "/");
         return (
           <Link
             key={href}
             href={href}
+            className="inline-flex w-full md:w-auto items-center gap-1.5 px-3 py-1.5 rounded-md text-sm transition-all"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.375rem",
-              padding: "0.375rem 0.75rem",
-              borderRadius: "var(--radius-md)",
-              fontSize: "0.875rem",
               fontWeight: isActive ? 600 : 500,
               color: isActive ? "var(--accent)" : "var(--text-secondary)",
               background: isActive ? "var(--accent-light)" : "transparent",
               textDecoration: "none",
-              transition: "all var(--transition-fast)",
             }}
           >
             {step !== null && (
@@ -43,7 +37,9 @@ export function NavLinks() {
                   width: 18,
                   height: 18,
                   borderRadius: "50%",
-                  background: isActive ? "var(--accent)" : "var(--surface-raised)",
+                  background: isActive
+                    ? "var(--accent)"
+                    : "var(--surface-raised)",
                   color: isActive ? "white" : "var(--text-muted)",
                   fontSize: "0.65rem",
                   fontWeight: 700,

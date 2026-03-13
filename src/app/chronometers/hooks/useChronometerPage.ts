@@ -38,7 +38,7 @@ export function useChronometerPage(serviceId: string | null) {
           waitingPool: data.waitingPool ?? []
         });
       } else {
-        // Initialize session if missing
+        
         setDoc(snap.ref, { nextElementId: 0, waitingPool: [] }, { merge: true });
       }
     });
