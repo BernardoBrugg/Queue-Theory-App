@@ -24,7 +24,7 @@ function DataContent() {
       <NavBar />
       <main style={{ padding: "2.5rem 1.5rem" }}>
         <div className="content-wrapper">
-          {/* Header */}
+          {}
           <div style={{ marginBottom: "2rem" }}>
             <div
               className="badge badge-accent"
@@ -92,8 +92,7 @@ function DataContent() {
               </p>
             </div>
           ) : !selectedService ? (
-            /* ── Service selector grid ── */
-            <div
+                        <div
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",

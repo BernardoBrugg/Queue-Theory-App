@@ -28,7 +28,7 @@ export async function getQueueRecords(
   const recordsRef = collection(db, "users", uid, "records");
   let q;
   if (serviceId) {
-    // Avoid orderBy here to prevent Firebase composite index requirement
+    
     q = query(recordsRef, where("serviceId", "==", serviceId));
   } else {
     q = query(recordsRef, orderBy("timestamp", "desc"));
@@ -76,7 +76,7 @@ export async function deleteAllRecordsForService(
   const ref = collection(db, "users", userId, "records");
   const snap = await getDocs(query(ref, where("serviceId", "==", serviceId)));
   if (snap.empty) return;
-  // Firestore batches can hold max 500 ops; chunk if needed
+  
   const chunks: (typeof snap.docs)[] = [];
   for (let i = 0; i < snap.docs.length; i += 499) {
     chunks.push(snap.docs.slice(i, i + 499));

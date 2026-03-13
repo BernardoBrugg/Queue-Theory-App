@@ -9,7 +9,7 @@ export interface QueueData {
   exiting: string;
   element: number;
   totalTime: number;
-  serviceStart?: string; // ISO timestamp of when server actually started serving
+  serviceStart?: string; 
 }
 
 export function calculateMetrics(
@@ -74,7 +74,7 @@ export function calculateMetrics(
       return;
     }
 
-    // Compute inter-arrivals for lambda
+    
     const sortedTimestamps = filteredArrivalData
       .map((d) => new Date(d.timestamp).getTime())
       .sort((a, b) => a - b);
@@ -92,7 +92,7 @@ export function calculateMetrics(
 
     const lambda = (sortedTimestamps.length - 1) / totalTimeSpanStr;
 
-    // Keep interArrivals for formatting, but compute lambda globally
+    
     const interArrivals = [];
     for (let i = 1; i < sortedTimestamps.length; i++) {
       interArrivals.push(
@@ -107,7 +107,7 @@ export function calculateMetrics(
       return;
     }
 
-    // Compute service times for mu from global timestamps (serviceStart → exiting)
+    
     const serviceTimes = filteredServiceData.map((s) => {
       if (
         s.serviceStart &&
@@ -119,7 +119,7 @@ export function calculateMetrics(
           1000
         );
       }
-      // Fallback for old records without serviceStart field
+      
       return s.totalTime / 1000;
     });
     const validServiceTimes = serviceTimes.filter((t: number) => t > 0);
@@ -143,7 +143,7 @@ export function calculateMetrics(
       return;
     }
 
-    // Build element→record maps for safe pairing
+    
     const serviceByElement = new Map(
       filteredServiceData.map((s) => [s.element, s]),
     );
@@ -235,8 +235,8 @@ export function calculateMetrics(
       W = Wq + 1 / mu;
       L = lambda * W;
     } else {
-      // Steady-state formulas don't apply for ρ ≥ 1.
-      // Use empirical averages from the observed data instead.
+      
+      
       Wq = waitingTimes.reduce((a, b) => a + b, 0) / waitingTimes.length;
       W = Wq + 1 / mu;
       Lq = lambda * Wq;
@@ -251,7 +251,7 @@ export function calculateMetrics(
     }
 
     const idleTimes: number[] = [];
-    // Sort paired service records by service start time to properly compute idle gaps
+    
     const sortedPairedService = [...pairedData]
       .map((p) => p.service)
       .sort((a, b) => {

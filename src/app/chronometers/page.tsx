@@ -20,13 +20,13 @@ function KeyboardShortcutsInfo({
   if (arrivalQueues.length === 0 && serviceQueues.length === 0) return null;
   return (
     <div
+      className="hidden md:flex"
       style={{
         marginBottom: "2rem",
         padding: "1rem 1.25rem",
         background: "var(--surface-raised)",
         borderRadius: "var(--radius-lg)",
         border: "1px solid var(--border)",
-        display: "flex",
         flexWrap: "wrap",
         gap: "1.5rem",
         alignItems: "flex-start",

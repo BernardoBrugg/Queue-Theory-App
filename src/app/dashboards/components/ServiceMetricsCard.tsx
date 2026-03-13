@@ -1,5 +1,5 @@
 import React from "react";
-import MathRenderer from "./MathRenderer";
+import MathRenderer from "../../../components/MathRenderer";
 import { XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from "recharts";
 
 interface QueueMetrics {

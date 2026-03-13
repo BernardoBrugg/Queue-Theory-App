@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { onSnapshot, collection } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { ActiveServicesAPI } from "../services/firebase/activeServices.rts";
+import { ActiveServicesAPI } from "../services/firebase/activeServices";
 
 export function useActiveServices(userId: string | null) {
   const [activeServices, setActiveServices] = useState<{ [queueName: string]: Record<string, unknown> }>({});

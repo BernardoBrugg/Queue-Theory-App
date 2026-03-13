@@ -185,8 +185,8 @@ export function ChronometerCard({
             </div>
             {keyboardShortcut && (
               <div
+                className="hidden md:inline-flex"
                 style={{
-                  display: "inline-flex",
                   alignItems: "center",
                   justifyContent: "center",
                   minWidth: 22,

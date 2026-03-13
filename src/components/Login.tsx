@@ -40,9 +40,9 @@ export const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-[var(--bg-gradient-start)]">
       <div className="w-full max-w-md">
-        {/* Card principal */}
+        {}
         <div className="bg-[var(--element-bg)] border-2 border-[var(--element-border)] rounded-2xl shadow-lg p-8">
-          {/* Logo e título */}
+          {}
           <div className="flex flex-col items-center mb-8">
             <div className="relative w-16 h-16 mb-4">
               <Image
@@ -61,9 +61,9 @@ export const Login: React.FC = () => {
             </p>
           </div>
 
-          {/* Formulário */}
+          {}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Campo Email */}
+            {}
             <div>
               <label className="block text-[var(--text-primary)] font-medium mb-2 text-sm">
                 Email
@@ -93,7 +93,7 @@ export const Login: React.FC = () => {
               </div>
             </div>
 
-            {/* Campo Senha */}
+            {}
             <div>
               <label className="block text-[var(--text-primary)] font-medium mb-2 text-sm">
                 Senha
@@ -139,7 +139,7 @@ export const Login: React.FC = () => {
               </div>
             </div>
 
-            {/* Botão de submit */}
+            {}
             <button
               type="submit"
               disabled={loading}
@@ -159,7 +159,7 @@ export const Login: React.FC = () => {
             </button>
           </form>
 
-          {/* Divisor */}
+          {}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-[var(--element-border)]"></div>
@@ -169,7 +169,7 @@ export const Login: React.FC = () => {
             </div>
           </div>
 
-          {/* Toggle entre Login e Cadastro */}
+          {}
           <div className="text-center">
             <p className="text-[var(--text-secondary)] text-sm mb-2">
               {isSignUp ? 'Já tem uma conta?' : 'Não tem uma conta?'}

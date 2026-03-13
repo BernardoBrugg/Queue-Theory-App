@@ -11,7 +11,7 @@ import {
   Bar,
   ResponsiveContainer,
 } from "recharts";
-import { Service } from "../types";
+type Service = any;
 
 interface ChartDataPoint {
   time: number;
@@ -41,7 +41,7 @@ export function ServicePDF({
       const binStart = min + i * binSize;
       const binEnd = min + (i + 1) * binSize;
       const count = service.serviceTimes.filter(
-        (t) => t >= binStart && t < binEnd
+        (t: number) => t >= binStart && t < binEnd
       ).length;
       data.push({ bin: `${binStart.toFixed(2)}-${binEnd.toFixed(2)}`, count });
     }
@@ -170,7 +170,7 @@ export function ServicePDF({
           marginBottom: "20px",
         }}
       >
-        {service.metrics.P?.map((p, n) => (
+        {service.metrics.P?.map((p: number, n: number) => (
           <div key={n}>
             P({n}): {p !== null && isFinite(p) ? p.toFixed(4) : "N/A"}
           </div>
@@ -185,7 +185,7 @@ export function ServicePDF({
         >
           <BarChart
             data={
-              service.metrics.P?.map((p, n) => ({
+              service.metrics.P?.map((p: number, n: number) => ({
                 n,
                 p: p !== null ? p : 0,
               })) || []
@@ -268,7 +268,7 @@ export function ServicePDF({
         <ResponsiveContainer>
           <LineChart
             data={
-              service.serviceTimes?.map((s, i) => ({
+              service.serviceTimes?.map((s: number, i: number) => ({
                 time:
                   service.timestamps && service.timestamps[i]
                     ? (service.timestamps[i] - service.timestamps[0]) / 1000
@@ -318,7 +318,7 @@ export function ServicePDF({
       <h3>Timestamps</h3>
       <p>
         {service.timestamps
-          ?.map((t) => new Date(t).toLocaleString())
+          ?.map((t: number) => new Date(t).toLocaleString())
           .join(", ") || "N/A"}
       </p>
     </div>
