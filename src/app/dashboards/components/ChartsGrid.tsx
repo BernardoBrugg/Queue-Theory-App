@@ -30,12 +30,12 @@ export function ChartsGrid({ metrics }: ChartsGridProps) {
   })) ?? [];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.25rem" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))", gap: "1.5rem", marginTop: "1.5rem" }}>
       {}
-      <div className="glass-card" style={{ padding: "1.25rem" }}>
-        <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>Comparação de Tempos Médios (s)</h3>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={timeCompData}>
+      <div className="glass-card" style={{ padding: "1.5rem" }}>
+        <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1.25rem" }}>Comparação de Tempos Médios (s)</h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={timeCompData} margin={{ top: 10, right: 20, left: 10, bottom: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
             <XAxis dataKey="name" tick={axisStyle} axisLine={false} tickLine={false} />
             <YAxis tick={axisStyle} axisLine={false} tickLine={false} />
@@ -53,10 +53,10 @@ export function ChartsGrid({ metrics }: ChartsGridProps) {
 
       {}
       {probData.length > 0 && (
-        <div className="glass-card" style={{ padding: "1.25rem" }}>
-          <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>Distribuição de Probabilidade (Pn)</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={probData}>
+        <div className="glass-card" style={{ padding: "1.5rem" }}>
+          <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1.25rem" }}>Distribuição de Probabilidade (Pn)</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={probData} margin={{ top: 10, right: 20, left: 10, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
               <XAxis dataKey="state" tick={axisStyle} axisLine={false} tickLine={false} label={{ value: "Nº Clientes (n)", position: "insideBottom", offset: -5, fill: "var(--text-muted)", fontSize: 10 }} />
               <YAxis tick={axisStyle} axisLine={false} tickLine={false} unit="%" />
@@ -69,10 +69,10 @@ export function ChartsGrid({ metrics }: ChartsGridProps) {
 
       {}
       {timelineData.length > 0 && (
-        <div className="glass-card" style={{ padding: "1.25rem", gridColumn: "1 / -1" }}>
-          <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>Dinâmica de Tempos por Cliente</h3>
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={timelineData}>
+        <div className="glass-card" style={{ padding: "1.5rem", gridColumn: "1 / -1" }}>
+          <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1.25rem" }}>Dinâmica de Tempos por Cliente</h3>
+          <ResponsiveContainer width="100%" height={320}>
+            <LineChart data={timelineData} margin={{ top: 10, right: 20, left: 10, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
               <XAxis dataKey="n" tick={axisStyle} axisLine={false} tickLine={false} label={{ value: "Ordem de Chegada", position: "insideBottom", offset: -5, fill: "var(--text-muted)", fontSize: 10 }} />
               <YAxis tick={axisStyle} axisLine={false} tickLine={false} unit="s" />
