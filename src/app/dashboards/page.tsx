@@ -6,7 +6,7 @@ import { MetricsPanel } from "./components/MetricsPanel";
 import { ChartsGrid } from "./components/ChartsGrid";
 import { useDashboard } from "./hooks/useDashboard";
 import { AppSelect } from "../../components/AppSelect";
-import { Lightbulb, BarChart2 } from "lucide-react";
+import { Download, Lightbulb, BarChart2 } from "lucide-react";
 
 function DashboardContent() {
   const {
@@ -17,6 +17,7 @@ function DashboardContent() {
     setMaxN,
     metrics,
     loading,
+    exportToPDF,
   } = useDashboard();
 
   return (
@@ -112,6 +113,15 @@ function DashboardContent() {
 
           {metrics && (
             <div className="animate-slide-up">
+              <div className="flex justify-end mb-4">
+                <button
+                  onClick={exportToPDF}
+                  className="btn-primary flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  Exportar para PDF
+                </button>
+              </div>
               <MetricsPanel metrics={metrics} />
               <ChartsGrid metrics={metrics} />
             </div>
