@@ -1,4 +1,4 @@
-# Queueing Theory App 🚀
+# Queueing Theory App
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.0-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.2-blue)](https://reactjs.org/)
@@ -8,19 +8,20 @@
 
 Uma aplicação web fullstack moderna para análise, simulação e visualização de sistemas de Teoria de Filas em tempo real. Permite aos usuários criar, gerenciar e analisar filas de chegada e atendimento com métricas precisas baseadas em modelos M/M/1 e M/M/c.
 
-## 📋 Índice
+## Índice
 
-- [Visão Geral](#-visão-geral)
-- [Funcionalidades](#-funcionalidades)
-- [Tecnologias](#-tecnologias)
-- [Instalação](#-instalação-e-configuração)
-- [Uso](#-uso)
-- [Estrutura do Projeto](#-estrutura-do-projeto)
-- [Teoria de Filas](#-teoria-de-filas)
-- [Contribuição](#-contribuição)
-- [Licença](#-licença)
+- [Visão Geral](#visão-geral)
+- [Funcionalidades](#funcionalidades)
+- [Tecnologias](#tecnologias)
+- [Instalação](#instalação-e-configuração)
+- [Uso](#uso)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Teoria de Filas](#teoria-de-filas)
+- [Contribuição](#contribuição)
+- [Licença](#licença)
+- [Autores e Contribuidores](#autores-e-contribuidores)
 
-## 🎯 Visão Geral
+## Visão Geral
 
 O **Queueing Theory App** é uma ferramenta educacional e profissional desenvolvida para:
 
@@ -31,16 +32,16 @@ O **Queueing Theory App** é uma ferramenta educacional e profissional desenvolv
 
 ### Principais Diferenciais
 
-✅ **Tempo Real**: Sincronização automática entre múltiplos usuários via Firebase  
-✅ **Múltiplos Servidores**: Suporte para filas M/M/c com c atendentes  
-✅ **Visualizações Avançadas**: Gráficos interativos de probabilidades e métricas  
-✅ **Simulações**: Eventos discretos e análises personalizadas  
-✅ **Exportação**: Dados em CSV e dashboards em PDF  
-✅ **Interface Moderna**: Design responsivo com tema claro/escuro
+- **Tempo Real**: Sincronização automática entre múltiplos usuários via Firebase
+- **Múltiplos Servidores**: Suporte para filas M/M/c com c atendentes
+- **Visualizações Avançadas**: Gráficos interativos de probabilidades e métricas
+- **Simulações**: Eventos discretos e análises personalizadas
+- **Exportação**: Dados em CSV e dashboards em PDF
+- **Interface Moderna**: Design responsivo com tema claro/escuro
 
-## ✨ Funcionalidades
+## Funcionalidades
 
-### 1. 📊 Cronômetros em Tempo Real
+### 1. Cronômetros em Tempo Real
 
 Registre eventos de chegada e atendimento com precisão de centésimos de segundo.
 
@@ -62,7 +63,7 @@ Registre eventos de chegada e atendimento com precisão de centésimos de segund
 - Modo personalizado: Ajuste velocidade de simulação
 - Sincronização entre todos os cronômetros ativos
 
-### 2. 📈 Dados e Gerenciamento
+### 2. Dados e Gerenciamento
 
 Importação, visualização e manipulação completa de dados de filas.
 
@@ -89,7 +90,7 @@ Importação, visualização e manipulação completa de dados de filas.
 - Renomeação de filas
 - Backup automático no Firebase
 
-### 3. 📊 Dashboards e Análises
+### 3. Dashboards e Análises
 
 Cálculo de métricas analíticas baseadas em Teoria de Filas.
 
@@ -119,7 +120,7 @@ Cálculo de métricas analíticas baseadas em Teoria de Filas.
 - Exportação de relatórios em PDF
 - Limite de 1 serviço ativo (pode ser expandido)
 
-### 4. 🎮 Simulações
+### 4. Simulações
 
 Ferramentas avançadas de simulação para análise preditiva.
 
@@ -149,7 +150,7 @@ Ferramentas avançadas de simulação para análise preditiva.
 - Análise de estado estacionário
 - Diagrama de transições (futuro)
 
-### 5. 🔐 Autenticação e Multi-usuário
+### 5. Autenticação e Multi-usuário
 
 Sistema de autenticação integrado ao Firebase.
 
@@ -160,7 +161,7 @@ Sistema de autenticação integrado ao Firebase.
 - Compartilhamento em tempo real entre sessões
 - Persistência de dados entre logins
 
-### 6. 🎨 Interface e UX
+### 6. Interface e UX
 
 Design moderno e responsivo com atenção aos detalhes.
 
@@ -173,7 +174,7 @@ Design moderno e responsivo com atenção aos detalhes.
 - Ícones intuitivos (Lucide React)
 - Cores semânticas (sucesso, erro, aviso)
 
-## 🛠 Tecnologias
+## Tecnologias
 
 ### Frontend
 - **[Next.js 16.0](https://nextjs.org/)**: Framework React com SSR e App Router
@@ -206,7 +207,7 @@ Design moderno e responsivo com atenção aos detalhes.
 - **[PostCSS](https://postcss.org/)**: Processador de CSS
 - **[next-themes](https://github.com/pacocoursey/next-themes)**: Gerenciamento de temas
 
-## 📦 Instalação e Configuração
+## Instalação e Configuração
 
 ### Pré-requisitos
 
@@ -288,7 +289,7 @@ yarn build
 yarn start
 ```
 
-## 🚀 Uso
+## Uso
 
 ### 1. Criando sua Primeira Fila
 
@@ -352,7 +353,7 @@ yarn start
 3. Calcule métricas analíticas
 4. Compare com dados empíricos
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```
 queueing-theory-app/
@@ -364,12 +365,14 @@ queueing-theory-app/
 │   │   ├── layout.tsx          # Layout raiz
 │   │   ├── page.tsx            # Página inicial
 │   │   ├── globals.css         # Estilos globais
-│   │   ├── about/              # Sobre o projeto
-│   │   ├── chronometers/       # Cronômetros
+│   │   ├── about/              # Sobre o projeto e teoria de filas
+│   │   ├── chronometers/       # Cronômetros de chegada e serviço
 │   │   ├── dashboards/         # Análise de métricas
 │   │   ├── data/               # Visualização de dados
 │   │   ├── login/              # Autenticação
-│   │   └── simulations/        # Simulações
+│   │   ├── services/           # Serviços salvos
+│   │   ├── simulations/        # Simulações
+│   │   └── tutorial/           # Tutorial de uso
 │   ├── components/             # Componentes React
 │   │   ├── AuthContext.tsx     # Contexto de autenticação
 │   │   ├── Chronometer.tsx     # Cronômetro individual
@@ -405,7 +408,7 @@ queueing-theory-app/
 └── package.json                # Dependências
 ```
 
-## 📐 Teoria de Filas
+## Teoria de Filas
 
 ### Notação de Kendall (A/S/c/K/N/D)
 
@@ -438,7 +441,7 @@ Wq = Lq/λ
 W = Wq + 1/μ
 ```
 
-## 🤝 Contribuição
+## Contribuição
 
 Contribuições são bem-vindas! Para contribuir:
 
@@ -455,28 +458,21 @@ Contribuições são bem-vindas! Para contribuir:
 - Atualize a documentação conforme necessário
 - Use commits semânticos (feat, fix, docs, etc.)
 
-## 📄 Licença
+## Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## 👥 Autores
+## Autores e Contribuidores
 
-- **Equipe de Desenvolvimento** - Projeto acadêmico P02
+Este é um **Projeto de Graduação** concebido na disciplina de **Probabilidade** da **Universidade Federal de Santa Catarina (UFSC)**, pelo estudante de **Engenharia de Produção** **Bernardo Brüggemann**, com o objetivo de ajudar outros estudantes a compreender e aplicar os conceitos de Teoria de Filas de forma prática e interativa.
 
-## 🙏 Agradecimentos
+**Autor principal:**
 
-- Professores e orientadores do curso
-- Comunidade open source
-- Documentação de Teoria de Filas
-- Contribuidores do projeto
+- **Bernardo Brüggemann** — Estudante de Engenharia de Produção, UFSC
 
-## 📞 Suporte
-
-Para dúvidas ou sugestões:
-- Abra uma [Issue](https://github.com/seu-usuario/queueing-theory-app/issues)
-- Entre em contato via email: [seu-email@exemplo.com]
+Contribuições são bem-vindas! Se você também é estudante ou pesquisador e deseja colaborar, siga as instruções da seção [Contribuição](#contribuição).
 
 ---
 
-**Desenvolvido com ❤️ para educação e análise de sistemas de filas**
+Desenvolvido para educação e análise de sistemas de filas.
 
