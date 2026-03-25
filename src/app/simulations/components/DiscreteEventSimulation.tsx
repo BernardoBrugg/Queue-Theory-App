@@ -7,6 +7,7 @@ import {
   Tooltip,
   LineChart,
   Line,
+  ResponsiveContainer,
 } from "recharts";
 
 import { QueueMetrics } from "../../../types";
@@ -228,26 +229,26 @@ export function DiscreteEventSimulation({
             <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
               Gráfico da Simulação
             </h4>
-            <LineChart
-              width={800}
-              height={300}
-              data={simulationResults.chartData}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="queueLength"
-                stroke="var(--chart-1)"
-              />
-              <Line
-                type="monotone"
-                dataKey="serverUtilization"
-                stroke="var(--chart-2)"
-              />
-            </LineChart>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart
+                data={simulationResults.chartData}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="time" />
+                <YAxis />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="queueLength"
+                  stroke="var(--chart-1)"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="serverUtilization"
+                  stroke="var(--chart-2)"
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
           <button
             onClick={() => {

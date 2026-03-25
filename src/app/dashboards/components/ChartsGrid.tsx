@@ -30,7 +30,7 @@ export function ChartsGrid({ metrics }: ChartsGridProps) {
   })) ?? [];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))", gap: "1.5rem", marginTop: "1.5rem" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(420px, 100%), 1fr))", gap: "1.5rem", marginTop: "1.5rem" }}>
       {}
       <div className="glass-card" style={{ padding: "1.5rem" }}>
         <h3 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1.25rem" }}>Comparação de Tempos Médios (s)</h3>

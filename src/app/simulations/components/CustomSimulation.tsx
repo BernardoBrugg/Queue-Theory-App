@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MathRenderer from "../../../components/MathRenderer";
-import { XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar } from "recharts";
+import { XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, ResponsiveContainer } from "recharts";
 
 import { QueueMetrics } from "../../../types";
 
@@ -185,17 +185,17 @@ export function CustomSimulation({ onAddService }: CustomSimulationProps) {
             <h4 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
               Gráfico de Probabilidades P(n)
             </h4>
-            <BarChart
-              width={800}
-              height={300}
-              data={customMetrics.P.map((p, n) => ({ n, p }))}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="n" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="p" fill="var(--chart-1)" />
-            </BarChart>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={customMetrics.P.map((p, n) => ({ n, p }))}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="n" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="p" fill="var(--chart-1)" />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
           <button
             onClick={() => {
