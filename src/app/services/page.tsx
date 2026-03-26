@@ -25,7 +25,7 @@ function ServicesContent() {
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "2rem", alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))", gap: "2rem", alignItems: "start" }}>
             <ServiceSetupWizard onCreate={create} />
             <div>
               <h2 className="section-title">Serviços criados</h2>

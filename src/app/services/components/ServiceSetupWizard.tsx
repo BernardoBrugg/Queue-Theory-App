@@ -36,7 +36,7 @@ export function ServiceSetupWizard({ onCreate }: ServiceSetupWizardProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="glass-card" style={{ padding: "2rem", maxWidth: 480 }}>
+    <form onSubmit={handleSubmit} className="glass-card" style={{ padding: "2rem", maxWidth: 480, width: "100%" }}>
       <h2 className="section-title" style={{ marginBottom: "0.5rem" }}>Criar novo serviço</h2>
       <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
         Defina o nome, o número de filas de chegada e quantos atendentes estarão disponíveis.
@@ -55,7 +55,7 @@ export function ServiceSetupWizard({ onCreate }: ServiceSetupWizardProps) {
             value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))", gap: "1rem" }}>
           <div>
             <label className="label" htmlFor="svc-queues">Filas de chegada</label>
             <input id="svc-queues" className="input" type="number" min={1} max={10}

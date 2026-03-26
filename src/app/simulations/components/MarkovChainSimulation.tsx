@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import MathRenderer from "../../../components/MathRenderer";
 import { toast } from "react-toastify";
-import { XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line } from "recharts";
+import { XAxis, YAxis, CartesianGrid, Tooltip, LineChart, Line, ResponsiveContainer } from "recharts";
 
 export function MarkovChainSimulation() {
   const [markovLambda, setMarkovLambda] = useState(0.5);
@@ -131,27 +131,27 @@ export function MarkovChainSimulation() {
         </div>
 
         {markovResults && (
-          <div style={{ marginTop: "1.5rem", borderTop: "1px solid var(--border)", paddingTop: "1.5rem", overflowX: "auto" }}>
+          <div style={{ marginTop: "1.5rem", borderTop: "1px solid var(--border)", paddingTop: "1.5rem" }}>
             <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1rem" }}>
               Evolução do Estado
             </h3>
-            <LineChart
-              width={800}
-              height={300}
-              data={markovResults}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="step" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="stepAfter"
-                dataKey="state"
-                stroke="var(--accent)"
-                strokeWidth={2}
-                dot={false}
-              />
-            </LineChart>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart
+                data={markovResults}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="step" />
+                <YAxis />
+                <Tooltip />
+                <Line
+                  type="stepAfter"
+                  dataKey="state"
+                  stroke="var(--accent)"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         )}
       </div>

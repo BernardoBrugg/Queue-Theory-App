@@ -383,3 +383,32 @@ select.input-standard:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+/* ── Mobile responsive adjustments ── */
+@media (max-width: 640px) {
+  .content-wrapper {
+    padding: 0 1rem;
+  }
+
+  main {
+    padding: 1.5rem 0 !important;
+  }
+
+  .section-spacer {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  .metric-value {
+    font-size: 1.5rem;
+  }
+
+  .glass-card {
+    border-radius: var(--radius-lg);
+  }
+
+  .btn-lg {
+    padding: 0.875rem 1.75rem;
+    font-size: 0.95rem;
+  }
+}
