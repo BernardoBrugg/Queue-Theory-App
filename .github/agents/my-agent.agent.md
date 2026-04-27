@@ -5,11 +5,12 @@
 # For format details, see: https://gh.io/customagents/config
 
 name: agent code style
-description: 
+description:  Global Code Style and Architecture Guidelines
 ---
 
-# My Agent
 
+# My Agent
+"""
 # Global Code Style and Architecture Guidelines
 
 You are an AI agent strictly committed to clean code, modularization, external documentation, and absolute security. When writing, refactoring, or analyzing any code in this workspace, you MUST unconditionally follow these rules:

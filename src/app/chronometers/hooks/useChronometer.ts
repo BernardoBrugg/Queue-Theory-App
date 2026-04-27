@@ -79,7 +79,7 @@ export function useChronometer({
 
     if (queueType === "service") {
       unsubscribeServicing = onSnapshot(
-        doc(db, "users", user.uid, "activeServices", queueName),
+        doc(db, "users", user.uid, "activeServices", `${serviceId}_${queueName}`),
         (snap) => {
           setServicing(
             snap.exists() ? (snap.data().currentServicing ?? []) : [],
@@ -90,7 +90,7 @@ export function useChronometer({
 
     if (queueType === "arrival") {
       unsubscribeArrival = onSnapshot(
-        doc(db, "users", user.uid, "activeArrivals", queueName),
+        doc(db, "users", user.uid, "activeArrivals", `${serviceId}_${queueName}`),
         (snap) => {
           if (snap.exists()) {
             const t = snap.data().startTime as number | undefined;
@@ -124,7 +124,7 @@ export function useChronometer({
       setStartTime(now);
       if (user)
         await setDoc(
-          doc(db, "users", user.uid, "activeArrivals", queueName),
+          doc(db, "users", user.uid, "activeArrivals", `${serviceId}_${queueName}`),
           { startTime: now },
           { merge: true },
         );
@@ -157,7 +157,7 @@ export function useChronometer({
     const { element, arrivedTime, startTime: originalStartTime } = waitingEntry;
     const serviceStartTime = new Date().toISOString();
 
-    const ref = doc(db, "users", user.uid, "activeServices", queueName);
+    const ref = doc(db, "users", user.uid, "activeServices", `${serviceId}_${queueName}`);
     await setDoc(
       ref,
       {
@@ -194,7 +194,7 @@ export function useChronometer({
     };
     if (user) await addQueueRecord(user.uid, record);
 
-    const ref = doc(db, "users", user.uid, "activeServices", queueName);
+    const ref = doc(db, "users", user.uid, "activeServices", `${serviceId}_${queueName}`);
     await setDoc(
       ref,
       {

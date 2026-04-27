@@ -12,8 +12,10 @@ import { toast } from "react-toastify";
 export function useRecords() {
   const { user } = useAuth();
   const [records, setRecords] = useState<QueueRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [fetchedForUser, setFetchedForUser] = useState<string | null>(null);
   const [services, setServices] = useState<ServiceDefinition[]>([]);
+
+  const loading = !!user && fetchedForUser !== user.uid;
 
   useEffect(() => {
     if (!user) return;
@@ -23,13 +25,10 @@ export function useRecords() {
   }, [user]);
 
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
+    if (!user) return;
+    const subscribedUid = user.uid;
     const q = query(
-      collection(db, "users", user.uid, "records"),
+      collection(db, "users", subscribedUid, "records"),
       orderBy("timestamp", "desc"),
     );
     const unsub = onSnapshot(
@@ -38,11 +37,11 @@ export function useRecords() {
         setRecords(
           snap.docs.map((d) => ({ id: d.id, ...d.data() }) as QueueRecord),
         );
-        setLoading(false);
+        setFetchedForUser(subscribedUid);
       },
       () => {
         toast.error("Erro ao sincronizar registros.");
-        setLoading(false);
+        setFetchedForUser(subscribedUid);
       },
     );
     return () => unsub();
