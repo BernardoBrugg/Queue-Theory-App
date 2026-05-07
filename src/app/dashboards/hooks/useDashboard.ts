@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../../components/AuthContext";
 import { getServiceDefinitions } from "../../../services/serviceDefinitionService";
 import { calculateMetrics } from "../utils/metricsCalculator";
@@ -8,6 +8,7 @@ import { QueueMetrics, QueueRecord, ServiceDefinition } from "../../../types";
 import { db } from "../../../lib/firebase";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { toast } from "react-toastify";
+import { exportMetricsToPDF } from "../utils/pdfExport";
 
 export function useDashboard() {
   const { user } = useAuth();
@@ -67,6 +68,25 @@ export function useDashboard() {
     return () => unsub();
   }, [user, selectedService, maxN]);
 
+  const exportToPDF = useCallback(async () => {
+    if (!metrics || !selectedService) {
+      toast.warn("Selecione um serviço com métricas calculadas para exportar.");
+      return;
+    }
+    try {
+      toast.info("Gerando PDF...");
+      await exportMetricsToPDF(
+        selectedService.name,
+        metrics,
+        selectedService.numServers,
+      );
+      toast.success("PDF exportado com sucesso!");
+    } catch (err) {
+      console.error("Error exporting PDF:", err);
+      toast.error("Erro ao exportar PDF. Tente novamente.");
+    }
+  }, [metrics, selectedService]);
+
   return {
     services,
     selectedService,
@@ -75,5 +95,6 @@ export function useDashboard() {
     setMaxN,
     metrics,
     loading,
+    exportToPDF,
   };
 }
